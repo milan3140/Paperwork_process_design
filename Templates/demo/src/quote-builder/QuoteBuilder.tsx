@@ -678,11 +678,28 @@ export default function QuoteBuilder() {
                 </div>
 
                 {/* Parties: From + Bill To + Ship To */}
-                <PartiesRow
-                  from={fromParty}
-                  billTo={billToParty}
-                  shipTo={data.customer.shippingSameAsBilling ? undefined : shipToParty}
-                />
+                {data.customer.shippingSameAsBilling ? (
+                  /* Same address → FROM (left) + BILL TO / SHIP TO (right) on one row */
+                  <div className="grid grid-cols-2 gap-[var(--sp-6)]">
+                    <div className="flex flex-col gap-[var(--doc-sp-1-5)]">
+                      <SectionLabel>From</SectionLabel>
+                      <div className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">{fromParty.name}</div>
+                      <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]">
+                        {fromParty.lines.map((l, i) => <span key={i}>{l}{i < fromParty.lines.length - 1 && <br />}</span>)}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-[var(--doc-sp-1-5)]">
+                      <SectionLabel>Bill To / Ship To</SectionLabel>
+                      <div className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">{billToParty.name}</div>
+                      <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]">
+                        {billToParty.lines.map((l, i) => <span key={i}>{l}{i < billToParty.lines.length - 1 && <br />}</span>)}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Different addresses → FROM top, BILL TO + SHIP TO bottom row */
+                  <PartiesRow from={fromParty} billTo={billToParty} shipTo={shipToParty} />
+                )}
 
                 {/* Pricing section */}
                 <div className="flex flex-col gap-[var(--sp-5)]">
