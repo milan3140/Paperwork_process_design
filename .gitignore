@@ -1,34 +1,35 @@
-# Dependencies
-node_modules/
+# ══════════════════════════════════════════════════════════════
+# WHITELIST MODE — ignore everything, then allow specific paths
+# This prevents accidentally pushing local-only files to GitHub.
+# ══════════════════════════════════════════════════════════════
 
-# Build output
+# Step 1: Ignore everything
+/*
+
+# Step 2: Allow tracked directories (un-ignore with !)
+!Templates/
+!Design_Sys/
+
+# Step 3: Allow repo config files
+!.gitignore
+!.claude/
+!README.md
+!CONTRIBUTING.md
+
+# Step 4: Within allowed directories, still exclude build artifacts
+node_modules/
 dist/
 .vite/
-
-# Python
 __pycache__/
 *.pyc
+*.log
 
-# IDE / Editor
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Claude Code (local/personal settings only — .claude/settings.json is shared)
+# Step 5: Exclude personal/local files even in allowed dirs
 .claude/settings.local.json
 
-# Local backups
-Backups/
-
-# Environment
-.env
-.env.local
-
-# Logs
-*.log
-npm-debug.log*
+# ══════════════════════════════════════════════════════════════
+# SAFE TO RUN: git add .
+# Only Templates/, Design_Sys/, and repo config files will be staged.
+# Everything else (Analysis_Report, PaperWork_Design_Src, Work_Reports,
+# Backups, Src, etc.) is automatically ignored.
+# ══════════════════════════════════════════════════════════════
