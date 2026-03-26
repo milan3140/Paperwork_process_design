@@ -117,7 +117,7 @@ export function PaginatedDocument({
         >
           <DocumentHeader docType="Quotation" />
 
-          <div className="doc-content" style={{ gap: 0 }}>
+          <div className="doc-content" style={{ gap: 0, flex: '1 1 0', overflow: 'hidden' }}>
             {indices.flatMap((sectionIdx, si) => {
               const section = sections[sectionIdx];
               if (!section) return [];
