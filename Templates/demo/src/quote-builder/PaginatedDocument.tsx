@@ -1,15 +1,15 @@
 /**
  * PaginatedDocument — Measures sections and splits into pages
  *
- * Two-pass render:
- *   1. Hidden container: render all sections, measure heights
- *   2. Visible: render pages, each with Header + Footer
- *
- * Sections are never split — each section stays on one page.
- * FlexSpacer between sections on each page distributes leftover space.
+ * Architecture:
+ *   - Hidden container renders ALL sections for height measurement
+ *   - useLayoutEffect measures heights and computes page assignments (index groups)
+ *   - Visible render always uses CURRENT sections prop with stored index groups
+ *   - Sections are never split — each stays on one page
+ *   - FlexSpacer between sections distributes leftover space (min gap, max 1.5×)
  */
 
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { DocumentHeader } from '../../../components/DocumentHeader';
 import { DocumentFooter } from '../../../components/DocumentFooter';
 
@@ -22,9 +22,7 @@ interface PaginatedDocumentProps {
   sections: PageSection[];
   docId: string;
   validDays: number;
-  /** Gap between sections on each page */
   gap?: number;
-  /** Max gap growth factor (e.g., 1.5 = 150% of base gap) */
   maxGapFactor?: number;
 }
 
@@ -39,68 +37,50 @@ const AVAILABLE_H = PAGE_HEIGHT_PX - HEADER_H - FOOTER_H - PAD_TOP - PAD_BOTTOM;
 export function PaginatedDocument({
   sections,
   docId,
-  validDays,
   gap = 24,
   maxGapFactor = 1.5,
 }: PaginatedDocumentProps) {
   const measureRef = useRef<HTMLDivElement>(null);
-  const [pages, setPages] = useState<PageSection[][]>([]);
-  const [measured, setMeasured] = useState(false);
+  // Store page assignments as index groups: [[0,1,2], [3,4], [5]]
+  const [pageGroups, setPageGroups] = useState<number[][]>([[...sections.map((_, i) => i)]]);
 
-  // Pass 1 → measure, then assign to pages
-  // Use section keys as dependency (stable string) to avoid infinite re-renders
-  const sectionKeys = sections.map(s => s.key).join(',');
+  // Measure and compute page groups synchronously before paint
+  useLayoutEffect(() => {
+    if (!measureRef.current) return;
+    const children = measureRef.current.children;
 
-  useEffect(() => {
-    // Delay measurement to next frame so DOM is fully laid out
-    const raf = requestAnimationFrame(() => {
-      if (!measureRef.current) return;
-      const container = measureRef.current;
-      const children = container.children;
+    const heights: number[] = [];
+    for (let i = 0; i < children.length; i++) {
+      heights.push((children[i] as HTMLElement).offsetHeight);
+    }
 
-      // Measure each section's height
-      const heights: number[] = [];
-      for (let i = 0; i < children.length; i++) {
-        heights.push((children[i] as HTMLElement).offsetHeight);
+    const groups: number[][] = [];
+    let current: number[] = [];
+    let currentH = 0;
+
+    for (let i = 0; i < sections.length; i++) {
+      const h = heights[i] || 0;
+      const g = current.length > 0 ? gap : 0;
+
+      if (currentH + g + h > AVAILABLE_H && current.length > 0) {
+        groups.push(current);
+        current = [i];
+        currentH = h;
+      } else {
+        current.push(i);
+        currentH += g + h;
       }
+    }
+    if (current.length > 0) groups.push(current);
 
-      // Greedy bin-packing: assign sections to pages
-      const result: PageSection[][] = [];
-      let currentPage: PageSection[] = [];
-      let currentHeight = 0;
-
-      for (let i = 0; i < sections.length; i++) {
-        const sectionH = heights[i] || 0;
-        const gapH = currentPage.length > 0 ? gap : 0;
-
-        if (currentHeight + gapH + sectionH > AVAILABLE_H && currentPage.length > 0) {
-          // Start new page
-          result.push(currentPage);
-          currentPage = [sections[i]];
-          currentHeight = sectionH;
-        } else {
-          currentPage.push(sections[i]);
-          currentHeight += gapH + sectionH;
-        }
-      }
-      if (currentPage.length > 0) {
-        result.push(currentPage);
-      }
-
-      setPages(result);
-      setMeasured(true);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [sectionKeys, gap]); // eslint-disable-line react-hooks/exhaustive-deps
+    setPageGroups(groups);
+  }); // No deps — runs every render, measures latest content
 
   const maxGap = gap * maxGapFactor;
-  const FlexSpacer = () => (
-    <div style={{ flex: `1 0 ${gap}px`, maxHeight: `${maxGap}px` }} />
-  );
 
   return (
     <>
-      {/* Hidden measuring container — same width as doc-page, invisible */}
+      {/* Hidden measuring container */}
       <div
         ref={measureRef}
         aria-hidden
@@ -118,23 +98,29 @@ export function PaginatedDocument({
         ))}
       </div>
 
-      {/* Paginated output */}
-      {measured && pages.map((pageSections, pageIdx) => (
+      {/* Paginated output — always uses latest sections via index groups */}
+      {pageGroups.map((indices, pageIdx) => (
         <div
           key={pageIdx}
           className="doc-page"
           style={{
             fontFamily: "'Inter', system-ui, sans-serif",
-            marginBottom: pageIdx < pages.length - 1 ? '32px' : 0,
+            marginBottom: pageIdx < pageGroups.length - 1 ? '32px' : 0,
           }}
         >
           <DocumentHeader docType="Quotation" />
 
           <div className="doc-content" style={{ gap: 0 }}>
-            {pageSections.flatMap((section, si) => {
-              const items = [];
-              if (si > 0) items.push(<FlexSpacer key={`gap-${si}`} />);
-              items.push(<div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>);
+            {indices.flatMap((sectionIdx, si) => {
+              const section = sections[sectionIdx];
+              if (!section) return [];
+              const items: ReactNode[] = [];
+              if (si > 0) items.push(
+                <div key={`gap-${si}`} style={{ flex: `1 0 ${gap}px`, maxHeight: `${maxGap}px` }} />
+              );
+              items.push(
+                <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>
+              );
               return items;
             })}
           </div>
@@ -142,7 +128,7 @@ export function PaginatedDocument({
           <DocumentFooter
             docId={docId}
             page={pageIdx + 1}
-            totalPages={pages.length}
+            totalPages={pageGroups.length}
             closing="We look forward to working with you."
           />
         </div>
