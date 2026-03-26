@@ -381,24 +381,31 @@ function buildPdfSections(
     ),
   });
 
-  // 3. Pricing — single section with all parts grouped together
+  // 3. Pricing — header + each part as separate sections (same group for tight spacing)
   sections.push({
-    key: 'pricing',
+    key: 'pricing-header',
+    group: 'pricing',
     content: (
-      <div className="flex flex-col">
-        <SectionLabel className="!border-b !border-[var(--color-primary)]">
-          <span className="text-[color:var(--color-primary)]">Pricing</span>
-        </SectionLabel>
-        <div className="flex flex-col gap-[var(--sp-3)] mt-[var(--sp-3)]">
-          {data.parts.map((part, i) => (
-            <div key={part.id} className="bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]">
-              <QuoteComparisonTable part={part} />
-            </div>
-          ))}
-        </div>
-        <div className="border-b border-[color:var(--color-primary)] mt-[var(--sp-3)]" />
-      </div>
+      <SectionLabel className="!border-b !border-[var(--color-primary)]">
+        <span className="text-[color:var(--color-primary)]">Pricing</span>
+      </SectionLabel>
     ),
+  });
+  data.parts.forEach((part) => {
+    sections.push({
+      key: `pricing-part-${part.id}`,
+      group: 'pricing',
+      content: (
+        <div className="bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]">
+          <QuoteComparisonTable part={part} />
+        </div>
+      ),
+    });
+  });
+  sections.push({
+    key: 'pricing-footer',
+    group: 'pricing',
+    content: <div className="border-b border-[color:var(--color-primary)]" />,
   });
 
   // 4. Info grid (Mfg Notes + Lead Time + Shipping + Payment)

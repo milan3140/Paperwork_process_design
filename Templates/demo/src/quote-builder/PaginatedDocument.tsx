@@ -16,6 +16,8 @@ import { DocumentFooter } from '../../../components/DocumentFooter';
 export interface PageSection {
   key: string;
   content: ReactNode;
+  /** Sections with the same group get tight spacing; FlexSpacer only between different groups */
+  group?: string;
 }
 
 interface PaginatedDocumentProps {
@@ -121,9 +123,17 @@ export function PaginatedDocument({
               const section = sections[sectionIdx];
               if (!section) return [];
               const items: ReactNode[] = [];
-              if (si > 0) items.push(
-                <div key={`gap-${si}`} style={{ flex: `1 1 ${gap}px`, minHeight: '12px', maxHeight: `${maxGap}px` }} />
-              );
+              if (si > 0) {
+                const prevSection = sections[indices[si - 1]];
+                const sameGroup = section.group && prevSection?.group && section.group === prevSection.group;
+                if (sameGroup) {
+                  // Tight fixed gap within same group (e.g., between pricing parts)
+                  items.push(<div key={`gap-${si}`} style={{ height: '12px', flexShrink: 0 }} />);
+                } else {
+                  // FlexSpacer between different groups
+                  items.push(<div key={`gap-${si}`} style={{ flex: `1 1 ${gap}px`, minHeight: '12px', maxHeight: `${maxGap}px` }} />);
+                }
+              }
               items.push(
                 <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>
               );
