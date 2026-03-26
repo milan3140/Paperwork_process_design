@@ -358,21 +358,19 @@ export function QuoteComparisonTable({ part }: QuoteComparisonTableProps) {
   const analysis = analyzeDimensions(part);
   const layout = selectLayout(analysis);
 
-  // Only show per-cell lead time if lead times actually vary across scenarios
-  const uniqueLeadTimes = new Set(part.scenarios.map(s => s.leadTimeDays));
-  const leadTimesVary = uniqueLeadTimes.size > 1;
-
+  // Always show lead time in cells — each layout's cellShowLeadTime
+  // will suppress it only when leadTime IS the comparison dimension
   switch (layout) {
     case 'single':
       return <SingleLayout part={part} analysis={analysis} />;
     case 'horizontal':
-      return <HorizontalLayout part={part} analysis={analysis} showLeadTime={leadTimesVary} />;
+      return <HorizontalLayout part={part} analysis={analysis} showLeadTime={true} />;
     case 'matrix':
-      return <MatrixLayout part={part} analysis={analysis} showLeadTime={leadTimesVary} />;
+      return <MatrixLayout part={part} analysis={analysis} showLeadTime={true} />;
     case 'grouped_matrix':
-      return <GroupedMatrixLayout part={part} analysis={analysis} showLeadTime={leadTimesVary} />;
+      return <GroupedMatrixLayout part={part} analysis={analysis} showLeadTime={true} />;
     case 'flat_list':
-      return <FlatListLayout part={part} analysis={analysis} showLeadTime={leadTimesVary} />;
+      return <FlatListLayout part={part} analysis={analysis} showLeadTime={true} />;
   }
 }
 
