@@ -6,13 +6,30 @@
  * vary across scenarios and renders the appropriate comparison layout.
  */
 
+/* ── Address ── */
+
+export interface Address {
+  street: string;
+  street2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+export function createEmptyAddress(): Address {
+  return { street: '', city: '', state: '', postalCode: '', country: '' };
+}
+
 /* ── Customer ── */
 
 export interface Customer {
   companyName: string;
   contactName: string;
   email?: string;
-  address?: string;
+  billingAddress: Address;
+  shippingAddress: Address;
+  shippingSameAsBilling: boolean;
 }
 
 /* ── Scenario ── */
@@ -113,7 +130,12 @@ export function createDefaultQuote(): QuoteBuilderData {
     quoteId: `Q${new Date().toISOString().slice(2, 10).replace(/-/g, '')}01A`,
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     validDays: 30,
-    customer: { companyName: '', contactName: '' },
+    customer: {
+      companyName: '', contactName: '',
+      billingAddress: createEmptyAddress(),
+      shippingAddress: createEmptyAddress(),
+      shippingSameAsBilling: true,
+    },
     coverLetterStrategy: 'standard',
     parts: [createEmptyPart()],
     leadTimeDays: 20,

@@ -25,7 +25,7 @@ function mkQuote(parts: QuotePart[], overrides?: Partial<QuoteBuilderData>): Quo
     quoteId: 'Q2603251A',
     date: 'March 25, 2026',
     validDays: 30,
-    customer: { companyName: 'Acme Corp', contactName: 'John Smith' },
+    customer: { companyName: 'Acme Corp', contactName: 'John Smith', billingAddress: { street: '', city: '', state: '', postalCode: '', country: '' }, shippingAddress: { street: '', city: '', state: '', postalCode: '', country: '' }, shippingSameAsBilling: true },
     coverLetterStrategy: 'standard',
     parts,
     leadTimeDays: 20,

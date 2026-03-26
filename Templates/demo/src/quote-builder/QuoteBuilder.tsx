@@ -7,13 +7,17 @@
  * Design: Uses Design_Sys_style.css + documents.css tokens exclusively.
  */
 
-import { useState, useCallback } from 'react';
-import type { QuoteBuilderData, QuotePart, Scenario, CoverLetterStrategy } from './types';
-import { createDefaultQuote, createEmptyPart, createEmptyScenario, genId } from './types';
+import { useState, useCallback, useRef } from 'react';
+import type { QuoteBuilderData, QuotePart, Scenario, CoverLetterStrategy, Address } from './types';
+import { createDefaultQuote, createEmptyPart, createEmptyScenario, createEmptyAddress, genId } from './types';
 import { analyzeDimensions } from './dimensionEngine';
 import { renderEmail } from './emailRenderer';
 import { QuoteComparisonTable } from './QuoteComparisonTable';
 import { validateQuote, type ValidationResult, type ValidationError } from './validation';
+import { DocumentHeader } from '../../../components/DocumentHeader';
+import { DocumentMeta } from '../../../components/DocumentMeta';
+import { PartiesRow, type PartyInfo } from '../../../components/PartiesRow';
+import { SectionLabel } from '../../../components/SectionLabel';
 
 /* ═══════════════════════════════════════════════════════════════
    STYLE TOKENS — all reference CSS vars, strict 4px grid
@@ -321,6 +325,29 @@ function PartEditor({
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   ADDRESS FIELDS
+   ═══════════════════════════════════════════════════════════════ */
+
+function AddressFields({ label, address, onChange }: { label: string; address: Address; onChange: (a: Address) => void }) {
+  const set = (field: keyof Address, value: string) => onChange({ ...address, [field]: value });
+  return (
+    <div className="flex flex-col gap-[var(--sp-2)]">
+      <span className={LABEL}>{label}</span>
+      <input className={INPUT} placeholder="e.g. No. 100, Sec. 2, Zhongxiao E. Rd" value={address.street} onChange={e => set('street', e.target.value)} />
+      <input className={INPUT} placeholder="Apt, suite, floor, building... (optional)" value={address.street2 || ''} onChange={e => set('street2', e.target.value)} />
+      <div className="grid grid-cols-2 gap-[var(--sp-2)]">
+        <input className={INPUT} placeholder="e.g. Taipei" value={address.city} onChange={e => set('city', e.target.value)} />
+        <input className={INPUT} placeholder="e.g. Da'an District" value={address.state} onChange={e => set('state', e.target.value)} />
+      </div>
+      <div className="grid grid-cols-[120px_1fr] gap-[var(--sp-2)]">
+        <input className={INPUT} placeholder="e.g. 106" value={address.postalCode} onChange={e => set('postalCode', e.target.value)} />
+        <input className={INPUT} placeholder="e.g. Taiwan" value={address.country} onChange={e => set('country', e.target.value)} />
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    MAIN QUOTE BUILDER
    ═══════════════════════════════════════════════════════════════ */
 
@@ -328,6 +355,7 @@ export default function QuoteBuilder() {
   const [data, setData] = useState<QuoteBuilderData>(createDefaultQuote());
   const [previewTab, setPreviewTab] = useState<'email' | 'pdf'>('email');
   const [copied, setCopied] = useState(false);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const updatePart = useCallback((idx: number, part: QuotePart) => {
     setData(prev => ({ ...prev, parts: prev.parts.map((p, i) => i === idx ? part : p) }));
@@ -359,9 +387,55 @@ export default function QuoteBuilder() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownloadPdf = () => {
+    if (!pdfRef.current) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    // Collect all stylesheets from the current page
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map(el => el.outerHTML).join('\n');
+    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Quote ${data.quoteId}</title>${styles}
+      <style>@media print { @page { size: A4; margin: 0; } body { margin: 0; } }</style>
+    </head><body>${pdfRef.current.outerHTML}</body></html>`);
+    printWindow.document.close();
+    // Wait for fonts/styles to load then trigger print
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);
+  };
+
+  /* ── Build party info for PDF ── */
+  const fromParty: PartyInfo = {
+    name: 'InstaVoxel Inc.',
+    lines: ['No. 100, Sec. 2, Zhongxiao E. Rd', "Da'an District, Taipei 106, Taiwan", '+886-2-2771-0000', 'sales@instavoxel.com'],
+  };
+  const formatAddress = (a: Address): string[] => {
+    const lines: string[] = [];
+    if (a.street) lines.push(a.street);
+    if (a.street2) lines.push(a.street2);
+    const cityLine = [a.city, a.state].filter(Boolean).join(', ');
+    const postalCountry = [a.postalCode, a.country].filter(Boolean).join(', ');
+    if (cityLine || postalCountry) lines.push([cityLine, postalCountry].filter(Boolean).join(' '));
+    return lines;
+  };
+  const billToParty: PartyInfo = {
+    name: data.customer.companyName || '—',
+    lines: [
+      ...formatAddress(data.customer.billingAddress),
+      ...(data.customer.email ? [data.customer.email] : []),
+      ...(data.customer.contactName ? [`Attn: ${data.customer.contactName}`] : []),
+    ],
+  };
+  const effectiveShipping = data.customer.shippingSameAsBilling ? data.customer.billingAddress : data.customer.shippingAddress;
+  const shipToParty: PartyInfo = {
+    name: data.customer.companyName || '—',
+    lines: [
+      ...formatAddress(effectiveShipping),
+      ...(data.customer.contactName ? [`Attn: ${data.customer.contactName}`] : []),
+    ],
+  };
+
   return (
     <div data-comp="QuoteBuilder" className="flex h-screen w-screen bg-[color:var(--bg-base,var(--gray-50))]"
-      style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}>
+      style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif", position: 'fixed', top: 0, left: 0 }}>
 
       {/* ══════════ LEFT PANEL ══════════ */}
       <div className="w-1/2 min-w-[420px] flex flex-col border-r border-[color:var(--gray-200)] bg-white">
@@ -404,17 +478,55 @@ export default function QuoteBuilder() {
               <div className="px-[var(--sp-4)] py-[var(--sp-3)] border-b border-[color:var(--gray-100)]">
                 <span className="text-[length:var(--text-sm)] font-semibold text-[color:var(--gray-900)]">Customer</span>
               </div>
-              <div className="p-[var(--sp-4)] grid grid-cols-2 gap-[var(--sp-3)]">
-                <div>
-                  <label className={LABEL}>Company</label>
-                  <input className={INPUT} placeholder="Acme Optics Corp" value={data.customer.companyName}
-                    onChange={e => setData(d => ({ ...d, customer: { ...d.customer, companyName: e.target.value } }))} />
+              <div className="p-[var(--sp-4)] flex flex-col gap-[var(--sp-3)]">
+                <div className="grid grid-cols-2 gap-[var(--sp-3)]">
+                  <div>
+                    <label className={LABEL}>Company</label>
+                    <input className={INPUT} placeholder="Acme Optics Corp" value={data.customer.companyName}
+                      onChange={e => setData(d => ({ ...d, customer: { ...d.customer, companyName: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <label className={LABEL}>Contact</label>
+                    <input className={INPUT} placeholder="John Smith" value={data.customer.contactName}
+                      onChange={e => setData(d => ({ ...d, customer: { ...d.customer, contactName: e.target.value } }))} />
+                  </div>
                 </div>
                 <div>
-                  <label className={LABEL}>Contact</label>
-                  <input className={INPUT} placeholder="John Smith" value={data.customer.contactName}
-                    onChange={e => setData(d => ({ ...d, customer: { ...d.customer, contactName: e.target.value } }))} />
+                  <label className={LABEL}>Email</label>
+                  <input className={INPUT} type="email" placeholder="purchasing@acme.com" value={data.customer.email || ''}
+                    onChange={e => setData(d => ({ ...d, customer: { ...d.customer, email: e.target.value } }))} />
                 </div>
+
+                {/* Billing Address */}
+                <AddressFields
+                  label="Billing Address"
+                  address={data.customer.billingAddress}
+                  onChange={a => setData(d => ({ ...d, customer: { ...d.customer, billingAddress: a } }))}
+                />
+
+                {/* Shipping Address */}
+                <div className="flex items-center gap-[var(--sp-2)] pt-[var(--sp-1)]">
+                  <input type="checkbox" id="ship-same"
+                    className="w-[16px] h-[16px] accent-[var(--color-primary)] cursor-pointer"
+                    checked={data.customer.shippingSameAsBilling}
+                    onChange={e => setData(d => ({
+                      ...d, customer: {
+                        ...d.customer,
+                        shippingSameAsBilling: e.target.checked,
+                        shippingAddress: e.target.checked ? d.customer.billingAddress : d.customer.shippingAddress,
+                      }
+                    }))} />
+                  <label htmlFor="ship-same" className="text-[length:var(--text-xs)] text-[color:var(--gray-600)] cursor-pointer select-none">
+                    Shipping same as billing address
+                  </label>
+                </div>
+                {!data.customer.shippingSameAsBilling && (
+                  <AddressFields
+                    label="Shipping Address"
+                    address={data.customer.shippingAddress}
+                    onChange={a => setData(d => ({ ...d, customer: { ...d.customer, shippingAddress: a } }))}
+                  />
+                )}
               </div>
             </div>
 
@@ -522,6 +634,11 @@ export default function QuoteBuilder() {
                 {errorCount} error{errorCount > 1 ? 's' : ''}
               </span>
             )}
+            {previewTab === 'pdf' && (
+              <button className={BTN_GHOST} onClick={handleDownloadPdf}>
+                Download PDF
+              </button>
+            )}
             <button className={BTN_PRIMARY} onClick={handleCopy} disabled={!validation.isValid}>
               {copied ? 'Copied' : 'Copy Email'}
             </button>
@@ -539,67 +656,37 @@ export default function QuoteBuilder() {
               </pre>
             </div>
           ) : (
-            /* ── PDF preview ── */
-            <div className={`${CARD} shadow-[var(--shadow-sm)]`}>
-              <div className="p-[var(--sp-8)] flex flex-col gap-[var(--sp-6)]"
-                style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+            /* ── PDF preview — uses shared document components ── */
+            <div ref={pdfRef} className="doc-page" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+              <DocumentHeader docType="Quotation" />
 
-                {/* PDF Header */}
-                <div className="flex justify-between items-start pb-[var(--sp-4)] border-b-2 border-[color:var(--color-primary)]">
+              <div className="doc-content">
+                {/* Title + Meta */}
+                <div className="flex justify-between items-start">
                   <div>
-                    <h2 className="text-[length:var(--doc-text-title,22px)] font-bold text-[color:var(--color-primary)]">
+                    <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
                       Quotation
-                    </h2>
-                    <p className="text-[length:var(--doc-text-subtitle,13px)] font-semibold text-[color:var(--gray-400)] mt-[var(--sp-1)]">
+                    </div>
+                    <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
                       #{data.quoteId}
-                    </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)]">Instavoxel</p>
-                    <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-1)]">
-                      Date: {data.date}
-                    </p>
-                    <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
-                      Valid: {data.validDays} days
-                    </p>
-                  </div>
+                  <DocumentMeta items={[
+                    { label: 'Date', value: data.date },
+                    { label: 'Valid', value: `${data.validDays} days` },
+                  ]} />
                 </div>
 
-                {/* Parties */}
-                {(data.customer.companyName || data.customer.contactName) && (
-                  <div className="grid grid-cols-2 gap-[var(--sp-6)]">
-                    <div>
-                      <p className="text-[length:var(--doc-text-param-label,7.5px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-1)]">
-                        From
-                      </p>
-                      <p className="text-[length:var(--doc-text-body,10px)] font-semibold text-[color:var(--gray-900)]">Instavoxel</p>
-                    </div>
-                    <div>
-                      <p className="text-[length:var(--doc-text-param-label,7.5px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-1)]">
-                        To
-                      </p>
-                      {data.customer.companyName && (
-                        <p className="text-[length:var(--doc-text-body,10px)] font-semibold text-[color:var(--gray-900)]">
-                          {data.customer.companyName}
-                        </p>
-                      )}
-                      {data.customer.contactName && (
-                        <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
-                          Attn: {data.customer.contactName}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {/* Parties: From + Bill To + Ship To */}
+                <PartiesRow
+                  from={fromParty}
+                  billTo={billToParty}
+                  shipTo={data.customer.shippingSameAsBilling ? undefined : shipToParty}
+                />
 
                 {/* Pricing section */}
                 <div className="flex flex-col gap-[var(--sp-5)]">
-                  <div className="flex items-center gap-[var(--sp-3)]">
-                    <span className="text-[length:var(--doc-text-part-id,11px)] font-bold text-[color:var(--color-primary)] uppercase tracking-[0.06em]">
-                      Pricing
-                    </span>
-                    <div className="flex-1 border-t border-[color:var(--gray-200)]" />
-                  </div>
+                  <SectionLabel>Pricing</SectionLabel>
                   {data.parts.map((part, i) => (
                     <div key={part.id} className={i > 0 ? 'pt-[var(--sp-4)] border-t border-[color:var(--gray-100)]' : ''}>
                       <QuoteComparisonTable part={part} />
@@ -612,10 +699,8 @@ export default function QuoteBuilder() {
                   {/* Manufacturing Notes */}
                   {data.manufacturingNotes.length > 0 && (
                     <div>
-                      <p className="text-[length:var(--doc-text-param-label,7.5px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-2)]">
-                        Manufacturing Notes
-                      </p>
-                      <ul className="space-y-[var(--sp-1)]">
+                      <SectionLabel>Manufacturing Notes</SectionLabel>
+                      <ul className="space-y-[var(--sp-1)] mt-[var(--sp-2)]">
                         {data.manufacturingNotes.filter(n => n.trim()).map((note, i) => (
                           <li key={i} className="flex gap-[var(--sp-2)] text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
                             <span className="text-[color:var(--gray-300)]">•</span>
@@ -634,10 +719,8 @@ export default function QuoteBuilder() {
                     const max = unique[unique.length - 1];
                     return (
                       <div>
-                        <p className="text-[length:var(--doc-text-param-label,7.5px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-2)]">
-                          Lead Time
-                        </p>
-                        <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
+                        <SectionLabel>Lead Time</SectionLabel>
+                        <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-2)]">
                           {unique.length <= 1 ? (
                             <>Standard: ship in <strong className="text-[color:var(--gray-900)]">{min || data.leadTimeDays} workdays</strong> after order confirmation &amp; payment.</>
                           ) : (
@@ -650,20 +733,16 @@ export default function QuoteBuilder() {
 
                   {/* Shipping */}
                   <div>
-                    <p className="text-[length:var(--doc-text-param-label,7.5px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-2)]">
-                      Shipping
-                    </p>
-                    <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
+                    <SectionLabel>Shipping</SectionLabel>
+                    <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-2)]">
                       Shipping is not included. We can charge separately or ship via your carrier account.
                     </p>
                   </div>
 
                   {/* Payment */}
                   <div>
-                    <p className="text-[length:var(--doc-text-param-label,7.5px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-2)]">
-                      Payment Terms
-                    </p>
-                    <ul className="space-y-[var(--sp-1)]">
+                    <SectionLabel>Payment Terms</SectionLabel>
+                    <ul className="space-y-[var(--sp-1)] mt-[var(--sp-2)]">
                       {['All quoted prices are in U.S. dollars',
                         'Full upfront payment required before production',
                         'Wire, Credit Card (3% fee), ACH (U.S. domestic only)',
