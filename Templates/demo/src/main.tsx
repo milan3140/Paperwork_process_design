@@ -2,7 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 
 // Design tokens (shared with web UI)
-import '../../../Design_Sys/Shared_Components/components/Design_Sys_style.css';
+import '../../components/Design_Sys_style.css';
 // Document-specific tokens + print styles
 import '../../components/documents.css';
 // Tailwind

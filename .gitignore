@@ -8,7 +8,6 @@
 
 # Step 2: Allow tracked directories (un-ignore with !)
 !Templates/
-!Design_Sys/
 
 # Step 3: Allow repo config files
 !.gitignore
@@ -29,7 +28,7 @@ __pycache__/
 
 # ══════════════════════════════════════════════════════════════
 # SAFE TO RUN: git add .
-# Only Templates/, Design_Sys/, and repo config files will be staged.
+# Only Templates/ and repo config files will be staged.
 # Everything else (Analysis_Report, PaperWork_Design_Src, Work_Reports,
 # Backups, Src, etc.) is automatically ignored.
 # ══════════════════════════════════════════════════════════════
