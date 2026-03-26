@@ -7,19 +7,18 @@
  * Design: Uses Design_Sys_style.css + documents.css tokens exclusively.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import type { QuoteBuilderData, QuotePart, Scenario, CoverLetterStrategy, Address } from './types';
 import { createDefaultQuote, createEmptyPart, createEmptyScenario, createEmptyAddress, genId } from './types';
 import { analyzeDimensions } from './dimensionEngine';
 import { renderEmail } from './emailRenderer';
 import { QuoteComparisonTable } from './QuoteComparisonTable';
 import { validateQuote, type ValidationResult, type ValidationError } from './validation';
-import { DocumentHeader } from '../../../components/DocumentHeader';
 import { DocumentMeta } from '../../../components/DocumentMeta';
 import { PartiesRow, type PartyInfo } from '../../../components/PartiesRow';
 import { SectionLabel } from '../../../components/SectionLabel';
 import { TermsSection } from '../../../components/TermsSection';
-import { DocumentFooter } from '../../../components/DocumentFooter';
+import { PaginatedDocument, type PageSection } from './PaginatedDocument';
 
 /* ═══════════════════════════════════════════════════════════════
    STYLE TOKENS — all reference CSS vars, strict 4px grid
@@ -326,8 +325,159 @@ function PartEditor({
   );
 }
 
-/* ── PDF flex spacer: min-height = doc-content-gap, grows to fill page ── */
-const FlexSpacer = () => <div style={{ flex: '1 0 var(--doc-content-gap, 24px)', maxHeight: 'calc(var(--doc-content-gap, 24px) * 1.5)' }} />;
+/* ── Build PDF sections for paginated rendering ── */
+
+function buildPdfSections(
+  data: QuoteBuilderData,
+  fromParty: PartyInfo,
+  billToParty: PartyInfo,
+  shipToParty: PartyInfo,
+): PageSection[] {
+  const sections: PageSection[] = [];
+
+  // 1. Title + Meta
+  sections.push({
+    key: 'title',
+    content: (
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
+            Quotation
+          </div>
+          <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
+            #{data.quoteId}
+          </div>
+        </div>
+        <DocumentMeta items={[
+          { label: 'Date', value: data.date },
+          { label: 'Valid', value: `${data.validDays} days` },
+        ]} />
+      </div>
+    ),
+  });
+
+  // 2. Parties
+  sections.push({
+    key: 'parties',
+    content: data.customer.shippingSameAsBilling ? (
+      <div className="grid grid-cols-2 gap-[var(--sp-6)]">
+        <div className="flex flex-col gap-[var(--doc-sp-1-5)]">
+          <SectionLabel>From</SectionLabel>
+          <div className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">{fromParty.name}</div>
+          <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]">
+            {fromParty.lines.map((l, i) => <span key={i}>{l}{i < fromParty.lines.length - 1 && <br />}</span>)}
+          </div>
+        </div>
+        <div className="flex flex-col gap-[var(--doc-sp-1-5)]">
+          <SectionLabel>Bill To / Ship To</SectionLabel>
+          <div className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">{billToParty.name}</div>
+          <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]">
+            {billToParty.lines.map((l, i) => <span key={i}>{l}{i < billToParty.lines.length - 1 && <br />}</span>)}
+          </div>
+        </div>
+      </div>
+    ) : (
+      <PartiesRow from={fromParty} billTo={billToParty} shipTo={shipToParty} />
+    ),
+  });
+
+  // 3. Pricing — each part as a separate section (can break between parts)
+  // Pricing header
+  sections.push({
+    key: 'pricing-header',
+    content: (
+      <SectionLabel className="!border-b !border-[var(--color-primary)]">
+        <span className="text-[color:var(--color-primary)]">Pricing</span>
+      </SectionLabel>
+    ),
+  });
+  // Each part
+  data.parts.forEach((part, i) => {
+    sections.push({
+      key: `pricing-part-${part.id}`,
+      content: (
+        <div className={i > 0 ? 'pt-[var(--sp-4)] border-t border-[color:var(--gray-200)]' : ''}>
+          <QuoteComparisonTable part={part} />
+        </div>
+      ),
+    });
+  });
+  // Pricing bottom border
+  sections.push({
+    key: 'pricing-footer',
+    content: <div className="border-b border-[color:var(--color-primary)]" />,
+  });
+
+  // 4. Info grid (Mfg Notes + Lead Time + Shipping + Payment)
+  const allLeadTimes = data.parts.flatMap(p => p.scenarios.map(s => s.leadTimeDays)).filter(d => d > 0);
+  const uniqueLT = [...new Set(allLeadTimes)].sort((a, b) => a - b);
+  const ltMin = uniqueLT[0];
+  const ltMax = uniqueLT[uniqueLT.length - 1];
+
+  sections.push({
+    key: 'info-grid',
+    content: (
+      <div className="grid grid-cols-2 gap-x-[var(--sp-8)] gap-y-[var(--sp-5)]">
+        {data.manufacturingNotes.length > 0 && (
+          <div>
+            <SectionLabel>Manufacturing Notes</SectionLabel>
+            <ul className="space-y-[var(--sp-1)] mt-[var(--sp-2)]">
+              {data.manufacturingNotes.filter(n => n.trim()).map((note, i) => (
+                <li key={i} className="flex gap-[var(--sp-2)] text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
+                  <span className="text-[color:var(--gray-300)]">•</span>
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div>
+          <SectionLabel>Lead Time</SectionLabel>
+          <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-2)]">
+            {uniqueLT.length <= 1 ? (
+              <>Standard: ship in <strong className="text-[color:var(--gray-900)]">{ltMin || data.leadTimeDays} workdays</strong> after order confirmation &amp; payment.</>
+            ) : (
+              <>Estimated <strong className="text-[color:var(--gray-900)]">{ltMin}–{ltMax} workdays</strong> depending on option selected. See pricing details above.</>
+            )}
+          </p>
+        </div>
+        <div>
+          <SectionLabel>Shipping</SectionLabel>
+          <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-2)]">
+            Shipping is not included. We can charge separately or ship via your carrier account.
+          </p>
+        </div>
+        <div>
+          <SectionLabel>Payment Terms</SectionLabel>
+          <ul className="space-y-[var(--sp-1)] mt-[var(--sp-2)]">
+            {['All quoted prices are in U.S. dollars',
+              'Full upfront payment required before production',
+              'Wire, Credit Card (3% fee), ACH (U.S. domestic only)',
+            ].map((t, i) => (
+              <li key={i} className="flex gap-[var(--sp-2)] text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
+                <span className="text-[color:var(--gray-300)]">•</span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    ),
+  });
+
+  // 5. Terms
+  sections.push({
+    key: 'terms',
+    content: (
+      <TermsSection
+        text={`1. This quotation is valid for ${data.validDays} days from the date of issue. Pricing is subject to change after expiration. 2. Customer is responsible for all applicable import duties, taxes, and customs fees. 3. Lead time begins upon receipt of a signed Purchase Order and payment (or credit approval). Lead time is stated in business days. 4. InstaVoxel retains no design responsibility. Parts are manufactured per customer-supplied drawings and specifications. 5. Standard inspection is included. Formal dimensional inspection reports (FAI/CMM) available upon request at additional cost. 6. Cancellation after production commencement may result in charges for materials consumed and work completed. 7. For complete terms, visit:`}
+        linkUrl="https://www.instavoxel.com/terms"
+      />
+    ),
+  });
+
+  return sections;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    ADDRESS FIELDS
@@ -661,142 +811,12 @@ export default function QuoteBuilder() {
               </pre>
             </div>
           ) : (
-            /* ── PDF preview — uses shared document components ── */
-            <div ref={pdfRef} className="doc-page" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-              <DocumentHeader docType="Quotation" />
-
-              <div className="doc-content" style={{ gap: 0 }}>
-                {/* Title + Meta */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-                      Quotation
-                    </div>
-                    <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
-                      #{data.quoteId}
-                    </div>
-                  </div>
-                  <DocumentMeta items={[
-                    { label: 'Date', value: data.date },
-                    { label: 'Valid', value: `${data.validDays} days` },
-                  ]} />
-                </div>
-                <FlexSpacer />
-
-                {/* Parties: From + Bill To + Ship To */}
-                {data.customer.shippingSameAsBilling ? (
-                  /* Same address → FROM (left) + BILL TO / SHIP TO (right) on one row */
-                  <div className="grid grid-cols-2 gap-[var(--sp-6)]">
-                    <div className="flex flex-col gap-[var(--doc-sp-1-5)]">
-                      <SectionLabel>From</SectionLabel>
-                      <div className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">{fromParty.name}</div>
-                      <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]">
-                        {fromParty.lines.map((l, i) => <span key={i}>{l}{i < fromParty.lines.length - 1 && <br />}</span>)}
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-[var(--doc-sp-1-5)]">
-                      <SectionLabel>Bill To / Ship To</SectionLabel>
-                      <div className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">{billToParty.name}</div>
-                      <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]">
-                        {billToParty.lines.map((l, i) => <span key={i}>{l}{i < billToParty.lines.length - 1 && <br />}</span>)}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* Different addresses → FROM top, BILL TO + SHIP TO bottom row */
-                  <PartiesRow from={fromParty} billTo={billToParty} shipTo={shipToParty} />
-                )}
-                <FlexSpacer />
-
-                {/* Pricing section — primary color borders to visually separate from info sections */}
-                <div className="flex flex-col gap-[var(--sp-5)] my-[var(--sp-3)]">
-                  <SectionLabel className="!border-b !border-[var(--color-primary)]"><span className="text-[color:var(--color-primary)]">Pricing</span></SectionLabel>
-                  <div className="flex flex-col gap-[var(--sp-5)] border-b border-[color:var(--color-primary)] pb-[var(--sp-5)]">
-                  {data.parts.map((part, i) => (
-                    <div key={part.id} className={i > 0 ? 'pt-[var(--sp-4)] border-t border-[color:var(--gray-200)]' : ''}>
-                      <QuoteComparisonTable part={part} />
-                    </div>
-                  ))}
-                  </div>
-                </div>
-                <FlexSpacer />
-
-                {/* Info sections — 2-column grid */}
-                <div className="grid grid-cols-2 gap-x-[var(--sp-8)] gap-y-[var(--sp-5)]">
-                  {/* Manufacturing Notes */}
-                  {data.manufacturingNotes.length > 0 && (
-                    <div>
-                      <SectionLabel>Manufacturing Notes</SectionLabel>
-                      <ul className="space-y-[var(--sp-1)] mt-[var(--sp-2)]">
-                        {data.manufacturingNotes.filter(n => n.trim()).map((note, i) => (
-                          <li key={i} className="flex gap-[var(--sp-2)] text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
-                            <span className="text-[color:var(--gray-300)]">•</span>
-                            {note}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Lead Time — derived from scenario data */}
-                  {(() => {
-                    const allLeadTimes = data.parts.flatMap(p => p.scenarios.map(s => s.leadTimeDays)).filter(d => d > 0);
-                    const unique = [...new Set(allLeadTimes)].sort((a, b) => a - b);
-                    const min = unique[0];
-                    const max = unique[unique.length - 1];
-                    return (
-                      <div>
-                        <SectionLabel>Lead Time</SectionLabel>
-                        <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-2)]">
-                          {unique.length <= 1 ? (
-                            <>Standard: ship in <strong className="text-[color:var(--gray-900)]">{min || data.leadTimeDays} workdays</strong> after order confirmation &amp; payment.</>
-                          ) : (
-                            <>Estimated <strong className="text-[color:var(--gray-900)]">{min}–{max} workdays</strong> depending on option selected. See pricing details above.</>
-                          )}
-                        </p>
-                      </div>
-                    );
-                  })()}
-
-                  {/* Shipping */}
-                  <div>
-                    <SectionLabel>Shipping</SectionLabel>
-                    <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)] mt-[var(--sp-2)]">
-                      Shipping is not included. We can charge separately or ship via your carrier account.
-                    </p>
-                  </div>
-
-                  {/* Payment */}
-                  <div>
-                    <SectionLabel>Payment Terms</SectionLabel>
-                    <ul className="space-y-[var(--sp-1)] mt-[var(--sp-2)]">
-                      {['All quoted prices are in U.S. dollars',
-                        'Full upfront payment required before production',
-                        'Wire, Credit Card (3% fee), ACH (U.S. domestic only)',
-                      ].map((t, i) => (
-                        <li key={i} className="flex gap-[var(--sp-2)] text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">
-                          <span className="text-[color:var(--gray-300)]">•</span>
-                          {t}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <FlexSpacer />
-
-                {/* Terms & Conditions — excludes items already covered in Payment/Shipping sections */}
-                <TermsSection
-                  text={`1. This quotation is valid for ${data.validDays} days from the date of issue. Pricing is subject to change after expiration. 2. Customer is responsible for all applicable import duties, taxes, and customs fees. 3. Lead time begins upon receipt of a signed Purchase Order and payment (or credit approval). Lead time is stated in business days. 4. InstaVoxel retains no design responsibility. Parts are manufactured per customer-supplied drawings and specifications. 5. Standard inspection is included. Formal dimensional inspection reports (FAI/CMM) available upon request at additional cost. 6. Cancellation after production commencement may result in charges for materials consumed and work completed. 7. For complete terms, visit:`}
-                  linkUrl="https://www.instavoxel.com/terms"
-                />
-              </div>
-
-              {/* Document Footer */}
-              <DocumentFooter
+            /* ── PDF preview — paginated document ── */
+            <div ref={pdfRef}>
+              <PaginatedDocument
                 docId={data.quoteId}
-                page={1}
-                totalPages={1}
-                closing="We look forward to working with you."
+                validDays={data.validDays}
+                sections={buildPdfSections(data, fromParty, billToParty, shipToParty)}
               />
             </div>
           )}
