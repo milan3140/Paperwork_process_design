@@ -18,6 +18,8 @@ import { DocumentHeader } from '../../../components/DocumentHeader';
 import { DocumentMeta } from '../../../components/DocumentMeta';
 import { PartiesRow, type PartyInfo } from '../../../components/PartiesRow';
 import { SectionLabel } from '../../../components/SectionLabel';
+import { TermsSection } from '../../../components/TermsSection';
+import { DocumentFooter } from '../../../components/DocumentFooter';
 
 /* ═══════════════════════════════════════════════════════════════
    STYLE TOKENS — all reference CSS vars, strict 4px grid
@@ -775,13 +777,20 @@ export default function QuoteBuilder() {
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="border-t-2 border-[color:var(--color-primary)] pt-[var(--sp-3)] text-center">
-                  <p className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)]">
-                    This quotation is valid for {data.validDays} days from the date above.
-                  </p>
-                </div>
+                {/* Terms & Conditions — excludes items already covered in Payment/Shipping sections */}
+                <TermsSection
+                  text={`1. This quotation is valid for ${data.validDays} days from the date of issue. Pricing is subject to change after expiration. 2. Customer is responsible for all applicable import duties, taxes, and customs fees. 3. Lead time begins upon receipt of a signed Purchase Order and payment (or credit approval). Lead time is stated in business days. 4. InstaVoxel retains no design responsibility. Parts are manufactured per customer-supplied drawings and specifications. 5. Standard inspection is included. Formal dimensional inspection reports (FAI/CMM) available upon request at additional cost. 6. Cancellation after production commencement may result in charges for materials consumed and work completed. 7. For complete terms, visit:`}
+                  linkUrl="https://www.instavoxel.com/terms"
+                />
               </div>
+
+              {/* Document Footer */}
+              <DocumentFooter
+                docId={data.quoteId}
+                page={1}
+                totalPages={1}
+                closing="We look forward to working with you."
+              />
             </div>
           )}
         </div>
