@@ -1,0 +1,129 @@
+/* ═══════════════════════════════════════════════════════════
+   InstaVoxel — Document System Styles
+   Extends Design_Sys_style.css with print/document-specific tokens.
+
+   ⚠️  REQUIRES: Design_Sys_style.css (design token system)
+       Load Design_Sys_style.css BEFORE this file.
+       Components reference these + Design_Sys tokens via Tailwind
+       arbitrary values: text-[var(--doc-text-body)]
+
+   ⚠️  These tokens are for static document rendering (PDF/print).
+       They are NOT used by interactive web UI components.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Document Text Sizes ──
+     Smaller than web UI (--text-xxs 11px ~ --text-2xl 24px)
+     because print is higher DPI and physically denser. */
+  --doc-text-title: 22px;       /* Document type heading: "Quotation" */
+  --doc-text-subtitle: 13px;    /* Document ID: "#U260319042" */
+  --doc-text-key-value: 15px;   /* Hero value: "26 Work Days" */
+  --doc-text-party-name: 13px;  /* Company name in From/To blocks */
+  --doc-text-meta-value: 12px;  /* Meta area values: dates, refs */
+  --doc-text-part-id: 11px;     /* Part identifier: "P01" */
+  --doc-text-body: 10px;        /* Default body / table data */
+  --doc-text-secondary: 9px;    /* Secondary info, notes, param values */
+  --doc-text-label: 9px;        /* Section labels (UPPERCASE) */
+  --doc-text-param-label: 7.5px;/* Param column headers, file labels */
+  --doc-text-fine: 7.5px;       /* T&C, legal text */
+  --doc-text-footer: 8px;       /* Footer text */
+  --doc-text-file-tag: 8px;     /* File tag text */
+  --doc-text-thumb-placeholder: 7px; /* Thumbnail "3D" placeholder */
+  --doc-text-logo: 15px;        /* Header brand name "INSTAVOXEL" */
+  --doc-text-doc-type: 11px;    /* Header document type label */
+
+  /* ── Document Layout ── */
+  --doc-page-w: 215.9mm;        /* Letter width */
+  --doc-page-h: 279.4mm;        /* Letter height */
+  --doc-margin-x: 16mm;         /* Content left/right margin */
+  --doc-header-h: 44px;         /* Header band height */
+  --doc-content-gap: 24px;      /* Vertical gap between content sections */
+  --doc-content-pad-top: 20px;  /* Content top padding */
+  --doc-content-pad-bottom: 16px; /* Content bottom padding */
+
+  /* ── Document Spacing — Off-Grid Exceptions ──
+     Standard grid is strict 4px (--sp-1 through --sp-20).
+     Print documents need sub-grid values for visual density.
+     Each is documented with its rationale. */
+  --doc-sp-half: 2px;           /* Micro gap: part-core line spacing, material margin-top */
+  --doc-sp-1-5: 6px;            /* 1.5× step: label-to-content gap in party/key-info blocks */
+  --doc-sp-table-y: 7px;        /* Table cell vertical padding: between 4px and 8px for density */
+  --doc-sp-totals-y: 5px;       /* Totals table cell padding: tighter than body table */
+  --doc-sp-part-y: 15px;        /* Part block vertical padding: user-specified 1.5× of 10px */
+  --doc-sp-bullet-offset: 5px;  /* Note bullet vertical offset to align with text baseline */
+  --doc-gap-logo: 10px;         /* Header logo-to-text gap: 2.5× base, visual balance */
+
+  /* ── Document Sizes ── */
+  --doc-border-accent: 3px;     /* Accent left-border width (WarningBox) */
+  --doc-size-bullet: 4px;       /* Note bullet diameter */
+  --doc-w-date-line: 120px;     /* Signature date line max-width */
+  --doc-file-tag-radius: 3px;   /* File tag border radius (smaller than --radius-sm) */
+  --doc-file-tag-px: 6px;       /* File tag horizontal padding */
+  --doc-border-emphasis: 1.5px; /* Emphasis border width (table headers, total row separator) */
+  --doc-w-totals: 240px;        /* Totals table fixed width */
+  --doc-micro-adjust: 1px;      /* Sub-pixel micro adjustment (icon alignment) */
+
+  /* ── Document Tracking ── */
+  --doc-tracking-logo: 0.04em;  /* Header brand name letter-spacing */
+  --doc-tracking-doc-type: 0.1em; /* Header doc type letter-spacing */
+  --doc-tracking-label: 0.05em; /* Section label letter-spacing */
+  --doc-tracking-title: 0.02em; /* Document title letter-spacing */
+}
+
+/* ── Page Shell ── */
+@page { size: Letter; margin: 0; }
+
+.doc-page {
+  width: var(--doc-page-w);
+  min-height: var(--doc-page-h);
+  padding: 0;
+  position: relative;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font);
+  font-size: var(--doc-text-body);
+  color: var(--gray-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.doc-content {
+  flex: 1;
+  padding: var(--doc-content-pad-top) var(--doc-margin-x) var(--doc-content-pad-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: var(--doc-content-gap);
+}
+
+@media print {
+  @page {
+    size: Letter;
+    margin: 0;
+  }
+  body {
+    background: #FFFFFF !important;
+    margin: 0;
+  }
+  .doc-page {
+    page-break-after: always;
+    margin: 0;
+  }
+}
+
+@media screen {
+  body.doc-preview {
+    background: var(--gray-175);
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+    margin: 0;
+  }
+  .doc-page {
+    box-shadow: var(--shadow-lg);
+    border-radius: 2px;
+  }
+}

@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════════════════════
+   InstaVoxel — Design Token System
+   Tinted grays (hue 260°), strict 4px grid, unified easing
+
+   ⚠️  Copy this file alongside any standalone component.
+       Components reference these CSS variables via Tailwind
+       arbitrary values: text-[var(--color-primary-light)]
+
+       To migrate to Tailwind config, map each variable
+       to your theme.extend — the names are self-documenting.
+
+   ⚠️  VIEWPORT REQUIREMENT
+       The target project's index.html MUST include:
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       Without it, browsers may auto-shrink to 80% when content
+       exceeds viewport width. All components are designed at 100% zoom.
+
+   ⚠️  CONTENT RULES
+       - Material names: ALWAYS full name (Aluminum 6061, NEVER Al 6061)
+       - Shipping cost: NEVER shown separately (bundled in unit price)
+       - Price breakdown: Subtotal + Sales Tax + Total
+       - All UI text: English only
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand ── */
+  --color-primary: #2E0D77;
+  --color-primary-hover: #3A1199;
+  --color-primary-light: #5B2FD4;
+  --color-primary-subtle: #EDE8FA;
+  --color-primary-wash: #F7F5FD;
+  --color-primary-selected: #F0ECFC;
+  --color-primary-dark: #240a5e;
+  --color-primary-muted: #A89BE8;
+
+  /* ── Tinted Grays (Hue 260°, Sat 12-20%) ── */
+  --gray-950: #0F0D17;
+  --gray-900: #1A1625;
+  --gray-800: #2B2638;
+  --gray-700: #3D3654;
+  --gray-600: #56516A;
+  --gray-500: #6B6480;
+  --gray-400: #8E89A3;
+  --gray-300: #B5B0C7;
+  --gray-250: #C8C4D4;
+  --gray-200: #D8D5E4;
+  --gray-175: #E8E5F0;
+  --gray-160: #F5F4F9;
+  --gray-150: #E4E2EC;
+  --gray-100: #EDEBF4;
+  --gray-50: #F7F6FB;
+
+  /* ── Semantic Colors ── */
+  --color-success: #1e8c45;
+  --color-success-bg: #e9f6e8;
+  --color-error: #B61F1F;
+  --color-error-hover: #9a1a1a;
+  --color-error-bg: #FEE2E2;
+  --color-warning: #E5A100;
+  --color-warning-bg: #FFF8E1;
+  --color-warning-border: #FFE082;
+  --color-warning-text: #78621F;       /* brown text for warning notices */
+  --color-info: #1677FF;
+  --color-info-bg: #E6F4FF;
+
+  /* ── Surfaces ── */
+  --bg-base: var(--gray-50);
+  --bg-surface: #FFFFFF;
+  --bg-hover: var(--gray-100);
+  --bg-active: var(--gray-150);
+  --border-color: var(--gray-200);
+  --border-subtle: var(--gray-150);
+
+  /* ── Text ── */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-tertiary: var(--gray-400);
+  --text-disabled: var(--gray-300);
+  --text-inverse: #FFFFFF;
+
+  /* ── Typography ── */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --text-xxs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* ── Spacing (strict 4px grid) ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-9: 36px;
+  --sp-10: 40px;
+  --sp-11: 44px;
+  --sp-12: 48px;
+  --sp-13: 52px;
+  --sp-14: 56px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+
+  /* ── Component-specific spacing (off-grid, documented) ── */
+  /** Badge compact padding (StatusBadge) */
+  --sp-badge-y: 4px;
+  --sp-badge-x: 10px;
+  /** Card inner padding (RadioGroup card variant) */
+  --sp-card-x: 14px;
+  /** Icon offset — left padding when a leading icon is present (Input).
+      Calculated as: icon-container-width + gap.
+      sm: 18px icon-area + 10px gap = 28px
+      md: 22px icon-area + 12px gap = 34px
+      lg: 24px icon-area + 12px gap = 36px */
+  --sp-icon-offset-sm: 28px;
+  --sp-icon-offset-md: 34px;
+  --sp-icon-offset-lg: 36px;
+
+  /* ── Component Heights ── */
+  --h-sm: 28px;
+  --h-md: 36px;
+  --h-lg: 40px;
+  --thumb-size: 60px;            /* Standard thumbnail size for lists/summaries */
+
+  /* ── Radii ── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-card: 10px;
+  --radius-pill: 99px;
+
+  /* ── Shadows (brand-tinted, NOT pure black) ── */
+  --shadow-xs: 0 1px 2px rgba(46, 13, 119, 0.04);
+  --shadow-sm: 0 1px 3px rgba(46, 13, 119, 0.06), 0 1px 2px rgba(46, 13, 119, 0.04);
+  --shadow-md: 0 4px 12px rgba(46, 13, 119, 0.08), 0 2px 4px rgba(46, 13, 119, 0.04);
+  --shadow-lg: 0 8px 24px rgba(46, 13, 119, 0.12), 0 4px 8px rgba(46, 13, 119, 0.06);
+  --shadow-xl: 0 16px 48px rgba(46, 13, 119, 0.16), 0 8px 16px rgba(46, 13, 119, 0.08);
+  --shadow-focus: 0 0 0 3px var(--color-primary-subtle);
+  --shadow-input: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-input-hover: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* ── Transitions ── */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-faster: 100ms;
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 350ms;
+  --duration-normal: 280ms;
+
+  /* ── Layout ── */
+  --header-h: 56px;
+}
+
+/* ── OPTIONAL: Base Reset ──
+   Uncomment if your project doesn't already have a CSS reset.
+   Safe defaults that won't break existing layouts.
+   ───────────────────────────────────────────────────────── */
+/*
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { font-family: var(--font); color: var(--text-primary); line-height: var(--leading-normal); }
+input, select, textarea, button { font-family: inherit; font-size: inherit; }
+button { cursor: pointer; border: none; background: none; color: inherit; }
+*/

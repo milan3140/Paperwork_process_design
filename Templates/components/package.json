@@ -1,0 +1,12 @@
+{
+  "name": "@instavoxel/document-components",
+  "version": "1.0.0",
+  "description": "InstaVoxel print-ready document components (Quote, Invoice, CoC, etc.)",
+  "type": "commonjs",
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "@types/react": "^18.0.0 || ^19.0.0",
+    "@types/react-dom": "^18.0.0 || ^19.0.0"
+  }
+}

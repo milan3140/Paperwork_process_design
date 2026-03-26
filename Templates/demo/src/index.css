@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevent Tailwind preflight from overriding document line-heights */
+.doc-page {
+  line-height: 1.4;
+}
+
+.doc-page table {
+  border-collapse: collapse;
+}
+
+/* ── Print: make output match screen exactly ── */
+@media print {
+  /* Hide demo version labels */
+  .bom-demo-label {
+    display: none !important;
+  }
+
+  /* Each doc-page starts a new print page */
+  .doc-page {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* First doc-page doesn't need a page break before it */
+  .doc-page:first-of-type {
+    page-break-before: auto;
+    break-before: auto;
+  }
+
+  /* Preserve exact colors (backgrounds, borders) in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Reset body for print */
+  body {
+    background: #FFFFFF !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Prevent table rows from splitting across pages */
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
