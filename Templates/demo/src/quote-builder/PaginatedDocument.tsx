@@ -38,7 +38,7 @@ export function PaginatedDocument({
   sections,
   docId,
   gap = 24,
-  maxGapFactor = 1.5,
+  maxGapFactor = 2,
 }: PaginatedDocumentProps) {
   const measureRef = useRef<HTMLDivElement>(null);
   // Store page assignments as index groups: [[0,1,2], [3,4], [5]]
