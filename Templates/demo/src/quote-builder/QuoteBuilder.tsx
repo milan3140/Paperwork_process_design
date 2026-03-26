@@ -389,7 +389,7 @@ function buildPdfSections(
         <SectionLabel className="!border-b !border-[var(--color-primary)]">
           <span className="text-[color:var(--color-primary)]">Pricing</span>
         </SectionLabel>
-        <div className="flex flex-col gap-[var(--sp-1)] mt-[var(--sp-3)]">
+        <div className="flex flex-col gap-[var(--sp-3)] mt-[var(--sp-3)]">
           {data.parts.map((part, i) => (
             <div key={part.id} className="bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]">
               <QuoteComparisonTable part={part} />
