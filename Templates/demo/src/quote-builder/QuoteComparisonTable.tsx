@@ -213,24 +213,7 @@ function MatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart; analy
               })}
             </tr>
           ))}
-          {/* Subtotal row */}
-          <tr className={SEP_THICK}>
-            <td className={`${TD} text-left font-semibold text-[color:var(--gray-900,#1c1a25)]`}>
-              Subtotal
-            </td>
-            {colValues.map((cv, ci) => {
-              const colScenarios = rowValues
-                .flatMap(rv => findScenarios(part.scenarios, { [dimRow]: rv, [dimCol]: cv }, part.material, part.finish));
-              const qty = colScenarios.reduce((sum, s) => sum + s.qty, 0);
-              const total = colScenarios.reduce((sum, s) => sum + s.unitPrice * s.qty, 0);
-              return (
-                <td key={ci} className={`${TD} text-right font-semibold text-[color:var(--gray-900,#1c1a25)]`}>
-                  {fmtPrice(total)}
-                  <div className={ANNOTATION}>({qty} pcs)</div>
-                </td>
-              );
-            })}
-          </tr>
+          {/* Subtotal row removed — pricing options are alternatives, not additive */}
         </tbody>
       </table>
     </div>
