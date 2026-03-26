@@ -131,12 +131,12 @@ export function PaginatedDocument({
           <DocumentHeader docType="Quotation" />
 
           <div className="doc-content" style={{ gap: 0 }}>
-            {pageSections.map((section, si) => (
-              <div key={section.key} style={{ flexShrink: 0 }}>
-                {si > 0 && <FlexSpacer />}
-                {section.content}
-              </div>
-            ))}
+            {pageSections.flatMap((section, si) => {
+              const items = [];
+              if (si > 0) items.push(<FlexSpacer key={`gap-${si}`} />);
+              items.push(<div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>);
+              return items;
+            })}
           </div>
 
           <DocumentFooter
