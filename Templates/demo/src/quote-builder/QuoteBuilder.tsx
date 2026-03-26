@@ -701,11 +701,13 @@ export default function QuoteBuilder() {
                   <PartiesRow from={fromParty} billTo={billToParty} shipTo={shipToParty} />
                 )}
 
-                {/* Pricing section */}
-                <div className="flex flex-col gap-[var(--sp-5)]">
-                  <SectionLabel>Pricing</SectionLabel>
+                {/* Pricing section — primary color borders to visually separate from info sections */}
+                <div className="flex flex-col gap-[var(--sp-5)] border-t-2 border-b-2 border-[color:var(--color-primary)] pt-[var(--sp-4)] pb-[var(--sp-5)]">
+                  <div className="text-[length:var(--doc-text-label)] font-semibold uppercase tracking-[var(--doc-tracking-label)] text-[color:var(--color-primary)]">
+                    Pricing
+                  </div>
                   {data.parts.map((part, i) => (
-                    <div key={part.id} className={i > 0 ? 'pt-[var(--sp-4)] border-t border-[color:var(--gray-100)]' : ''}>
+                    <div key={part.id} className={i > 0 ? 'pt-[var(--sp-4)] border-t border-[color:var(--gray-200)]' : ''}>
                       <QuoteComparisonTable part={part} />
                     </div>
                   ))}
