@@ -396,7 +396,7 @@ function buildPdfSections(
     sections.push({
       key: `pricing-part-${part.id}`,
       content: (
-        <div className={i > 0 ? 'pt-[var(--sp-6)]' : ''}>
+        <div className={`bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]${i > 0 ? ' mt-[var(--sp-4)]' : ''}`}>
           <QuoteComparisonTable part={part} />
         </div>
       ),
