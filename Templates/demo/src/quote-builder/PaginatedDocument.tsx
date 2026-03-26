@@ -111,13 +111,14 @@ export function PaginatedDocument({
           style={{
             fontFamily: "'Inter', system-ui, sans-serif",
             height: 'var(--doc-page-h, 279.4mm)',
-            minHeight: 'var(--doc-page-h, 279.4mm)',
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr auto',
             marginBottom: pageIdx < pageGroups.length - 1 ? '32px' : 0,
           }}
         >
           <DocumentHeader docType="Quotation" />
 
-          <div className="doc-content" style={{ gap: 0, flex: '1 1 0', overflow: 'hidden' }}>
+          <div className="doc-content" style={{ gap: 0, minHeight: 0, overflow: 'hidden' }}>
             {indices.flatMap((sectionIdx, si) => {
               const section = sections[sectionIdx];
               if (!section) return [];
