@@ -326,6 +326,9 @@ function PartEditor({
   );
 }
 
+/* ── PDF flex spacer: min-height = doc-content-gap, grows to fill page ── */
+const FlexSpacer = () => <div style={{ flex: '1 0 var(--doc-content-gap, 24px)' }} />;
+
 /* ═══════════════════════════════════════════════════════════════
    ADDRESS FIELDS
    ═══════════════════════════════════════════════════════════════ */
@@ -662,7 +665,7 @@ export default function QuoteBuilder() {
             <div ref={pdfRef} className="doc-page" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
               <DocumentHeader docType="Quotation" />
 
-              <div className="doc-content">
+              <div className="doc-content" style={{ gap: 0 }}>
                 {/* Title + Meta */}
                 <div className="flex justify-between items-start">
                   <div>
@@ -678,6 +681,7 @@ export default function QuoteBuilder() {
                     { label: 'Valid', value: `${data.validDays} days` },
                   ]} />
                 </div>
+                <FlexSpacer />
 
                 {/* Parties: From + Bill To + Ship To */}
                 {data.customer.shippingSameAsBilling ? (
@@ -702,6 +706,7 @@ export default function QuoteBuilder() {
                   /* Different addresses → FROM top, BILL TO + SHIP TO bottom row */
                   <PartiesRow from={fromParty} billTo={billToParty} shipTo={shipToParty} />
                 )}
+                <FlexSpacer />
 
                 {/* Pricing section — primary color borders to visually separate from info sections */}
                 <div className="flex flex-col gap-[var(--sp-5)] my-[var(--sp-3)]">
@@ -714,6 +719,7 @@ export default function QuoteBuilder() {
                   ))}
                   </div>
                 </div>
+                <FlexSpacer />
 
                 {/* Info sections — 2-column grid */}
                 <div className="grid grid-cols-2 gap-x-[var(--sp-8)] gap-y-[var(--sp-5)]">
@@ -776,6 +782,7 @@ export default function QuoteBuilder() {
                     </ul>
                   </div>
                 </div>
+                <FlexSpacer />
 
                 {/* Terms & Conditions — excludes items already covered in Payment/Shipping sections */}
                 <TermsSection
