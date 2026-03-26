@@ -539,14 +539,34 @@ export default function QuoteBuilder() {
     if (!pdfRef.current) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    // Collect all stylesheets from the current page
     const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
       .map(el => el.outerHTML).join('\n');
-    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Quote ${data.quoteId}</title>${styles}
-      <style>@media print { @page { size: A4; margin: 0; } body { margin: 0; } }</style>
+    const printCss = `
+      <style>
+        @media print {
+          @page { size: Letter; margin: 0; }
+          body { margin: 0; }
+        }
+        /* Force each doc-page to fill exactly one print page */
+        .doc-page {
+          width: 215.9mm;
+          height: 279.4mm;
+          display: flex;
+          flex-direction: column;
+          page-break-after: always;
+          overflow: hidden;
+        }
+        .doc-page:last-child { page-break-after: auto; }
+        .doc-content { flex: 1; }
+        /* Print colors */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+      </style>`;
+    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Quote ${data.quoteId}</title>${styles}${printCss}
     </head><body>${pdfRef.current.outerHTML}</body></html>`);
     printWindow.document.close();
-    // Wait for fonts/styles to load then trigger print
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);
   };
 

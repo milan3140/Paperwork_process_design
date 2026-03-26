@@ -110,29 +110,17 @@ export function PaginatedDocument({
           className="doc-page"
           style={{
             fontFamily: "'Inter', system-ui, sans-serif",
-            height: 'var(--doc-page-h, 279.4mm)',
-            display: 'grid',
-            gridTemplateRows: 'auto 1fr auto',
             marginBottom: pageIdx < pageGroups.length - 1 ? '32px' : 0,
           }}
         >
           <DocumentHeader docType="Quotation" />
 
-          <div className="doc-content" style={{ gap: 0, minHeight: 0 }}>
-            {indices.flatMap((sectionIdx, si) => {
+          <div className="doc-content">
+            {indices.map((sectionIdx) => {
               const section = sections[sectionIdx];
-              if (!section) return [];
-              const items: ReactNode[] = [];
-              if (si > 0) items.push(
-                <div key={`gap-${si}`} style={{ flex: `1 0 ${gap}px`, maxHeight: `${maxGap}px` }} />
-              );
-              items.push(
-                <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>
-              );
-              return items;
+              if (!section) return null;
+              return <div key={section.key}>{section.content}</div>;
             })}
-            {/* Absorb remaining space so it doesn't pile above footer */}
-            <div key="tail-spacer" style={{ flex: '1 0 0' }} />
           </div>
 
           <DocumentFooter
