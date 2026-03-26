@@ -146,8 +146,12 @@ function HorizontalLayout({ part, analysis, showLeadTime }: { part: QuotePart; a
   function formatDimValue(val: string): string {
     if (dim === 'qty') return `QTY ${val}`;
     if (dim === 'location') return val === 'US' ? 'U.S. manufacturing' : val === 'TW' ? 'Taiwan manufacturing' : val;
+    if (dim === 'leadTime') return `${val} workdays`;
     return val;
   }
+
+  // If leadTime IS the comparison dimension, don't repeat it in cells
+  const cellShowLeadTime = showLeadTime && dim !== 'leadTime';
 
   return (
     <div>
@@ -164,7 +168,7 @@ function HorizontalLayout({ part, analysis, showLeadTime }: { part: QuotePart; a
           <tr>
             {colValues.map((cv, i) => {
               const matched = findScenarios(part.scenarios, { [dim]: cv }, part.material, part.finish);
-              return <PriceCell key={i} scenarios={matched} annotations={annotations} showLeadTime={showLeadTime} />;
+              return <PriceCell key={i} scenarios={matched} annotations={annotations} showLeadTime={cellShowLeadTime} />;
             })}
           </tr>
         </tbody>
@@ -184,8 +188,12 @@ function MatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart; analy
   function formatDimValue(dim: VaryingDimension, val: string): string {
     if (dim === 'qty') return `QTY ${val}`;
     if (dim === 'location') return val === 'US' ? 'U.S.' : val === 'TW' ? 'Taiwan' : val;
+    if (dim === 'leadTime') return `${val} workdays`;
     return val;
   }
+
+  // If leadTime is shown in headers/rows, don't repeat in cells
+  const cellShowLeadTime = showLeadTime && !analysis.varying.includes('leadTime');
 
   return (
     <div>
@@ -208,7 +216,7 @@ function MatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart; analy
               {colValues.map((cv, ci) => {
                 const matched = findScenarios(part.scenarios, { [dimRow]: rv, [dimCol]: cv }, part.material, part.finish);
                 return (
-                  <PriceCell key={ci} scenarios={matched} annotations={annotations} showLeadTime={showLeadTime} />
+                  <PriceCell key={ci} scenarios={matched} annotations={annotations} showLeadTime={cellShowLeadTime} />
                 );
               })}
             </tr>
@@ -237,8 +245,12 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart
   function formatDimValue(dim: VaryingDimension, val: string): string {
     if (dim === 'qty') return `QTY ${val}`;
     if (dim === 'location') return val === 'US' ? 'U.S.' : val === 'TW' ? 'Taiwan' : val;
+    if (dim === 'leadTime') return `${val} workdays`;
     return val;
   }
+
+  // If leadTime is shown in headers/rows, don't repeat in cells
+  const cellShowLeadTime = showLeadTime && !analysis.varying.includes('leadTime');
 
   return (
     <div>
@@ -284,7 +296,7 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart
                       {colValues.map((cv, ci) => {
                         const matched = findScenarios(groupScenarios, { [dimRow]: rv, [dimCol]: cv }, part.material, part.finish);
                         return (
-                          <PriceCell key={ci} scenarios={matched} annotations={annotations} showLeadTime={showLeadTime} />
+                          <PriceCell key={ci} scenarios={matched} annotations={annotations} showLeadTime={cellShowLeadTime} />
                         );
                       })}
                     </tr>
