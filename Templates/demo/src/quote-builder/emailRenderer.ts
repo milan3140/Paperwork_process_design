@@ -125,24 +125,26 @@ function renderLineItem(index: number, part: QuotePart): string {
 
 /* ── Main Renderer ── */
 
+/** Extract just the cover letter text */
+export function getCoverLetterText(data: QuoteBuilderData): string {
+  if (data.coverLetterStrategy === 'custom') {
+    return data.coverLetterCustom || '';
+  }
+  const allMaterials = new Set<string>();
+  for (const p of data.parts) {
+    const analysis = analyzeDimensions(p);
+    const effectiveMaterial = analysis.fixed.material || p.material;
+    if (effectiveMaterial) allMaterials.add(effectiveMaterial);
+  }
+  const materialStr = allMaterials.size === 1 ? [...allMaterials][0] : undefined;
+  return COVER_LETTERS[data.coverLetterStrategy](materialStr);
+}
+
 export function renderEmail(data: QuoteBuilderData): string {
   const sections: string[] = [];
 
   // 1. Cover Letter
-  if (data.coverLetterStrategy === 'custom') {
-    sections.push(data.coverLetterCustom || '');
-  } else {
-    // Determine dominant material for template
-    // Check scenario overrides first, then fall back to Part defaults
-    const allMaterials = new Set<string>();
-    for (const p of data.parts) {
-      const analysis = analyzeDimensions(p);
-      const effectiveMaterial = analysis.fixed.material || p.material;
-      if (effectiveMaterial) allMaterials.add(effectiveMaterial);
-    }
-    const materialStr = allMaterials.size === 1 ? [...allMaterials][0] : undefined;
-    sections.push(COVER_LETTERS[data.coverLetterStrategy](materialStr));
-  }
+  sections.push(getCoverLetterText(data));
 
   // 2. Quote Header
   sections.push(`========== Quote ID: ${data.quoteId} | Date: ${data.date} ==========`);

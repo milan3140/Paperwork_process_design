@@ -11,7 +11,7 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import type { QuoteBuilderData, QuotePart, Scenario, CoverLetterStrategy, Address } from './types';
 import { createDefaultQuote, createEmptyPart, createEmptyScenario, createEmptyAddress, genId } from './types';
 import { analyzeDimensions } from './dimensionEngine';
-import { renderEmail } from './emailRenderer';
+import { renderEmail, getCoverLetterText } from './emailRenderer';
 import { QuoteComparisonTable } from './QuoteComparisonTable';
 import { validateQuote, type ValidationResult, type ValidationError } from './validation';
 import { DocumentMeta } from '../../../components/DocumentMeta';
@@ -503,6 +503,7 @@ export default function QuoteBuilder() {
   const [data, setData] = useState<QuoteBuilderData>(createDefaultQuote());
   const [previewTab, setPreviewTab] = useState<'email' | 'pdf'>('email');
   const [copied, setCopied] = useState(false);
+  const [copiedCover, setCopiedCover] = useState(false);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const updatePart = useCallback((idx: number, part: QuotePart) => {
@@ -533,6 +534,13 @@ export default function QuoteBuilder() {
     await navigator.clipboard.writeText(emailText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyCoverLetter = async () => {
+    const text = getCoverLetterText(data);
+    await navigator.clipboard.writeText(text);
+    setCopiedCover(true);
+    setTimeout(() => setCopiedCover(false), 2000);
   };
 
   const handleDownloadPdf = () => {
@@ -802,14 +810,22 @@ export default function QuoteBuilder() {
                 {errorCount} error{errorCount > 1 ? 's' : ''}
               </span>
             )}
-            {previewTab === 'pdf' && (
-              <button className={BTN_GHOST} onClick={handleDownloadPdf}>
-                Download PDF
-              </button>
+            {previewTab === 'email' ? (
+              <>
+                <button className={BTN_PRIMARY} onClick={handleCopy} disabled={!validation.isValid}>
+                  {copied ? 'Copied' : 'Copy Email'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className={BTN_GHOST} onClick={handleCopyCoverLetter}>
+                  {copiedCover ? 'Copied' : 'Copy Cover Letter'}
+                </button>
+                <button className={BTN_PRIMARY} onClick={handleDownloadPdf}>
+                  Download PDF
+                </button>
+              </>
             )}
-            <button className={BTN_PRIMARY} onClick={handleCopy} disabled={!validation.isValid}>
-              {copied ? 'Copied' : 'Copy Email'}
-            </button>
           </div>
         </div>
 
