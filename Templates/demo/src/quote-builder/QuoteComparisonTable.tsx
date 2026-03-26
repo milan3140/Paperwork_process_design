@@ -34,15 +34,15 @@ function fmtPrice(n: number): string {
 const TH = [
   'py-[var(--doc-sp-table-y,7px)] px-[var(--sp-2,8px)]',
   'text-[length:var(--doc-text-param-label,7.5px)] font-semibold',
-  'text-[color:var(--gray-400,#9a96a8)] uppercase tracking-[0.06em]',
+  'text-[color:var(--gray-500,#6b6780)] uppercase tracking-[0.06em]',
   'border-b-[1.5px] border-[var(--gray-200,#e2e0e8)]',
 ].join(' ');
 
 const TD = 'py-[var(--doc-sp-table-y,7px)] px-[var(--sp-2,8px)] text-[length:var(--doc-text-body,10px)]';
 
-const ANNOTATION = 'text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400,#9a96a8)]';
+const ANNOTATION = 'text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-500,#6b6780)]';
 
-const SEP_THICK = 'border-b-[1.5px] border-[var(--gray-300,#ccc9d6)]';
+const SEP_THICK = 'border-b-[1.5px] border-[var(--gray-400,#9a96a8)]';
 
 /* ── Cell: Price + Lead Time + Annotation ── */
 
@@ -54,7 +54,7 @@ function PriceCell({ scenarios, annotations, showLeadTime = true }: {
 }) {
   if (scenarios.length === 0) {
     return (
-      <td className={`${TD} text-right text-[color:var(--gray-300,#ccc9d6)]`}>—</td>
+      <td className={`${TD} text-right text-[color:var(--gray-400,#9a96a8)]`}>—</td>
     );
   }
   return (
@@ -71,7 +71,7 @@ function PriceCell({ scenarios, annotations, showLeadTime = true }: {
             {fmtPrice(s.unitPrice)}
           </div>
           {showLeadTime && (
-            <div className="text-[color:var(--gray-400,#9a96a8)] text-[length:var(--doc-text-secondary,9px)]">
+            <div className="text-[color:var(--gray-500,#6b6780)] text-[length:var(--doc-text-secondary,9px)]">
               {s.leadTimeDays} workdays
             </div>
           )}
