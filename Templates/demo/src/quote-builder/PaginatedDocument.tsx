@@ -48,43 +48,50 @@ export function PaginatedDocument({
   const [measured, setMeasured] = useState(false);
 
   // Pass 1 → measure, then assign to pages
+  // Use section keys as dependency (stable string) to avoid infinite re-renders
+  const sectionKeys = sections.map(s => s.key).join(',');
+
   useEffect(() => {
-    if (!measureRef.current) return;
-    const container = measureRef.current;
-    const children = container.children;
+    // Delay measurement to next frame so DOM is fully laid out
+    const raf = requestAnimationFrame(() => {
+      if (!measureRef.current) return;
+      const container = measureRef.current;
+      const children = container.children;
 
-    // Measure each section's height
-    const heights: number[] = [];
-    for (let i = 0; i < children.length; i++) {
-      heights.push((children[i] as HTMLElement).offsetHeight);
-    }
-
-    // Greedy bin-packing: assign sections to pages
-    const result: PageSection[][] = [];
-    let currentPage: PageSection[] = [];
-    let currentHeight = 0;
-
-    for (let i = 0; i < sections.length; i++) {
-      const sectionH = heights[i] || 0;
-      const gapH = currentPage.length > 0 ? gap : 0;
-
-      if (currentHeight + gapH + sectionH > AVAILABLE_H && currentPage.length > 0) {
-        // Start new page
-        result.push(currentPage);
-        currentPage = [sections[i]];
-        currentHeight = sectionH;
-      } else {
-        currentPage.push(sections[i]);
-        currentHeight += gapH + sectionH;
+      // Measure each section's height
+      const heights: number[] = [];
+      for (let i = 0; i < children.length; i++) {
+        heights.push((children[i] as HTMLElement).offsetHeight);
       }
-    }
-    if (currentPage.length > 0) {
-      result.push(currentPage);
-    }
 
-    setPages(result);
-    setMeasured(true);
-  }, [sections, gap]);
+      // Greedy bin-packing: assign sections to pages
+      const result: PageSection[][] = [];
+      let currentPage: PageSection[] = [];
+      let currentHeight = 0;
+
+      for (let i = 0; i < sections.length; i++) {
+        const sectionH = heights[i] || 0;
+        const gapH = currentPage.length > 0 ? gap : 0;
+
+        if (currentHeight + gapH + sectionH > AVAILABLE_H && currentPage.length > 0) {
+          // Start new page
+          result.push(currentPage);
+          currentPage = [sections[i]];
+          currentHeight = sectionH;
+        } else {
+          currentPage.push(sections[i]);
+          currentHeight += gapH + sectionH;
+        }
+      }
+      if (currentPage.length > 0) {
+        result.push(currentPage);
+      }
+
+      setPages(result);
+      setMeasured(true);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [sectionKeys, gap]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const maxGap = gap * maxGapFactor;
   const FlexSpacer = () => (
@@ -123,16 +130,9 @@ export function PaginatedDocument({
         >
           <DocumentHeader docType="Quotation" />
 
-          <div
-            className="doc-content"
-            style={{
-              gap: 0,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
+          <div className="doc-content" style={{ gap: 0 }}>
             {pageSections.map((section, si) => (
-              <div key={section.key}>
+              <div key={section.key} style={{ flexShrink: 0 }}>
                 {si > 0 && <FlexSpacer />}
                 {section.content}
               </div>
