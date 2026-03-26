@@ -118,18 +118,11 @@ export function PaginatedDocument({
         >
           <DocumentHeader docType="Quotation" />
 
-          <div className="doc-content" style={{ gap: 0, minHeight: 0, overflow: 'hidden' }}>
-            {indices.flatMap((sectionIdx, si) => {
+          <div className="doc-content" style={{ gap: `${gap}px`, minHeight: 0, justifyContent: 'space-between' }}>
+            {indices.map((sectionIdx) => {
               const section = sections[sectionIdx];
-              if (!section) return [];
-              const items: ReactNode[] = [];
-              if (si > 0) items.push(
-                <div key={`gap-${si}`} style={{ flex: `1 0 ${gap}px`, maxHeight: `${maxGap}px` }} />
-              );
-              items.push(
-                <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>
-              );
-              return items;
+              if (!section) return null;
+              return <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>;
             })}
           </div>
 
