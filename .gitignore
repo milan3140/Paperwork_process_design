@@ -5,6 +5,10 @@ node_modules/
 dist/
 .vite/
 
+# Python
+__pycache__/
+*.pyc
+
 # IDE / Editor
 .idea/
 .vscode/
@@ -15,7 +19,7 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Claude Code local settings
+# Claude Code (local/personal settings only — .claude/settings.json is shared)
 .claude/settings.local.json
 
 # Local backups
@@ -24,3 +28,7 @@ Backups/
 # Environment
 .env
 .env.local
+
+# Logs
+*.log
+npm-debug.log*
