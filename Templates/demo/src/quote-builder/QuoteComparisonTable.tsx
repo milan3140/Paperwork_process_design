@@ -140,10 +140,14 @@ function HorizontalLayout({ part, analysis, showLeadTime }: { part: QuotePart; a
   const dim = analysis.varying[0];
   const annotations = computeComparisons(part.scenarios, analysis.varying);
 
-  // Column headers from the varying dimension values
-  const headers = part.scenarios.map(s =>
-    dim === 'qty' ? `QTY ${s.qty}` : generateConditionLabel(s, [dim], part.material, part.finish)
-  );
+  // Column headers from UNIQUE dimension values (not per-scenario)
+  const colValues = getUniqueValues(part.scenarios, dim, part.material, part.finish);
+
+  function formatDimValue(val: string): string {
+    if (dim === 'qty') return `QTY ${val}`;
+    if (dim === 'location') return val === 'US' ? 'U.S. manufacturing' : val === 'TW' ? 'Taiwan manufacturing' : val;
+    return val;
+  }
 
   return (
     <div>
@@ -151,17 +155,17 @@ function HorizontalLayout({ part, analysis, showLeadTime }: { part: QuotePart; a
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            {/* No label column needed for single-part horizontal */}
-            {headers.map((h, i) => (
-              <th key={i} className={`${TH} text-right`}>{h}</th>
+            {colValues.map((cv, i) => (
+              <th key={i} className={`${TH} text-right`}>{formatDimValue(cv)}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr>
-            {part.scenarios.map((s, i) => (
-              <PriceCell key={i} scenarios={[s]} annotations={annotations} showLeadTime={showLeadTime} />
-            ))}
+            {colValues.map((cv, i) => {
+              const matched = findScenarios(part.scenarios, { [dim]: cv }, part.material, part.finish);
+              return <PriceCell key={i} scenarios={matched} annotations={annotations} showLeadTime={showLeadTime} />;
+            })}
           </tr>
         </tbody>
       </table>
