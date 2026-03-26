@@ -110,6 +110,8 @@ export function PaginatedDocument({
           className="doc-page"
           style={{
             fontFamily: "'Inter', system-ui, sans-serif",
+            height: 'var(--doc-page-h, 279.4mm)',
+            minHeight: 'var(--doc-page-h, 279.4mm)',
             marginBottom: pageIdx < pageGroups.length - 1 ? '32px' : 0,
           }}
         >
