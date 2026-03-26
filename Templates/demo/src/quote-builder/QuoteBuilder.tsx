@@ -381,31 +381,24 @@ function buildPdfSections(
     ),
   });
 
-  // 3. Pricing — each part as a separate section (can break between parts)
-  // Pricing header
+  // 3. Pricing — single section with all parts grouped together
   sections.push({
-    key: 'pricing-header',
+    key: 'pricing',
     content: (
-      <SectionLabel className="!border-b !border-[var(--color-primary)]">
-        <span className="text-[color:var(--color-primary)]">Pricing</span>
-      </SectionLabel>
-    ),
-  });
-  // Each part
-  data.parts.forEach((part, i) => {
-    sections.push({
-      key: `pricing-part-${part.id}`,
-      content: (
-        <div className={`bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] px-[var(--sp-3)] py-[var(--sp-1)]${i > 0 ? ' mt-[2px]' : ''}`}>
-          <QuoteComparisonTable part={part} />
+      <div className="flex flex-col">
+        <SectionLabel className="!border-b !border-[var(--color-primary)]">
+          <span className="text-[color:var(--color-primary)]">Pricing</span>
+        </SectionLabel>
+        <div className="flex flex-col gap-[var(--sp-1)] mt-[var(--sp-3)]">
+          {data.parts.map((part, i) => (
+            <div key={part.id} className="bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]">
+              <QuoteComparisonTable part={part} />
+            </div>
+          ))}
         </div>
-      ),
-    });
-  });
-  // Pricing bottom border
-  sections.push({
-    key: 'pricing-footer',
-    content: <div className="border-b border-[color:var(--color-primary)]" />,
+        <div className="border-b border-[color:var(--color-primary)] mt-[var(--sp-3)]" />
+      </div>
+    ),
   });
 
   // 4. Info grid (Mfg Notes + Lead Time + Shipping + Payment)
