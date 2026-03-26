@@ -118,12 +118,21 @@ export function PaginatedDocument({
         >
           <DocumentHeader docType="Quotation" />
 
-          <div className="doc-content" style={{ gap: `${gap}px`, minHeight: 0, justifyContent: 'space-between' }}>
-            {indices.map((sectionIdx) => {
+          <div className="doc-content" style={{ gap: 0, minHeight: 0 }}>
+            {indices.flatMap((sectionIdx, si) => {
               const section = sections[sectionIdx];
-              if (!section) return null;
-              return <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>;
+              if (!section) return [];
+              const items: ReactNode[] = [];
+              if (si > 0) items.push(
+                <div key={`gap-${si}`} style={{ flex: `1 0 ${gap}px`, maxHeight: `${maxGap}px` }} />
+              );
+              items.push(
+                <div key={section.key} style={{ flexShrink: 0 }}>{section.content}</div>
+              );
+              return items;
             })}
+            {/* Absorb remaining space so it doesn't pile above footer */}
+            <div key="tail-spacer" style={{ flex: '1 0 0' }} />
           </div>
 
           <DocumentFooter
