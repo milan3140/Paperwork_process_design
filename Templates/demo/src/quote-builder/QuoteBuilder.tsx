@@ -327,7 +327,7 @@ function PartEditor({
 }
 
 /* ── PDF flex spacer: min-height = doc-content-gap, grows to fill page ── */
-const FlexSpacer = () => <div style={{ flex: '1 0 var(--doc-content-gap, 24px)' }} />;
+const FlexSpacer = () => <div style={{ flex: '1 0 var(--doc-content-gap, 24px)', maxHeight: 'calc(var(--doc-content-gap, 24px) * 1.5)' }} />;
 
 /* ═══════════════════════════════════════════════════════════════
    ADDRESS FIELDS
