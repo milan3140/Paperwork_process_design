@@ -23,6 +23,9 @@ dist/
 __pycache__/
 *.pyc
 *.log
+test-results/
+playwright-report/
+blob-report/
 
 # Step 5: Exclude personal/local files even in allowed dirs
 .claude/settings.local.json

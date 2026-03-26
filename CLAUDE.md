@@ -2,7 +2,7 @@
 
 React 18 + TypeScript 5 + Tailwind 3 + Vite 5. Quote Builder with PDF/Email generation.
 
-## Commands
+## Commands for testing
 ```
 cd Templates/demo
 npm run dev                                      # localhost:5173
@@ -18,7 +18,7 @@ npx tsc --noEmit                                 # type check
 
 ## Bug Fix Rule
 
-**DO NOT only fix the obvious element straight. Find the root cause first.**
+**DO NOT rush to fix the obvious element only. Find the root cause first.**
 
 1. **Reproduce** — exact conditions, expected vs actual
 2. **Isolate** — toggle one variable at a time (environment? input? interaction? component?)
