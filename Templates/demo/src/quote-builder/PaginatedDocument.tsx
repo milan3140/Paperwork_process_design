@@ -73,8 +73,13 @@ export function PaginatedDocument({
     }
     if (current.length > 0) groups.push(current);
 
-    setPageGroups(groups);
-  }); // No deps — runs every render, measures latest content
+    // Only update state if groups actually changed (prevents infinite loop)
+    setPageGroups(prev => {
+      const same = prev.length === groups.length &&
+        prev.every((g, i) => g.length === groups[i].length && g.every((v, j) => v === groups[i][j]));
+      return same ? prev : groups;
+    });
+  }); // No deps — runs every render, but bails out if groups unchanged
 
   const maxGap = gap * maxGapFactor;
 
