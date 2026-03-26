@@ -703,7 +703,7 @@ export default function QuoteBuilder() {
 
                 {/* Pricing section — primary color borders to visually separate from info sections */}
                 <div className="flex flex-col gap-[var(--sp-5)]">
-                  <SectionLabel><span className="text-[color:var(--color-primary)]">Pricing</span></SectionLabel>
+                  <SectionLabel className="border-b-2 border-[var(--color-primary)]"><span className="text-[color:var(--color-primary)]">Pricing</span></SectionLabel>
                   <div className="flex flex-col gap-[var(--sp-5)] border-b-2 border-[color:var(--color-primary)] pb-[var(--sp-5)]">
                   {data.parts.map((part, i) => (
                     <div key={part.id} className={i > 0 ? 'pt-[var(--sp-4)] border-t border-[color:var(--gray-200)]' : ''}>
