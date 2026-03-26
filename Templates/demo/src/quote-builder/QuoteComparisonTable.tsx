@@ -35,7 +35,7 @@ const TH = [
   'py-[var(--doc-sp-table-y,7px)] px-[var(--sp-2,8px)]',
   'text-[length:var(--doc-text-param-label,7.5px)] font-semibold',
   'text-[color:var(--gray-500,#6b6780)] uppercase tracking-[0.06em]',
-  'border-b-[1.5px] border-[var(--gray-300,#ccc9d6)]',
+  'border-b-[1.5px] border-[var(--gray-250,#C8C4D4)]',
 ].join(' ');
 
 const TD = 'py-[var(--doc-sp-table-y,7px)] px-[var(--sp-2,8px)] text-[length:var(--doc-text-body,10px)]';
@@ -60,7 +60,7 @@ function PriceCell({ scenarios, annotations, showLeadTime = true }: {
   return (
     <td className={`${TD} text-right`}>
       {scenarios.map((s, i) => (
-        <div key={s.id} className={i > 0 ? 'mt-[var(--sp-2,8px)] pt-[var(--sp-2,8px)] border-t border-dashed border-[var(--gray-300,#ccc9d6)]' : ''}>
+        <div key={s.id} className={i > 0 ? 'mt-[var(--sp-2,8px)] pt-[var(--sp-2,8px)] border-t border-dashed border-[var(--gray-250,#C8C4D4)]' : ''}>
           {/* Show customLabel if stacking multiple in same cell */}
           {scenarios.length > 1 && s.customLabel && (
             <div className="text-[color:var(--gray-500,#6b6780)] text-[length:var(--doc-text-secondary,9px)] mb-[1px]">
@@ -209,7 +209,7 @@ function MatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart; analy
         </thead>
         <tbody>
           {rowValues.map((rv, ri) => (
-            <tr key={ri} className={ri < rowValues.length - 1 ? 'border-b border-[var(--gray-300,#ccc9d6)]' : ''}>
+            <tr key={ri} className={ri < rowValues.length - 1 ? 'border-b border-[var(--gray-200,#e2e0e8)]' : ''}>
               <td className={`${TD} text-left font-medium text-[color:var(--gray-600,#6b6780)]`}>
                 {formatDimValue(dimRow, rv)}
               </td>
@@ -274,7 +274,7 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart
           const annotations = computeComparisons(groupScenarios, innerDims);
 
           return (
-            <div key={gi} className="border border-[var(--gray-300,#ccc9d6)] rounded-[var(--radius-sm,4px)] p-[var(--sp-2,8px)]">
+            <div key={gi} className="border border-[var(--gray-200,#e2e0e8)] rounded-[var(--radius-sm,4px)] p-[var(--sp-2,8px)]">
               <div className="text-[length:var(--doc-text-body,10px)] font-semibold text-[color:var(--gray-700,#4a4660)] mb-[var(--sp-1,4px)]">
                 {formatDimValue(groupDim, gv)}
               </div>
@@ -289,7 +289,7 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime }: { part: QuotePart
                 </thead>
                 <tbody>
                   {rowValues.map((rv, ri) => (
-                    <tr key={ri} className={ri < rowValues.length - 1 ? 'border-b border-[var(--gray-300,#ccc9d6)]' : ''}>
+                    <tr key={ri} className={ri < rowValues.length - 1 ? 'border-b border-[var(--gray-200,#e2e0e8)]' : ''}>
                       <td className={`${TD} text-left font-medium text-[color:var(--gray-600,#6b6780)]`}>
                         {formatDimValue(dimRow, rv)}
                       </td>
@@ -334,7 +334,7 @@ function FlatListLayout({ part, analysis, showLeadTime }: { part: QuotePart; ana
             const qtyLabel = `QTY ${s.qty}`;
             const fullLabel = label ? `${qtyLabel} — ${label}` : qtyLabel;
             return (
-              <tr key={i} className={i < part.scenarios.length - 1 ? 'border-b border-[var(--gray-300,#ccc9d6)]' : ''}>
+              <tr key={i} className={i < part.scenarios.length - 1 ? 'border-b border-[var(--gray-200,#e2e0e8)]' : ''}>
                 <td className={`${TD} text-left text-[color:var(--gray-600,#6b6780)]`}>{fullLabel}</td>
                 <td className={`${TD} text-right font-semibold text-[color:var(--gray-900,#1c1a25)]`}>{fmtPrice(s.unitPrice)}</td>
                 {showLeadTime && <td className={`${TD} text-right text-[color:var(--gray-400,#9a96a8)]`}>{s.leadTimeDays} workdays</td>}
