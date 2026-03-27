@@ -15,6 +15,7 @@ const EvalV2       = lazy(() => import('./EvalDemoV2'));
 const EvalV3       = lazy(() => import('./EvalDemoV3'));
 const QuoteBuilderV0 = lazy(() => import('./quote-builder-v0/QuoteBuilder'));
 const QuoteBuilder   = lazy(() => import('./quote-builder/QuoteBuilder'));
+const QuoteBuilderV2 = lazy(() => import('./quote-builder-v2/QuoteBuilder'));
 const BomDemo      = lazy(() => import('./BomDemo'));
 import DemoIndex from './DemoIndex';
 
@@ -40,6 +41,7 @@ function Router() {
           case '#/eval-v3':       return <EvalV3 />;
           case '#/quote-builder-v0': return <QuoteBuilderV0 />;
           case '#/quote-builder': return <QuoteBuilder />;
+          case '#/quote-builder-v2': return <QuoteBuilderV2 />;
           default:          return <DemoIndex />;
         }
       })()}

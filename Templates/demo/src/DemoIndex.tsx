@@ -6,6 +6,7 @@
  */
 
 const routes = [
+  { hash: '#/quote-builder-v2',  label: 'Quote Proposal Builder v2', desc: '報價方案產出器 v2 — Editable PDF Sections (Email + PDF)' },
   { hash: '#/quote-builder',    label: 'Quote Builder v1', desc: '報價產出器 v1 — Build & Preview Quotes (Email + PDF)' },
   { hash: '#/quote-builder-v0', label: 'Quote Builder v0', desc: '報價產出器 v0 — Snapshot 2026-03-26' },
   { hash: '#/quote',   label: 'Quote',   desc: '報價單 — Quotation' },
