@@ -232,13 +232,13 @@ const COL_FINISH = 100;    // col 4: surface finish
 
 /** Format Dims3D to display string "l × w × h", or pass through if already a string.
  *  The × character is U+00D7 (multiplication sign), not lowercase x. */
-function formatDims(dims: Dims3D | string): string {
+export function formatDims(dims: Dims3D | string): string {
   if (typeof dims === 'string') return dims;
   return `${dims.l} \u00d7 ${dims.w} \u00d7 ${dims.h}`;
 }
 
 /** Format weight number to "X.XX kg", or pass through if already a string. */
-function formatWeight(weight: number | string): string {
+export function formatWeight(weight: number | string): string {
   if (typeof weight === 'string') return weight;
   return `${weight.toFixed(2)} kg`;
 }
@@ -247,7 +247,7 @@ function formatWeight(weight: number | string): string {
  *  "P02\n(1/2)" and "P02\n(2/2)" both have base "P02" → counted once.
  *  "P05" appearing 4 times → counted once.
  *  Used to display "零件種類：N 種". */
-function countUniquePartTypes(parts: FactoryBomPart[]): number {
+export function countUniquePartTypes(parts: FactoryBomPart[]): number {
   const baseIds = new Set(parts.map(p => p.partId.split('\n')[0]));
   return baseIds.size;
 }
@@ -256,7 +256,7 @@ function countUniquePartTypes(parts: FactoryBomPart[]): number {
  *  tierLabel(0) → "方案一", tierLabel(1) → "方案二", etc.
  *  Falls back to numeric for index >= 10: tierLabel(10) → "方案11". */
 const ZH_ORDINALS = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
-function tierLabel(index: number): string {
+export function tierLabel(index: number): string {
   return `方案${ZH_ORDINALS[index] ?? (index + 1)}`;
 }
 
@@ -264,7 +264,7 @@ function tierLabel(index: number): string {
  *  Returns the maximum qtyTiers.length across all parts.
  *  Example: if parts have qtyTiers of lengths [3, 2, 3, 2] → returns 3.
  *  Empty parts array → returns 1 (minimum 1 tier). */
-function getMaxTierCount(parts: FactoryBomPart[]): number {
+export function getMaxTierCount(parts: FactoryBomPart[]): number {
   return parts.length === 0 ? 1 : Math.max(...parts.map(p => p.qtyTiers.length));
 }
 
@@ -285,7 +285,7 @@ function getMaxTierCount(parts: FactoryBomPart[]): number {
  *  @param parts   All parts in the BOM
  *  @param tierCount  Number of tiers (from getMaxTierCount)
  *  @returns Array of length tierCount with per-tier sums */
-function computeTierTotals(parts: FactoryBomPart[], tierCount: number): number[] {
+export function computeTierTotals(parts: FactoryBomPart[], tierCount: number): number[] {
   const totals = new Array(tierCount).fill(0);
   for (const p of parts) {
     const sorted = [...p.qtyTiers].sort((a, b) => a - b);
@@ -370,7 +370,7 @@ const ROWS_CONTINUATION = 7;
 
 /** Split parts array into pages. Returns array of part arrays.
  *  Page 0 gets ROWS_PAGE_1 parts; each subsequent page gets ROWS_CONTINUATION. */
-function paginateParts(parts: FactoryBomPart[]) {
+export function paginateParts(parts: FactoryBomPart[]) {
   const pages: FactoryBomPart[][] = [];
   let remaining = [...parts];
   pages.push(remaining.slice(0, ROWS_PAGE_1));
