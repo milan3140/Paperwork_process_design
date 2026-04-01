@@ -240,7 +240,7 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
                           className="relative py-[var(--sp-2)] px-[var(--sp-2)]"
                           style={{ verticalAlign: 'middle' }}
                         >
-                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: -1, height: '66%' }} />
+                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: -0.5, height: '66%' }} />
                           <span className="text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--gray-800)]">
                             零件種類：<span className={KEY_VALUE}>{data.itemCount}</span> 種
                           </span>
@@ -250,7 +250,7 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
                           className="relative py-[var(--sp-2)] px-[var(--sp-2)] whitespace-nowrap"
                           style={{ verticalAlign: 'middle' }}
                         >
-                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: -1, height: '66%' }} />
+                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: 0, height: '66%' }} />
                           <span className="text-[length:var(--doc-text-part-id)] text-[color:var(--gray-800)]">共{' '}</span>
                           <span className={KEY_VALUE}>{minSum}</span>
                           <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)]"> / </span>
