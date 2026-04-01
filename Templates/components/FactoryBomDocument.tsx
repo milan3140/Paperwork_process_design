@@ -46,7 +46,7 @@ interface FactoryBomDocumentProps {
    ═══════════════════════════════════════════════════════════ */
 
 const TH = [
-  'text-[length:var(--doc-text-param-label)] font-semibold',
+  'text-[length:10px] font-semibold',
   'text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]',
   'py-[var(--sp-1)] px-[var(--sp-2)]',
   'border-b border-[var(--gray-200)]',
@@ -57,11 +57,11 @@ const KEY_VALUE = 'text-[length:14px] font-bold text-[color:var(--gray-900)]';
 
 /* ── Quotation sub-column widths ── */
 const QTY_COL = 60;
-const DELIVERY_COL = 72;
+const DELIVERY_COL = 98;
 
 /* ── Main column widths ── */
 const COL_THUMBNAIL = 140;
-const COL_PART_ID = 70;
+const COL_PART_ID = 50;
 const COL_MATERIAL = 120;
 const COL_FINISH = 100;
 // COL_QUOTE = remaining (flex)
@@ -95,15 +95,36 @@ const NOTES = [
   '所有工件加工完成後要立即清潔，成品不可有任何氧化變黑痕跡。關於清潔方式如有疑問請與艾維聯繫。',
 ];
 
+/* ── DFM notes — blank ruled area for factory remarks (last page only) ── */
+const DFM_LINES = 4;
+
+function DfmNotesSection() {
+  return (
+    <div className="flex-1 flex flex-col pt-[var(--sp-3)]">
+      <div className="text-[length:var(--doc-text-secondary)] font-semibold text-[color:var(--gray-600)] border-b border-[var(--gray-200)] pb-[var(--doc-sp-half)] mb-[var(--sp-2)]">
+        加工備註
+      </div>
+      <div className="flex-1 flex flex-col">
+        {Array.from({ length: DFM_LINES }, (_, i) => (
+          <div
+            key={i}
+            className="flex-1 border-b border-dashed border-[var(--gray-200)]"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function NotesSection() {
   return (
-    <div className="mt-auto pt-[var(--sp-4)]" style={{ paddingLeft: 'var(--doc-margin-x)', paddingRight: 'var(--doc-margin-x)' }}>
+    <div className="mt-auto pt-[var(--sp-4)] pb-[10px]" style={{ paddingLeft: 'var(--doc-margin-x)', paddingRight: 'var(--doc-margin-x)' }}>
       <div className="text-[length:var(--doc-text-secondary)] font-semibold text-[color:var(--gray-600)] border-b border-[var(--gray-200)] pb-[var(--doc-sp-half)] mb-[var(--sp-2)]">
         注意事項
       </div>
       <div className="flex flex-col gap-[var(--sp-1)]">
         {NOTES.map((note, i) => (
-          <div key={i} className="text-[length:var(--doc-text-param-label)] text-[color:var(--gray-500)] leading-[1.6]">
+          <div key={i} className="text-[length:10px] text-[color:var(--gray-500)] leading-[1.6]">
             {note}
           </div>
         ))}
@@ -116,130 +137,179 @@ function NotesSection() {
    Component
    ═══════════════════════════════════════════════════════════ */
 
+/* ── Pagination constants ── */
+const ROWS_PAGE_1 = 5;        // first page: title + metadata + table overhead → fewer rows
+const ROWS_CONTINUATION = 7;  // continuation pages: just table header
+
+function paginateParts(parts: FactoryBomPart[]) {
+  const pages: FactoryBomPart[][] = [];
+  let remaining = [...parts];
+  pages.push(remaining.slice(0, ROWS_PAGE_1));
+  remaining = remaining.slice(ROWS_PAGE_1);
+  while (remaining.length > 0) {
+    pages.push(remaining.slice(0, ROWS_CONTINUATION));
+    remaining = remaining.slice(ROWS_CONTINUATION);
+  }
+  return pages;
+}
+
+
+/* ── Shared colgroup ── */
+function TableColgroup() {
+  return (
+    <colgroup>
+      <col style={{ width: COL_THUMBNAIL }} />
+      <col style={{ width: COL_PART_ID }} />
+      <col style={{ width: COL_MATERIAL }} />
+      <col style={{ width: COL_FINISH }} />
+      <col />
+    </colgroup>
+  );
+}
+
+/* ── Header band (every page) ── */
+function HeaderBand({ data }: { data: FactoryBomData }) {
+  return (
+    <div
+      className="flex items-center justify-between shrink-0 bg-[var(--color-primary)]"
+      style={{ height: 'var(--doc-header-h)', padding: '0 var(--doc-margin-x)' }}
+    >
+      <div className="flex items-center">
+        {PRINT_ICONS.logoText(22)}
+      </div>
+      <div className="flex items-center gap-[var(--sp-3)]">
+        <span className="text-white/85 text-[length:var(--doc-text-doc-type)] font-semibold tracking-[var(--doc-tracking-doc-type)] uppercase">
+          BOM 表
+        </span>
+        <span className="text-white/60 text-[length:var(--doc-text-doc-type)] font-normal">
+          {data.issueDate}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDocumentProps>(
   function FactoryBomDocument({ data }, ref) {
     const { minSum, midSum, maxSum } = computeTotals(data.parts);
+    const pages = paginateParts(data.parts);
+    const totalPages = pages.length;
 
     return (
-      <div ref={ref} data-comp="FactoryBomDocument" className="doc-page">
-        {/* ── Header band with issueDate next to docType ── */}
-        <div
-          className="flex items-center justify-between shrink-0 bg-[var(--color-primary)]"
-          style={{ height: 'var(--doc-header-h)', padding: '0 var(--doc-margin-x)' }}
-        >
-          <div className="flex items-center">
-            {PRINT_ICONS.logoText(22)}
-          </div>
-          <div className="flex items-center gap-[var(--sp-3)]">
-            <span className="text-white/85 text-[length:var(--doc-text-doc-type)] font-semibold tracking-[var(--doc-tracking-doc-type)] uppercase">
-              BOM 表
-            </span>
-            <span className="text-white/60 text-[length:var(--doc-text-doc-type)] font-normal">
-              {data.issueDate}
-            </span>
-          </div>
-        </div>
+      <div ref={ref} data-comp="FactoryBomDocument" style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+        {pages.map((pageParts, pageIdx) => {
+          const isFirst = pageIdx === 0;
+          const isLast = pageIdx === totalPages - 1;
+          // Global index offset for part keys
+          const offset = isFirst ? 0 : ROWS_PAGE_1 + (pageIdx - 1) * ROWS_CONTINUATION;
 
-        <div className="doc-content" style={{ gap: 'var(--sp-3)' }}>
-          {/* ── Title row: RFQ BOM + orderId + deadline ── */}
-          <div className="flex items-end gap-[var(--sp-4)]">
-            <span className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-              RFQ BOM
-            </span>
-            <span className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-title)]">
-              {data.orderId}
-            </span>
-            <span className="flex-1" />
-            <span className="text-[length:12px] font-bold text-[color:var(--color-warning-text)]">
-              最晚報價時間：{data.replyDeadline}
-            </span>
-          </div>
+          return (
+            <div key={pageIdx} className="doc-page" style={{ height: 'var(--doc-page-h)' }}>
+              <HeaderBand data={data} />
 
-          {/* ── Metadata row: 零件種類 + 共 X/Y/Z 件 ── */}
-          <div className="relative flex items-baseline">
-            {/* Left — aligned with 尺寸圖紙 column */}
-            <span className="text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--gray-800)]">
-              零件種類：<span className={KEY_VALUE}>{data.itemCount}</span> 種
-            </span>
-            {/* Center-aligned with 數量 sub-column center */}
-            <span
-              className="absolute whitespace-nowrap"
-              style={{ left: COL_THUMBNAIL + COL_PART_ID + COL_MATERIAL + COL_FINISH + QTY_COL / 2, transform: 'translateX(-50%)' }}
-            >
-              <span className="text-[length:var(--doc-text-part-id)] text-[color:var(--gray-800)]">共{' '}</span>
-              <span className={KEY_VALUE}>{minSum}</span>
-              <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)]"> / </span>
-              <span className={KEY_VALUE}>{midSum}</span>
-              <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)]"> / </span>
-              <span className={KEY_VALUE}>{maxSum}</span>
-              <span className="text-[length:var(--doc-text-part-id)] text-[color:var(--gray-800)]">{' '}件</span>
-            </span>
-          </div>
+              <div className="doc-content" style={{ gap: 'var(--sp-3)' }}>
+                {/* ── Title + metadata only on first page ── */}
+                {isFirst && (
+                  <>
+                    <div className="flex gap-[var(--sp-4)]">
+                      <span className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
+                        RFQ BOM
+                      </span>
+                      <div className="flex-1 flex items-center justify-between">
+                        <span className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-title)]">
+                          {data.orderId}
+                        </span>
+                        <span className="text-[length:12px] font-bold text-[color:var(--color-warning-text)]">
+                          最晚報價時間：{data.replyDeadline}
+                        </span>
+                      </div>
+                    </div>
 
-          {/* ── Table ── */}
-          <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
-            <colgroup>
-              <col style={{ width: COL_THUMBNAIL }} />
-              <col style={{ width: COL_PART_ID }} />
-              <col style={{ width: COL_MATERIAL }} />
-              <col style={{ width: COL_FINISH }} />
-              <col /> {/* 報價 — remaining width */}
-            </colgroup>
+                  </>
+                )}
 
-            <thead>
-              {/* ── Main table header ── */}
-              <tr className="bg-[var(--gray-50)]">
-                <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>
-                  尺寸圖紙
-                </td>
-                <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>
-                  工件號
-                </td>
-                <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>
-                  材質
-                </td>
-                <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>
-                  表處
-                </td>
-                {/* 報價 header — contains sub-column labels */}
-                <td className={`${TH} p-0`}>
-                  <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
-                    <colgroup>
-                      <col style={{ width: QTY_COL }} />
-                      <col />
-                      <col style={{ width: DELIVERY_COL }} />
-                    </colgroup>
-                    <tbody><tr>
-                      <td className="text-center py-[var(--sp-1)] px-[var(--sp-1)]"
-                          style={{ borderRight: '1px dashed var(--gray-100)' }}>
-                        <span className="text-[length:var(--doc-text-param-label)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]">數量</span>
+                {/* ── Table ── */}
+                <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
+                  <TableColgroup />
+                  <thead>
+                    {/* ── Metadata row (first page only) — inside thead for seamless guide lines ── */}
+                    {isFirst && (
+                      <tr>
+                        <td
+                          className="relative py-[var(--sp-2)] px-[var(--sp-2)]"
+                          style={{ verticalAlign: 'middle' }}
+                        >
+                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: 0, height: '66%' }} />
+                          <span className="text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--gray-800)]">
+                            零件種類：<span className={KEY_VALUE}>{data.itemCount}</span> 種
+                          </span>
+                        </td>
+                        <td colSpan={3} />
+                        <td
+                          className="relative py-[var(--sp-2)] px-[var(--sp-2)] whitespace-nowrap"
+                          style={{ verticalAlign: 'middle' }}
+                        >
+                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: 0, height: '66%' }} />
+                          <span className="text-[length:var(--doc-text-part-id)] text-[color:var(--gray-800)]">共{' '}</span>
+                          <span className={KEY_VALUE}>{minSum}</span>
+                          <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)]"> / </span>
+                          <span className={KEY_VALUE}>{midSum}</span>
+                          <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)]"> / </span>
+                          <span className={KEY_VALUE}>{maxSum}</span>
+                          <span className="text-[length:var(--doc-text-part-id)] text-[color:var(--gray-800)]">{' '}件</span>
+                        </td>
+                      </tr>
+                    )}
+                    {/* ── Column headers ── */}
+                    <tr className="bg-[var(--gray-50)]">
+                      <td className={`${TH} text-center ${isFirst ? 'border-l border-l-[var(--gray-100)]' : ''} border-r border-r-[var(--gray-100)]`}>尺寸圖紙</td>
+                      <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>工件號</td>
+                      <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>材質</td>
+                      <td className={`${TH} text-center border-r border-r-[var(--gray-100)]`}>表處</td>
+                      <td className={TH} style={{ padding: 0 }}>
+                        <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
+                          <colgroup>
+                            <col style={{ width: QTY_COL }} />
+                            <col />
+                            <col style={{ width: DELIVERY_COL }} />
+                          </colgroup>
+                          <tbody><tr>
+                            <td className="text-center py-[var(--sp-1)] px-[var(--sp-1)]"
+                                style={{ borderRight: '1px dashed var(--gray-100)' }}>
+                              <span className="text-[length:10px] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]">數量</span>
+                            </td>
+                            <td className="text-center py-[var(--sp-1)] px-[var(--sp-1)]"
+                                style={{ borderRight: '1px dashed var(--gray-100)' }}>
+                              <span className="text-[length:10px] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]">單價</span>
+                            </td>
+                            <td className="text-center py-[var(--sp-1)] px-[var(--sp-1)]">
+                              <span className="text-[length:10px] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]">交期</span>
+                            </td>
+                          </tr></tbody>
+                        </table>
                       </td>
-                      <td className="text-center py-[var(--sp-1)] px-[var(--sp-1)]"
-                          style={{ borderRight: '1px dashed var(--gray-100)' }}>
-                        <span className="text-[length:var(--doc-text-param-label)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]">單價</span>
-                      </td>
-                      <td className="text-center py-[var(--sp-1)] px-[var(--sp-1)]">
-                        <span className="text-[length:var(--doc-text-param-label)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)]">交期</span>
-                      </td>
-                    </tr></tbody>
-                  </table>
-                </td>
-              </tr>
-            </thead>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageParts.map((part, i) => (
+                      <FactoryBomRow
+                        key={`${part.partId}-${offset + i}`}
+                        part={part}
+                        isLast={!isLast && i === pageParts.length - 1}
+                      />
+                    ))}
+                    {isLast && <FactoryBomSummary data={data} />}
+                  </tbody>
+                </table>
 
-            <tbody>
-              {data.parts.map((part, i) => (
-                <FactoryBomRow key={`${part.partId}-${i}`} part={part} isLast={i === data.parts.length - 1} />
-              ))}
+                {isLast && <DfmNotesSection />}
+              </div>
 
-              {/* ── Summary row ── */}
-              <FactoryBomSummary data={data} />
-            </tbody>
-          </table>
-        </div>
-
-        <NotesSection />
-        <DocumentFooter docId={data.orderId} page={1} totalPages={1} />
+              <NotesSection />
+              <DocumentFooter docId={data.orderId} page={pageIdx + 1} totalPages={totalPages} />
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -302,14 +372,14 @@ function FactoryBomRow({ part, isLast }: { part: FactoryBomPart; isLast: boolean
                 <td className="text-center align-middle px-[var(--sp-1)]"
                     style={{ borderRight: '1px dashed var(--gray-100)' }}>
                   <span className={KEY_VALUE}>{qty}</span>
-                  <span className="text-[length:var(--doc-text-param-label)] text-[color:var(--gray-400)] ml-[3px]">件</span>
+                  <span className="text-[length:10px] text-[color:var(--gray-400)] ml-[3px]">件</span>
                 </td>
                 <td className="align-middle px-[var(--sp-2)]"
                     style={{ borderRight: '1px dashed var(--gray-100)' }}>
-                  <span className="text-[length:var(--doc-text-param-label)] text-[color:var(--gray-400)]">$</span>
+                  <span className="text-[length:10px] text-[color:var(--gray-400)]">$</span>
                 </td>
                 <td className="align-middle px-[var(--sp-2)] text-right">
-                  <span className="text-[length:var(--doc-text-param-label)] text-[color:var(--gray-400)]">天</span>
+                  <span className="text-[length:10px] text-[color:var(--gray-400)]">工作天</span>
                 </td>
               </tr>
             ))}
@@ -324,42 +394,49 @@ function FactoryBomRow({ part, isLast }: { part: FactoryBomPart; isLast: boolean
    FactoryBomSummary — totals row at the bottom
    ═══════════════════════════════════════════════════════════ */
 
+const LABEL = 'text-[length:10px] font-bold text-[color:var(--gray-400)]';
+
 function FactoryBomSummary({ data }: { data: FactoryBomData }) {
   const { minSum, midSum, maxSum } = computeTotals(data.parts);
   const tiers = [minSum, midSum, maxSum];
 
   return (
     <>
-      {tiers.map((total, i) => {
+      {tiers.map((_, i) => {
         const rowBorder = i < tiers.length - 1 ? 'border-b border-b-[var(--gray-100)]' : '';
         return (
           <tr
             key={i}
             className={i === 0 ? 'border-t-[1.5px] border-t-[var(--gray-300)]' : ''}
           >
-            {/* ── Thumbnail area — no bottom border, right border as separator ── */}
-            <td style={{ borderBottom: 'none' }} className="border-r border-r-[var(--gray-100)]" />
-
-            {/* ── 方案 XX 件 — spans 工件號+材質+表處 ── */}
-            <td colSpan={3} className={`py-[var(--sp-3)] px-[var(--sp-3)] ${rowBorder}`}>
-              <div className="flex items-baseline">
-                <span className="text-[length:10px] font-bold text-[color:var(--gray-400)]">
-                  方案
-                </span>
-                <span className={`${KEY_VALUE} flex-1 text-center`}>
-                  {total}
-                </span>
-                <span className="text-[length:10px] font-bold text-[color:var(--gray-400)]">
-                  件
-                </span>
-              </div>
+            {/* col 1 — 方案名，置中於尺寸圖紙欄 */}
+            <td className={`py-[var(--sp-3)] text-center ${rowBorder}`}>
+              <span className={LABEL}>{['方案一、', '方案二、', '方案三、'][i]}</span>
             </td>
 
-            {/* ── 天 — right-aligned in delivery area ── */}
-            <td className={`py-[var(--sp-3)] px-[var(--sp-2)] text-right ${rowBorder}`}>
-              <span className="text-[length:10px] font-bold text-[color:var(--gray-400)]">
-                天
-              </span>
+            {/* col 2 (工件號) — 整單共，置中對齊工件號欄 */}
+            <td className={`py-[var(--sp-3)] text-center ${rowBorder}`}>
+              <span className={LABEL}>整單共</span>
+            </td>
+
+            {/* col 3 (材質) — 純留白填寫區 */}
+            <td className={`py-[var(--sp-3)] ${rowBorder}`} />
+
+            {/* col 4 (表處) — 件 + 逗號居中於右邊界 */}
+            <td className={`py-[var(--sp-3)] text-right relative ${rowBorder}`}
+                style={{ paddingRight: 'var(--sp-3)', overflow: 'visible' }}>
+              <span className={LABEL}>件</span>
+              <span className={LABEL} style={{ position: 'absolute', right: 0, transform: 'translateX(50%)' }}>,</span>
+            </td>
+
+            {/* col 5 (報價) — 交期共 ___ 工作天（右端對齊天字） */}
+            <td className={`py-[var(--sp-3)] ${rowBorder}`}
+                style={{ paddingLeft: 'var(--sp-3)', paddingRight: 'var(--sp-2)' }}>
+              <div className="flex items-baseline">
+                <span className={LABEL}>交期共</span>
+                <span className="flex-1" />
+                <span className={LABEL}>工作天</span>
+              </div>
             </td>
           </tr>
         );
