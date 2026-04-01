@@ -9,79 +9,79 @@ import { useRef } from 'react';
 import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument';
 
 const sampleBom: FactoryBomData = {
-  orderId: 'U26033148F 簡易BOM測試',
+  orderCode: 'U26033148F',
+  orderName: '簡易BOM測試',
   issueDate: '4 月 1 日 (三)',
   replyDeadline: '4 月 7 日 (二) 下午 4 點前',
-  itemCount: 9,
   parts: [
     {
       partId: 'P01',
-      dimsMm: '127 × 89 × 45',
-      weight: '0.34 kg',
+      dimsMm: { l: 127, w: 89, h: 45 },
+      weight: 0.34,
       material: '鋁合金 6061-T6',
       finish: '黑色陽極氧化',
       qtyTiers: [1, 5, 10],
     },
     {
       partId: 'P02\n(1/2)',
-      dimsMm: '88 × 62 × 31',
-      weight: '1.34 kg',
+      dimsMm: { l: 88, w: 62, h: 31 },
+      weight: 1.34,
       material: '不鏽鋼 304',
       finish: '標準',
       qtyTiers: [2, 4, 8],
     },
     {
       partId: 'P02\n(2/2)',
-      dimsMm: '88 × 62 × 31',
-      weight: '0.48 kg',
+      dimsMm: { l: 88, w: 62, h: 31 },
+      weight: 0.48,
       material: '鋁合金 7075-T6',
       finish: '透明陽極氧化',
       qtyTiers: [2, 4, 8],
     },
     {
       partId: 'P03',
-      dimsMm: '65 × 52 × 28',
-      weight: '0.24 kg',
+      dimsMm: { l: 65, w: 52, h: 28 },
+      weight: 0.24,
       material: 'ZERODUR',
       finish: '標準',
       qtyTiers: [1, 3],
     },
     {
       partId: 'P04',
-      dimsMm: '220 × 180 × 55',
-      weight: '2.18 kg',
+      dimsMm: { l: 220, w: 180, h: 55 },
+      weight: 2.18,
       material: '鋁合金 6061-T6',
       finish: '標準',
       qtyTiers: [5, 10, 20],
     },
     {
       partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
+      dimsMm: { l: 35, w: 12, h: 8 },
+      weight: 0.02,
       material: '不鏽鋼 316L',
       finish: '電解拋光',
       qtyTiers: [5, 10, 50],
     },
     {
       partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
+      dimsMm: { l: 35, w: 12, h: 8 },
+      weight: 0.02,
       material: '不鏽鋼 316L',
       finish: '電解拋光',
       qtyTiers: [5, 10, 50],
     },
     {
       partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
+      dimsMm: { l: 35, w: 12, h: 8 },
+      weight: 0.02,
       material: '不鏽鋼 316L',
       finish: '電解拋光',
       qtyTiers: [5, 10, 50],
     },
     {
       partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
+      dimsMm: { l: 35, w: 12, h: 8 },
+      weight: 0.02,
       material: '不鏽鋼 316L',
       finish: '電解拋光',
       qtyTiers: [5, 10, 50],
@@ -120,7 +120,7 @@ export default function FactoryBomDemo() {
         }
       </style>`;
     printWindow.document.write(
-      `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>RFQ BOM ${sampleBom.orderId}</title>${styles}${printCss}</head><body>${pdfRef.current.outerHTML}</body></html>`
+      `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>RFQ BOM ${sampleBom.orderCode} ${sampleBom.orderName}</title>${styles}${printCss}</head><body>${pdfRef.current.outerHTML}</body></html>`
     );
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);
