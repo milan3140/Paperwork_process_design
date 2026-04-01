@@ -16,7 +16,10 @@ const EvalV3       = lazy(() => import('./EvalDemoV3'));
 const QuoteBuilderV0 = lazy(() => import('./quote-builder-v0/QuoteBuilder'));
 const QuoteBuilder   = lazy(() => import('./quote-builder/QuoteBuilder'));
 const QuoteBuilderV2 = lazy(() => import('./quote-builder-v2/QuoteBuilder'));
+const QuoteBuilderV3 = lazy(() => import('./quote-builder-v3/QuoteBuilder'));
 const BomDemo      = lazy(() => import('./BomDemo'));
+const FactoryBomDemo = lazy(() => import('./FactoryBomDemo'));
+const InvoiceDemo    = lazy(() => import('./InvoiceDemo'));
 import DemoIndex from './DemoIndex';
 
 function Router() {
@@ -36,11 +39,14 @@ function Router() {
         switch (route) {
           case '#/quote':         return <QuoteDemo />;
           case '#/bom':           return <BomDemo />;
+          case '#/factory-bom':   return <FactoryBomDemo />;
+          case '#/invoice':       return <InvoiceDemo />;
           case '#/eval-v1':       return <EvalV1 />;
           case '#/eval-v2':       return <EvalV2 />;
           case '#/eval-v3':       return <EvalV3 />;
           case '#/quote-builder-v0': return <QuoteBuilderV0 />;
           case '#/quote-builder': return <QuoteBuilder />;
+          case '#/quote-builder-v3': return <QuoteBuilderV3 />;
           case '#/quote-builder-v2': return <QuoteBuilderV2 />;
           default:          return <DemoIndex />;
         }

@@ -46,6 +46,14 @@ export { QuoteEvaluationTable } from './QuoteEvaluationTable';
 export { QuoteEvaluationTableV2 } from './QuoteEvaluationTableV2';
 export type { PriceCell, FactoryQuote, DhlCustomsRow, QuoteEvalData } from './quoteEvalHelpers';
 
+// ── Invoice Components ──
+export { InvoiceKeyInfoRow } from './InvoiceKeyInfoRow';
+export type { InvoiceVariant } from './InvoiceKeyInfoRow';
+export { PaymentInstructions } from './PaymentInstructions';
+export type { BankDetails } from './PaymentInstructions';
+
 // ── Composed Documents ──
 export { QuoteDocument } from './QuoteDocument';
 export type { QuoteData, LeadTimeOption as QuoteLeadTimeOption } from './QuoteDocument';
+export { InvoiceDocument } from './InvoiceDocument';
+export type { InvoiceData, PartialPaymentInfo } from './InvoiceDocument';

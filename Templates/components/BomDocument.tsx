@@ -38,6 +38,8 @@ export interface BomPart {
   weight: string;
   qty: string | number;
   filename: string;
+  /** Optional drawing PDF filename (e.g. "P01_Drawing.pdf") */
+  drawingFilename?: string;
   specs: BomPartSpec[];
   notes?: string[];
 }
@@ -263,14 +265,26 @@ function BomRow({ part, isLast, lang, loc }: { part: BomPart; isLast: boolean; l
       {/* ── DESCRIPTION (Part ID + filename header + dual-column spec grid) ── */}
       <td className="py-[var(--sp-3)] px-[var(--sp-2)] align-top">
         {/* Part ID + Filename — same tier, shown as header of this cell */}
-        <div className="flex items-baseline gap-[var(--sp-3)] mb-[var(--sp-2)]">
-          <span className="text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--gray-900)]">
-            {part.partId}
-          </span>
-          <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-300)]">&middot;</span>
-          <span className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)]">
-            {part.filename}
-          </span>
+        <div className="mb-[var(--sp-2)]">
+          <div className="flex items-baseline gap-[var(--sp-3)]">
+            <span className="text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--gray-900)]">
+              {part.partId}
+            </span>
+            <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-300)]">&middot;</span>
+            <span className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)]">
+              {part.filename}
+            </span>
+          </div>
+          {part.drawingFilename && (
+            <div className="flex items-baseline gap-[var(--sp-3)] mt-[var(--doc-sp-half)]">
+              <span className="text-[length:var(--doc-text-secondary)] font-semibold text-[color:var(--gray-400)]">
+                {isZh ? '圖紙' : 'Drawing'}
+              </span>
+              <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-600)]">
+                {part.drawingFilename}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Dual-column spec grid */}

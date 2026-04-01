@@ -6,11 +6,14 @@
  */
 
 const routes = [
+  { hash: '#/quote-builder-v3',  label: 'Quote Proposal Builder v3', desc: '報價方案產出器 v3 — (dev)' },
   { hash: '#/quote-builder-v2',  label: 'Quote Proposal Builder v2', desc: '報價方案產出器 v2 — Editable PDF Sections (Email + PDF)' },
   { hash: '#/quote-builder',    label: 'Quote Builder v1', desc: '報價產出器 v1 — Build & Preview Quotes (Email + PDF)' },
   { hash: '#/quote-builder-v0', label: 'Quote Builder v0', desc: '報價產出器 v0 — Snapshot 2026-03-26' },
   { hash: '#/quote',   label: 'Quote',   desc: '報價單 — Quotation' },
+  { hash: '#/invoice', label: 'Invoice', desc: '請款單 — Invoice (Net 30 + PIA variants)' },
   { hash: '#/bom',     label: 'BOM',     desc: 'BOM 表 — Bill of Materials' },
+  { hash: '#/factory-bom', label: 'Factory BOM', desc: '工廠報價用 BOM 表' },
   { hash: '#/eval-v1', label: 'Eval v1', desc: '內部評估 v1 — McKinsey Pyramid (4 modes)' },
   { hash: '#/eval-v2', label: 'Eval v2', desc: '內部評估 v2 — 正式建單 (3 modes)' },
   { hash: '#/eval-v3', label: 'Eval v3', desc: '內部評估 v3 — 零件優先表格 (Part-first)' },

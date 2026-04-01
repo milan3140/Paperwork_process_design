@@ -12,7 +12,7 @@
  * Uses design tokens from Design_Sys_style.css + documents.css
  */
 
-import type { QuotePart, Scenario, VaryingDimension, DimensionAnalysis } from './types';
+import type { QuotePart, Scenario, VaryingDimension, DimensionAnalysis, CustomDimension } from './types';
 import {
   NONE,
   analyzeDimensions,
@@ -21,6 +21,7 @@ import {
   computeComparisons,
   getUniqueValues,
   findScenarios,
+  customDimId,
 } from './dimensionEngine';
 
 /* ── Formatting ── */
@@ -43,6 +44,33 @@ const TD = 'py-[var(--doc-sp-table-y,7px)] px-[var(--sp-2,8px)] text-[length:var
 const ANNOTATION = 'text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-500,#6b6780)]';
 
 const SEP_THICK = 'border-b-[1.5px] border-[var(--gray-400,#9a96a8)]';
+
+/* ── Dimension label formatting ── */
+
+function formatDimValue(dim: VaryingDimension, val: string, customDims?: CustomDimension[]): string {
+  if (dim === 'qty') return `QTY ${val}`;
+  if (dim === 'location') return val === 'US' ? 'U.S. manufacturing' : val === 'TW' ? 'Taiwan manufacturing' : val;
+  if (dim === 'leadTime') return `${val} workdays`;
+  const cid = customDimId(dim);
+  if (cid && customDims) {
+    const name = customDims.find(cd => cd.id === cid)?.name;
+    if (name && val !== NONE) return val;
+    if (name) return `${name}: ${val}`;
+  }
+  return val;
+}
+
+/** Short header label for a dimension (used in table headers/group titles) */
+function dimHeaderLabel(dim: VaryingDimension, customDims?: CustomDimension[]): string {
+  if (dim === 'qty') return 'Quantity';
+  if (dim === 'location') return 'Location';
+  if (dim === 'material') return 'Material';
+  if (dim === 'finish') return 'Finish';
+  if (dim === 'leadTime') return 'Lead Time';
+  const cid = customDimId(dim);
+  if (cid && customDims) return customDims.find(cd => cd.id === cid)?.name || dim;
+  return dim;
+}
 
 /* ── Cell: Price + Lead Time + Annotation ── */
 
@@ -140,18 +168,7 @@ function SingleLayout({ part, analysis, hideHeader }: { part: QuotePart; analysi
 function HorizontalLayout({ part, analysis, showLeadTime, hideHeader }: { part: QuotePart; analysis: DimensionAnalysis; showLeadTime: boolean; hideHeader?: boolean }) {
   const dim = analysis.varying[0];
   const annotations = computeComparisons(part.scenarios, analysis.varying);
-
-  // Column headers from UNIQUE dimension values (not per-scenario)
   const colValues = getUniqueValues(part.scenarios, dim, part.material, part.finish);
-
-  function formatDimValue(val: string): string {
-    if (dim === 'qty') return `QTY ${val}`;
-    if (dim === 'location') return val === 'US' ? 'U.S. manufacturing' : val === 'TW' ? 'Taiwan manufacturing' : val;
-    if (dim === 'leadTime') return `${val} workdays`;
-    return val;
-  }
-
-  // If leadTime IS the comparison dimension, don't repeat it in cells
   const cellShowLeadTime = showLeadTime && dim !== 'leadTime';
 
   return (
@@ -161,7 +178,7 @@ function HorizontalLayout({ part, analysis, showLeadTime, hideHeader }: { part: 
         <thead>
           <tr>
             {colValues.map((cv, i) => (
-              <th key={i} className={`${TH} text-left`}>{formatDimValue(cv)}</th>
+              <th key={i} className={`${TH} text-left`}>{formatDimValue(dim, cv, part.customDimensions)}</th>
             ))}
           </tr>
         </thead>
@@ -185,15 +202,6 @@ function MatrixLayout({ part, analysis, showLeadTime, hideHeader }: { part: Quot
   const rowValues = getUniqueValues(part.scenarios, dimRow, part.material, part.finish);
   const colValues = getUniqueValues(part.scenarios, dimCol, part.material, part.finish);
   const annotations = computeComparisons(part.scenarios, analysis.varying);
-
-  function formatDimValue(dim: VaryingDimension, val: string): string {
-    if (dim === 'qty') return `QTY ${val}`;
-    if (dim === 'location') return val === 'US' ? 'U.S.' : val === 'TW' ? 'Taiwan' : val;
-    if (dim === 'leadTime') return `${val} workdays`;
-    return val;
-  }
-
-  // If leadTime is shown in headers/rows, don't repeat in cells
   const cellShowLeadTime = showLeadTime && !analysis.varying.includes('leadTime');
 
   return (
@@ -204,7 +212,7 @@ function MatrixLayout({ part, analysis, showLeadTime, hideHeader }: { part: Quot
           <tr>
             <th className={`${TH} text-left`} style={{ width: '25%' }} />
             {colValues.map((cv, i) => (
-              <th key={i} className={`${TH} text-left`}>{formatDimValue(dimCol, cv)}</th>
+              <th key={i} className={`${TH} text-left`}>{formatDimValue(dimCol, cv, part.customDimensions)}</th>
             ))}
           </tr>
         </thead>
@@ -212,7 +220,7 @@ function MatrixLayout({ part, analysis, showLeadTime, hideHeader }: { part: Quot
           {rowValues.map((rv, ri) => (
             <tr key={ri} className={ri < rowValues.length - 1 ? 'border-b border-[var(--gray-200,#e2e0e8)]' : ''}>
               <td className={`${TD} text-left font-medium text-[color:var(--gray-600,#6b6780)]`}>
-                {formatDimValue(dimRow, rv)}
+                {formatDimValue(dimRow, rv, part.customDimensions)}
               </td>
               {colValues.map((cv, ci) => {
                 const matched = findScenarios(part.scenarios, { [dimRow]: rv, [dimCol]: cv }, part.material, part.finish);
@@ -231,7 +239,6 @@ function MatrixLayout({ part, analysis, showLeadTime, hideHeader }: { part: Quot
 /* ── Layout: Grouped Matrix (3 varying dims) ── */
 
 function GroupedMatrixLayout({ part, analysis, showLeadTime, hideHeader }: { part: QuotePart; analysis: DimensionAnalysis; showLeadTime: boolean; hideHeader?: boolean }) {
-  // Use the dimension with fewest unique values as the group
   const dimCounts = analysis.varying.map(d => ({
     dim: d,
     count: getUniqueValues(part.scenarios, d, part.material, part.finish).length,
@@ -241,15 +248,6 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime, hideHeader }: { par
   const groupDim = dimCounts[0].dim;
   const innerDims = analysis.varying.filter(d => d !== groupDim);
   const groupValues = getUniqueValues(part.scenarios, groupDim, part.material, part.finish);
-
-  function formatDimValue(dim: VaryingDimension, val: string): string {
-    if (dim === 'qty') return `QTY ${val}`;
-    if (dim === 'location') return val === 'US' ? 'U.S.' : val === 'TW' ? 'Taiwan' : val;
-    if (dim === 'leadTime') return `${val} workdays`;
-    return val;
-  }
-
-  // If leadTime is shown in headers/rows, don't repeat in cells
   const cellShowLeadTime = showLeadTime && !analysis.varying.includes('leadTime');
 
   return (
@@ -258,15 +256,7 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime, hideHeader }: { par
       <div className="flex flex-col gap-[var(--sp-3,12px)]">
         {groupValues.map((gv, gi) => {
           // Filter scenarios for this group
-          const groupScenarios = part.scenarios.filter(s => {
-            switch (groupDim) {
-              case 'qty': return String(s.qty) === gv;
-              case 'location': return (s.location ?? NONE) === gv;
-              case 'material': return (s.materialOverride || part.material || NONE) === gv;
-              case 'finish': return (s.finishOverride || part.finish || NONE) === gv;
-              case 'leadTime': return String(s.leadTimeDays) === gv;
-            }
-          });
+          const groupScenarios = findScenarios(part.scenarios, { [groupDim]: gv } as Partial<Record<VaryingDimension, string>>, part.material, part.finish);
 
           const [dimRow, dimCol] = innerDims;
           const rowValues = getUniqueValues(groupScenarios, dimRow, part.material, part.finish);
@@ -276,14 +266,14 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime, hideHeader }: { par
           return (
             <div key={gi} className="border border-[var(--gray-200,#e2e0e8)] rounded-[var(--radius-sm,4px)] p-[var(--sp-2,8px)]">
               <div className="text-[length:var(--doc-text-body,10px)] font-semibold text-[color:var(--gray-700,#4a4660)] mb-[var(--sp-1,4px)]">
-                {formatDimValue(groupDim, gv)}
+                {formatDimValue(groupDim, gv, part.customDimensions)}
               </div>
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
                     <th className={`${TH} text-left`} style={{ width: '25%' }} />
                     {colValues.map((cv, i) => (
-                      <th key={i} className={`${TH} text-left`}>{formatDimValue(dimCol, cv)}</th>
+                      <th key={i} className={`${TH} text-left`}>{formatDimValue(dimCol, cv, part.customDimensions)}</th>
                     ))}
                   </tr>
                 </thead>
@@ -291,7 +281,7 @@ function GroupedMatrixLayout({ part, analysis, showLeadTime, hideHeader }: { par
                   {rowValues.map((rv, ri) => (
                     <tr key={ri} className={ri < rowValues.length - 1 ? 'border-b border-[var(--gray-200,#e2e0e8)]' : ''}>
                       <td className={`${TD} text-left font-medium text-[color:var(--gray-600,#6b6780)]`}>
-                        {formatDimValue(dimRow, rv)}
+                        {formatDimValue(dimRow, rv, part.customDimensions)}
                       </td>
                       {colValues.map((cv, ci) => {
                         const matched = findScenarios(groupScenarios, { [dimRow]: rv, [dimCol]: cv }, part.material, part.finish);
@@ -330,7 +320,7 @@ function FlatListLayout({ part, analysis, showLeadTime, hideHeader }: { part: Qu
         </thead>
         <tbody>
           {part.scenarios.map((s, i) => {
-            const label = generateConditionLabel(s, analysis.varying, part.material, part.finish);
+            const label = generateConditionLabel(s, analysis.varying, part.material, part.finish, part.customDimensions);
             const qtyLabel = `QTY ${s.qty}`;
             const fullLabel = label ? `${qtyLabel} — ${label}` : qtyLabel;
             return (

@@ -461,6 +461,27 @@ function PartEditor({
   );
 }
 
+/**
+ * Normalize a Part's scenarios for output (PDF/Email):
+ * Non-enabled dimensions are reset to Part defaults so the dimension engine
+ * won't detect them as varying. Original scenario data is NOT mutated.
+ */
+function normalizePart(part: QuotePart): QuotePart {
+  const enabled = part.enabledDimensions;
+  return {
+    ...part,
+    scenarios: part.scenarios.map(s => ({
+      ...s,
+      qty: enabled.includes('qty') ? s.qty : part.qty,
+      leadTimeDays: enabled.includes('leadTime') ? s.leadTimeDays : part.leadTimeDays,
+      location: enabled.includes('location') ? s.location : undefined,
+      materialOverride: enabled.includes('material') ? s.materialOverride : undefined,
+      finishOverride: enabled.includes('finish') ? s.finishOverride : undefined,
+      customLabel: enabled.includes('label') ? s.customLabel : undefined,
+    })),
+  };
+}
+
 /* ── Build PDF sections for paginated rendering ── */
 
 function buildPdfSections(
@@ -527,7 +548,8 @@ function buildPdfSections(
       </SectionLabel>
     ),
   });
-  data.parts.forEach((part, idx) => {
+  data.parts.forEach((rawPart, idx) => {
+    const part = normalizePart(rawPart);
     sections.push({
       key: `pricing-part-${part.id}`,
       group: 'pricing',
@@ -539,25 +561,30 @@ function buildPdfSections(
           <div className="bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]">
             {/* Identity band: thumbnail (optional) + Part name, attributes & dimensions */}
             <div className="flex gap-[20px] items-center mb-[var(--sp-2)] pl-[var(--sp-2)]">
-              {part.thumbnailUrl && (
-                <img src={part.thumbnailUrl} alt=""
+              {rawPart.thumbnailUrl && (
+                <img src={rawPart.thumbnailUrl} alt=""
                   className="w-[60px] h-[60px] rounded-[var(--radius-sm)] object-cover border border-[color:var(--gray-200)] shrink-0" />
               )}
               <div>
                 <PartHeader part={part} />
-                {part.dimensions && (part.dimensions.length > 0 || part.dimensions.width > 0 || part.dimensions.height > 0) && (
-                  <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)] mt-[1px]">
-                    {part.dimensions.length} × {part.dimensions.width} × {part.dimensions.height} mm
-                    <span className="mx-[6px]">·</span>
-                    {(part.dimensions.length / 25.4).toFixed(2)} × {(part.dimensions.width / 25.4).toFixed(2)} × {(part.dimensions.height / 25.4).toFixed(2)} in
-                  </div>
-                )}
+                {rawPart.dimensions && (rawPart.dimensions.length > 0 || rawPart.dimensions.width > 0 || rawPart.dimensions.height > 0) && (() => {
+                  const sorted = [rawPart.dimensions!.length, rawPart.dimensions!.width, rawPart.dimensions!.height].sort((a, b) => b - a);
+                  return (
+                    <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)] mt-[1px]">
+                      {sorted[0]} × {sorted[1]} × {sorted[2]} mm
+                      <span className="mx-[6px]">·</span>
+                      {(sorted[0] / 25.4).toFixed(2)} × {(sorted[1] / 25.4).toFixed(2)} × {(sorted[2] / 25.4).toFixed(2)} in
+                    </div>
+                  );
+                })()}
               </div>
             </div>
-            {/* Subtle separator — white line on gray-50 creates a gentle inset groove */}
+            {/* Subtle separator */}
             <div className="border-t border-[#fcfbfe] mb-[var(--sp-2)]" />
             {/* Full-width comparison table (header hidden — rendered above) */}
-            <QuoteComparisonTable part={part} hideHeader />
+            <div className="pl-[var(--sp-2)]">
+              <QuoteComparisonTable part={part} hideHeader />
+            </div>
           </div>
         </div>
       ),
@@ -729,7 +756,9 @@ export default function QuoteBuilder() {
   }, []);
 
   const validation = validateQuote(data);
-  const emailText = renderEmail(data);
+  // Normalize parts for output: non-enabled dims reset to Part defaults
+  const normalizedData = { ...data, parts: data.parts.map(normalizePart) };
+  const emailText = renderEmail(normalizedData);
   const errorCount = validation.errors.filter(e => e.severity === 'error').length;
 
   const handleCopy = async () => {
@@ -1115,7 +1144,7 @@ export default function QuoteBuilder() {
               <PaginatedDocument
                 docId={data.quoteId}
                 validDays={data.validDays}
-                sections={buildPdfSections(data, fromParty, billToParty, shipToParty)}
+                sections={buildPdfSections(normalizedData, fromParty, billToParty, shipToParty)}
               />
             </div>
           )}
