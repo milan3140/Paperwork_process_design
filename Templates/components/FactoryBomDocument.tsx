@@ -654,7 +654,7 @@ function FactoryBomRow({ part, isLast }: { part: FactoryBomPart; isLast: boolean
       <td className={`py-[var(--sp-3)] px-[var(--sp-2)] text-center align-middle border-r border-r-[var(--gray-100)]`}>
         <div className={KEY_VALUE}>{part.partId}</div>
         {part.variantLabel && (
-          <div className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)] mt-[2px]">
+          <div className="text-[length:10px] font-bold text-[color:var(--gray-400)] mt-[2px]">
             ({part.variantLabel})
           </div>
         )}
