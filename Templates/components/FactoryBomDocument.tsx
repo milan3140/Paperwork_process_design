@@ -93,6 +93,7 @@ const NOTES = [
   '若圖紙或訂單PO沒有特別指定，所有螺紋的默認標準為2A/2B（美規）或6g/6H（公規）',
   '除非有專門說明，所有鋒利邊緣均要去毛邊（尺寸為0.25-0.75mm，R角或C角皆可）。成品不可割手。',
   '所有工件加工完成後要立即清潔，成品不可有任何氧化變黑痕跡。關於清潔方式如有疑問請與艾維聯繫。',
+  '本單所列交期天數均以工作天計算。若需改以日曆天報價，請於備註欄明確標示，或逕洽艾維確認。',
 ];
 
 /* ── DFM notes — blank ruled area for factory remarks (last page only) ── */
@@ -219,7 +220,7 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
                         <span className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-title)]">
                           {data.orderId}
                         </span>
-                        <span className="text-[length:12px] font-bold text-[color:var(--color-warning-text)]">
+                        <span className="text-[length:12px] font-bold text-[color:var(--color-error)]">
                           最晚報價時間：{data.replyDeadline}
                         </span>
                       </div>
@@ -239,7 +240,7 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
                           className="relative py-[var(--sp-2)] px-[var(--sp-2)]"
                           style={{ verticalAlign: 'middle' }}
                         >
-                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: 0, height: '66%' }} />
+                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: -1, height: '66%' }} />
                           <span className="text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--gray-800)]">
                             零件種類：<span className={KEY_VALUE}>{data.itemCount}</span> 種
                           </span>
@@ -249,7 +250,7 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
                           className="relative py-[var(--sp-2)] px-[var(--sp-2)] whitespace-nowrap"
                           style={{ verticalAlign: 'middle' }}
                         >
-                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: 0, height: '66%' }} />
+                          <span className="absolute bottom-0 border-l border-l-[var(--gray-100)]" style={{ left: -1, height: '66%' }} />
                           <span className="text-[length:var(--doc-text-part-id)] text-[color:var(--gray-800)]">共{' '}</span>
                           <span className={KEY_VALUE}>{minSum}</span>
                           <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)]"> / </span>
@@ -411,7 +412,7 @@ function FactoryBomSummary({ data }: { data: FactoryBomData }) {
           >
             {/* col 1 — 方案名，置中於尺寸圖紙欄 */}
             <td className={`py-[var(--sp-3)] text-center ${rowBorder}`}>
-              <span className={LABEL}>{['方案一、', '方案二、', '方案三、'][i]}</span>
+              <span className={LABEL}>{['方案一', '方案二', '方案三'][i]}</span>
             </td>
 
             {/* col 2 (工件號) — 整單共，置中對齊工件號欄 */}
