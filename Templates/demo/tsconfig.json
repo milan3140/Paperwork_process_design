@@ -14,5 +14,6 @@
     "strict": true,
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src", "../components"]
+  "include": ["src", "../components"],
+  "exclude": ["../components/factory-bom-portable"]
 }
