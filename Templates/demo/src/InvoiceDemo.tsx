@@ -10,6 +10,16 @@ import { InvoiceDocument, type InvoiceData } from '../../components/InvoiceDocum
  * DEMO DATA — Net 30 Invoice
  * Continues the Acme Precision Engineering order lifecycle from QuoteDemo.
  * Same parts, same totals ($6,390), now invoiced post-delivery.
+ *
+ * ── Bank Account Selection Logic ──
+ * Which bank accounts to show is driven by CLIENT PROFILE, not payment terms:
+ *   1. Client country / preferred currency  (primary factor)
+ *   2. Invoice currency                     (USD invoice → USD acct first)
+ *   3. Client relationship & known preferences
+ *
+ * Acme (established US client, may have int'l ops) → both USD + TWD options.
+ * Nova (new US client, first order)                → USD only for simplicity.
+ * A Taiwan-based client would show TWD first, USD as alternative.
  * ════════════════════════════════════════════════════════════════ */
 const sampleNet30: InvoiceData = {
   invoiceId: 'INV-2026-0047',
@@ -18,7 +28,7 @@ const sampleNet30: InvoiceData = {
   dueDate: 'May 25, 2026',
   shipDate: 'April 20, 2026',
 
-  quoteRef: 'QU260319042',
+  quoteRef: 'U26033148F',
   poRef: 'PO-2026-0042',
   packingSlipRef: 'PS-2026-0031',
 
@@ -125,6 +135,8 @@ const sampleNet30: InvoiceData = {
   ],
   total: { label: 'Total', amount: 6390 },
 
+  /* Bank accounts: Acme is an established US client → USD primary + TWD alternative.
+     See block header for full bank selection logic. */
   bankDetails: [
     {
       bankName: 'First National Bank',
@@ -224,6 +236,8 @@ const samplePIA: InvoiceData = {
   ],
   total: { label: 'Total', amount: 1545 },
 
+  /* Bank accounts: Nova is a new US-based client → USD only.
+     See Net 30 block header for full bank selection logic. */
   bankDetails: [
     {
       bankName: 'First National Bank',

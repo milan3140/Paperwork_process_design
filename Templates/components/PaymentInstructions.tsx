@@ -57,13 +57,13 @@ interface PaymentInstructionsProps {
 
 function BankDetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid" style={{ gridTemplateColumns: '80px 1fr', gap: 'var(--sp-2)' }}>
+    <div className="grid" style={{ gridTemplateColumns: '88px 1fr', gap: 'var(--sp-2)' }}>
       <span
-        className="text-[length:var(--doc-text-param-label)] font-semibold uppercase tracking-[var(--doc-tracking-label)] text-[color:var(--gray-400)] leading-[1.8]"
+        className="text-[length:var(--doc-text-secondary)] font-semibold uppercase tracking-[var(--doc-tracking-label)] text-[color:var(--gray-400)] leading-[1.8]"
       >
         {label}
       </span>
-      <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-900)] leading-[1.6]">
+      <span className="text-[length:var(--doc-text-body)] text-[color:var(--gray-900)] leading-[1.6]">
         {value}
       </span>
     </div>
@@ -79,7 +79,7 @@ export function PaymentInstructions({ bankDetails, creditCardFeeNote }: PaymentI
         <div key={i} data-el="PaymentInstructions-bank" className="flex flex-col gap-[var(--sp-1)]">
           {/* Sub-label for account currency */}
           <div
-            className="text-[length:var(--doc-text-secondary)] font-semibold text-[color:var(--gray-700)] mt-[var(--sp-1)]"
+            className="text-[length:var(--doc-text-part-id)] font-semibold text-[color:var(--gray-700)] mt-[var(--sp-1)]"
           >
             {bank.currency} Wire Transfer
           </div>

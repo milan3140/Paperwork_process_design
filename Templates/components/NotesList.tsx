@@ -52,7 +52,7 @@ export function NotesList({ label, items }: NotesListProps) {
         <div
           key={i}
           data-el="NotesList-item"
-          className="flex items-start gap-[var(--doc-sp-1-5)] text-[length:var(--doc-text-secondary)] text-[color:var(--gray-600)] leading-[1.5]"
+          className="flex items-start gap-[var(--doc-sp-1-5)] text-[length:var(--doc-text-body)] text-[color:var(--gray-600)] leading-[1.5]"
         >
           <span
             className="rounded-full bg-[var(--gray-300)] mt-[var(--doc-sp-bullet-offset)] shrink-0"

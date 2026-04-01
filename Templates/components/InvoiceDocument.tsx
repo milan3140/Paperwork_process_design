@@ -96,7 +96,12 @@ export interface InvoiceData {
   /* ── Partial payment (conditional) ── */
   partialPayment?: PartialPaymentInfo;
 
-  /* ── Payment instructions ── */
+  /* ── Payment instructions ──
+     Which bank accounts to include is driven by CLIENT PROFILE, not payment terms:
+       1. Client country / preferred currency  (primary factor)
+       2. Invoice currency                     (USD invoice → USD acct first)
+       3. Client relationship & known preferences
+     Example: US client → USD primary; TW client → TWD primary; int'l → both. */
   bankDetails: BankDetails[];
   creditCardFeeNote?: string;
 

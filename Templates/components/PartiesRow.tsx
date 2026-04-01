@@ -71,17 +71,21 @@ export function PartiesRow({
 }: PartiesRowProps) {
   return (
     <div data-comp="PartiesRow" className="flex flex-col gap-[var(--sp-4)]">
-      {/* ── FROM (full width, top) ── */}
-      <PartyBlock label={fromLabel} party={from} side="from" />
-
-      {/* ── BILL TO + SHIP TO (bottom row) ── */}
       {shipTo ? (
-        <div className="grid grid-cols-2 gap-[var(--sp-6)]">
-          <PartyBlock label="Bill To" party={billTo} side="billTo" />
-          <PartyBlock label="Ship To" party={shipTo} side="shipTo" />
-        </div>
+        /* ── 3 parties: FROM full-width top, BILL TO + SHIP TO bottom row ── */
+        <>
+          <PartyBlock label={fromLabel} party={from} side="from" />
+          <div className="grid grid-cols-2 gap-[var(--sp-6)]">
+            <PartyBlock label="Bill To" party={billTo} side="billTo" />
+            <PartyBlock label="Ship To" party={shipTo} side="shipTo" />
+          </div>
+        </>
       ) : (
-        <PartyBlock label="Bill To / Ship To" party={billTo} side="billTo" />
+        /* ── 2 parties: FROM (left) + BILL TO / SHIP TO (right) side by side ── */
+        <div className="grid grid-cols-2 gap-[var(--sp-6)]">
+          <PartyBlock label={fromLabel} party={from} side="from" />
+          <PartyBlock label="Bill To / Ship To" party={billTo} side="billTo" />
+        </div>
       )}
     </div>
   );

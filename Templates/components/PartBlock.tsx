@@ -127,19 +127,18 @@ export function PartBlock({ part, showDivider = true }: PartBlockProps) {
           <span data-el="PartBlock-dims" className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)] leading-[1.4]">
             {part.dims}
           </span>
-          <span data-el="PartBlock-material" className="text-[length:var(--doc-text-body)] font-semibold text-[color:var(--gray-900)] mt-[var(--doc-sp-half)]">
+          <span data-el="PartBlock-material" className="text-[length:var(--doc-text-body)] font-normal text-[color:var(--gray-900)] mt-[var(--doc-sp-half)]">
             {part.material}
           </span>
         </div>
 
-        {/* Pricing */}
-        <div data-el="PartBlock-pricing" className="flex flex-col items-end gap-[var(--doc-sp-half)] text-right whitespace-nowrap">
-          <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-600)]">
-            {part.quantity} pcs &times; {formatCurrency(part.unitPrice)}
-          </span>
-          <span className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]">
-            {formatCurrency(part.amount)}
-          </span>
+        {/* Pricing: $48.00 × 50 pcs = $2,400.00 — key numbers bold, connectors muted */}
+        <div data-el="PartBlock-pricing" className="whitespace-nowrap text-[length:var(--doc-text-part-id)] text-[color:var(--gray-500)] text-right">
+          <span className="font-bold text-[color:var(--gray-900)]">{formatCurrency(part.unitPrice)}</span>
+          <span className="px-[var(--sp-2)]">×</span>
+          <span><span className="font-bold text-[color:var(--gray-900)]">{part.quantity}</span> pcs</span>
+          <span className="px-[var(--sp-2)]">=</span>
+          <span className="font-bold text-[length:var(--doc-text-party-name)] text-[color:var(--gray-900)]">{formatCurrency(part.amount)}</span>
         </div>
       </div>
 
