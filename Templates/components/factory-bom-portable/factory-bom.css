@@ -1,0 +1,133 @@
+/**
+ * Factory BOM — Self-Contained CSS Variables
+ *
+ * This file contains ALL CSS custom properties needed by FactoryBomDocument.tsx.
+ * It is a standalone extraction from InstaVoxel's Design_Sys_style.css + documents.css.
+ *
+ * If you already have Design_Sys_style.css:
+ *   - Section [A] below is ALREADY in your file — skip it (or use as reference)
+ *   - Section [B] is NEW (document-specific) — you need these additions
+ *   - Section [C] is NEW (.doc-page/.doc-content classes) — you need these
+ *
+ * If you don't have Design_Sys_style.css:
+ *   - Import this entire file as-is.
+ *
+ * Import this file BEFORE rendering FactoryBomDocument.
+ */
+
+:root {
+  /* ══════════════════════════════════════════════
+     [A] FROM Design_Sys_style.css — SKIP if you already have it
+     ══════════════════════════════════════════════ */
+
+  --color-primary: #2E0D77;       /* Header bg, title text, footer accent border */
+  --color-primary-light: #5B2FD4; /* Footer brand URL text */
+  --color-error: #B61F1F;         /* Deadline text (urgent red) */
+
+  /* Gray scale — purple-tinted neutral palette */
+  --gray-50:  #F7F6FB;  /* Table header bg, thumbnail placeholder bg */
+  --gray-100: #EDEBF4;  /* Column separators (solid), guide lines, sub-row borders */
+  --gray-150: #E4E2EC;  /* Thumbnail box border */
+  --gray-175: #E8E5F0;  /* Screen preview page background */
+  --gray-200: #D8D5E4;  /* Header bottom border, section dividers (注意事項), dashed DFM lines */
+  --gray-300: #B5B0C7;  /* Summary section top border (1.5px emphasis) */
+  --gray-400: #8E89A3;  /* Labels, placeholders ($, 件, 工作天), table headers */
+  --gray-500: #6B6480;  /* Notes body text */
+  --gray-600: #56516A;  /* Section titles (注意事項, 加工備註) */
+  --gray-800: #2B2638;  /* Metadata text (零件種類, 共...件) */
+  --gray-900: #1A1625;  /* Key values (partId, qty numbers, material, finish) */
+
+  /* ══════════════════════════════════════════════
+     Spacing Scale — 4px base grid
+     ══════════════════════════════════════════════ */
+
+  --sp-1: 4px;   /* Minimum spacing: table header py, note gap */
+  --sp-2: 8px;   /* Standard cell padding, metadata padding */
+  --sp-3: 12px;  /* Content section gap (overrides --doc-content-gap in BOM) */
+  --sp-4: 16px;  /* Title row gap, notes section pt */
+  --sp-6: 24px;  /* (reserved, not directly used by BOM) */
+  --sp-8: 32px;  /* Button horizontal padding (demo only) */
+
+  /* ══════════════════════════════════════════════
+     [B] DOCUMENT-SPECIFIC — NEW additions (not in Design_Sys_style.css)
+     You NEED these even if you have Design_Sys_style.css
+     ══════════════════════════════════════════════ */
+  --doc-text-title: 22px;             /* "RFQ BOM" heading */
+  --doc-text-subtitle: 13px;          /* Order ID (e.g. "U26033148F 簡易BOM測試") */
+  --doc-text-doc-type: 11px;          /* Header "BOM 表" + issueDate */
+  --doc-text-part-id: 11px;           /* Metadata labels (零件種類, 共...件) */
+  --doc-text-body: 10px;              /* Default body text */
+  --doc-text-secondary: 9px;          /* Section titles, dims/weight below thumbnail */
+  --doc-text-thumb-placeholder: 7px;  /* "3D" placeholder text in thumbnail box */
+  --doc-text-footer: 8px;             /* Footer text (docId, URL, email, page) */
+
+  /* ══════════════════════════════════════════════
+     Document Layout
+     ══════════════════════════════════════════════ */
+
+  --doc-page-w: 215.9mm;         /* US Letter width */
+  --doc-page-h: 279.4mm;         /* US Letter height */
+  --doc-margin-x: 16mm;          /* Page left/right content margin */
+  --doc-header-h: 44px;          /* Purple header band height */
+  --doc-content-gap: 24px;       /* Default gap between content sections (overridden to 12px in BOM) */
+  --doc-content-pad-top: 20px;   /* Content area top padding */
+  --doc-content-pad-bottom: 16px;/* Content area bottom padding */
+
+  /* ══════════════════════════════════════════════
+     Misc
+     ══════════════════════════════════════════════ */
+
+  --doc-sp-half: 2px;              /* Micro gap for section title bottom padding */
+  --doc-tracking-label: 0.05em;    /* Letter-spacing for table header labels */
+  --doc-tracking-doc-type: 0.1em;  /* Letter-spacing for header "BOM 表" */
+  --doc-tracking-title: 0.02em;    /* Letter-spacing for "RFQ BOM" title */
+  --radius-sm: 4px;                /* Thumbnail box border radius */
+  --shadow-lg: 0 8px 24px rgba(46, 13, 119, 0.12), 0 4px 8px rgba(46, 13, 119, 0.06); /* Screen preview shadow */
+}
+
+/* ══════════════════════════════════════════════
+   [C] PAGE SHELL — Required CSS classes (NEW)
+   ══════════════════════════════════════════════ */
+
+@page { size: Letter; margin: 0; }
+
+.doc-page {
+  width: var(--doc-page-w);
+  min-height: var(--doc-page-h);
+  padding: 0;
+  position: relative;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font);
+  font-size: var(--doc-text-body);
+  color: var(--gray-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.doc-content {
+  flex: 1;
+  padding: var(--doc-content-pad-top) var(--doc-margin-x) var(--doc-content-pad-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: var(--doc-content-gap);
+}
+
+/* Print rules */
+@media print {
+  @page { size: Letter; margin: 0; }
+  body { background: #FFFFFF !important; margin: 0; }
+  .doc-page { page-break-after: always; margin: 0; }
+}
+
+/* Screen preview: shadow + gray background */
+@media screen {
+  .doc-page {
+    box-shadow: var(--shadow-lg);
+    border-radius: 2px;
+  }
+}
