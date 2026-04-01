@@ -1,89 +1,86 @@
 /**
- * FactoryBomDemo v2 — Factory-facing RFQ BOM for supplier quoting
+ * FactoryBomDemo — Factory-facing RFQ BOM for supplier quoting
  *
- * Uses FactoryBomDocument v2 with 5-column layout, 14px key fields,
- * notes section, and print handler.
+ * Uses FactoryBomDocument with qty tiers and fillable price/delivery fields.
  */
 
 import { useRef } from 'react';
-import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument';
+import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument_v1';
 
 const sampleBom: FactoryBomData = {
-  orderId: 'U26033148F 簡易BOM測試',
-  issueDate: '4 月 1 日 (三)',
-  replyDeadline: '4 月 7 日 (二) 下午 4 點前',
-  itemCount: 9,
+  orderId: 'Q1211263U 噴火槍',
+  replyDeadline: '2026-01-15 17:00 前',
+  itemCount: 5,
+  totalParts: 18,
   parts: [
     {
       partId: 'P01',
       dimsMm: '127 × 89 × 45',
+      dimsIn: '5.00 × 3.50 × 1.77',
       weight: '0.34 kg',
-      material: '鋁合金 6061-T6',
-      finish: '黑色陽極氧化',
+      filename: '260129_RFQ_Assembly.stp',
+      drawingFilename: 'P01_Assembly_Drawing.pdf',
+      specs: [
+        { label: 'Process', value: 'CNC Machining', valueZh: 'CNC 加工' },
+        { label: 'Material', value: 'Aluminum 6061-T6', valueZh: '鋁合金 6061-T6' },
+        { label: 'Finish', value: 'Anodize Type II, Black', valueZh: '陽極氧化 Type II, 黑色' },
+      ],
       qtyTiers: [1, 5, 10],
     },
     {
-      partId: 'P02\n(1/2)',
+      partId: 'P02',
       dimsMm: '88 × 62 × 31',
+      dimsIn: '3.46 × 2.44 × 1.22',
       weight: '1.34 kg',
-      material: '不鏽鋼 304',
-      finish: '標準',
-      qtyTiers: [2, 4, 8],
-    },
-    {
-      partId: 'P02\n(2/2)',
-      dimsMm: '88 × 62 × 31',
-      weight: '0.48 kg',
-      material: '鋁合金 7075-T6',
-      finish: '透明陽極氧化',
+      filename: 'Motor_Housing_v3.stp',
+      drawingFilename: 'P02_Motor_Housing_Drawing.pdf',
+      specs: [
+        { label: 'Process', value: 'CNC Machining', valueZh: 'CNC 加工' },
+        { label: 'Material', value: 'Stainless Steel 304', valueZh: '不鏽鋼 304' },
+        { label: 'Finish', value: 'Standard', valueZh: '標準' },
+      ],
       qtyTiers: [2, 4, 8],
     },
     {
       partId: 'P03',
       dimsMm: '65 × 52 × 28',
+      dimsIn: '2.56 × 2.05 × 1.10',
       weight: '0.24 kg',
-      material: 'ZERODUR',
-      finish: '標準',
+      filename: '260129_RFQ_1.stp',
+      drawingFilename: 'P03_Optics_Mount_Drawing.pdf',
+      specs: [
+        { label: 'Process', value: 'CNC Brittle Material', valueZh: 'CNC 硬脆材加工' },
+        { label: 'Material', value: 'ZERODUR' },
+        { label: 'Finish', value: 'Etching', valueZh: '蝕刻' },
+      ],
       qtyTiers: [1, 3],
     },
     {
       partId: 'P04',
       dimsMm: '220 × 180 × 55',
+      dimsIn: '8.66 × 7.09 × 2.17',
       weight: '2.18 kg',
-      material: '鋁合金 6061-T6',
-      finish: '標準',
+      filename: 'Base_Plate_Rev4.stp',
+      drawingFilename: 'P04_Base_Plate_Drawing.pdf',
+      specs: [
+        { label: 'Process', value: 'CNC Machining', valueZh: 'CNC 加工' },
+        { label: 'Material', value: 'Aluminum 6061-T6', valueZh: '鋁合金 6061-T6' },
+        { label: 'Finish', value: 'As-Machined', valueZh: '素材' },
+      ],
       qtyTiers: [5, 10, 20],
     },
     {
       partId: 'P05',
       dimsMm: '35 × 12 × 8',
+      dimsIn: '1.38 × 0.47 × 0.31',
       weight: '0.02 kg',
-      material: '不鏽鋼 316L',
-      finish: '電解拋光',
-      qtyTiers: [5, 10, 50],
-    },
-    {
-      partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
-      material: '不鏽鋼 316L',
-      finish: '電解拋光',
-      qtyTiers: [5, 10, 50],
-    },
-    {
-      partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
-      material: '不鏽鋼 316L',
-      finish: '電解拋光',
-      qtyTiers: [5, 10, 50],
-    },
-    {
-      partId: 'P05',
-      dimsMm: '35 × 12 × 8',
-      weight: '0.02 kg',
-      material: '不鏽鋼 316L',
-      finish: '電解拋光',
+      filename: 'Pin_Connector.stp',
+      drawingFilename: 'P05_Pin_Connector_Drawing.pdf',
+      specs: [
+        { label: 'Process', value: 'CNC Machining', valueZh: 'CNC 加工' },
+        { label: 'Material', value: 'Stainless Steel 316L', valueZh: '不鏽鋼 316L' },
+        { label: 'Finish', value: 'Electropolish', valueZh: '電解拋光' },
+      ],
       qtyTiers: [5, 10, 50],
     },
   ],
@@ -120,7 +117,7 @@ export default function FactoryBomDemo() {
         }
       </style>`;
     printWindow.document.write(
-      `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>RFQ BOM ${sampleBom.orderId}</title>${styles}${printCss}</head><body>${pdfRef.current.outerHTML}</body></html>`
+      `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>BOM ${sampleBom.orderId}</title>${styles}${printCss}</head><body>${pdfRef.current.outerHTML}</body></html>`
     );
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);

@@ -18,7 +18,8 @@ const QuoteBuilder   = lazy(() => import('./quote-builder/QuoteBuilder'));
 const QuoteBuilderV2 = lazy(() => import('./quote-builder-v2/QuoteBuilder'));
 const QuoteBuilderV3 = lazy(() => import('./quote-builder-v3/QuoteBuilder'));
 const BomDemo      = lazy(() => import('./BomDemo'));
-const FactoryBomDemo = lazy(() => import('./FactoryBomDemo'));
+const FactoryBomDemo   = lazy(() => import('./FactoryBomDemo'));
+const FactoryBomDemoV1 = lazy(() => import('./FactoryBomDemo_v1'));
 const InvoiceDemo    = lazy(() => import('./InvoiceDemo'));
 import DemoIndex from './DemoIndex';
 
@@ -40,6 +41,7 @@ function Router() {
           case '#/quote':         return <QuoteDemo />;
           case '#/bom':           return <BomDemo />;
           case '#/factory-bom':   return <FactoryBomDemo />;
+          case '#/factory-bom-v1': return <FactoryBomDemoV1 />;
           case '#/invoice':       return <InvoiceDemo />;
           case '#/eval-v1':       return <EvalV1 />;
           case '#/eval-v2':       return <EvalV2 />;
