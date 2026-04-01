@@ -56,6 +56,9 @@ export interface MetaItem {
   label: string;
   value: string;
   highlight?: boolean;
+  /** Custom color override — e.g. 'var(--color-success)' for Receipt status.
+      When set, applies this color + bold weight, overriding highlight. */
+  color?: string;
 }
 
 interface DocumentMetaProps {
@@ -80,11 +83,15 @@ export function DocumentMeta({ items }: DocumentMetaProps) {
           <span
             data-el="DocumentMeta-value"
             className={[
-              'text-[length:var(--doc-text-meta-value)] font-semibold text-right',
-              item.highlight
-                ? 'text-[color:var(--color-primary)] font-bold'
-                : 'text-[color:var(--gray-900)]',
-            ].join(' ')}
+              'text-[length:var(--doc-text-meta-value)] text-right',
+              (item.color || item.highlight) ? 'font-bold' : 'font-semibold',
+              item.color
+                ? ''
+                : item.highlight
+                  ? 'text-[color:var(--color-primary)]'
+                  : 'text-[color:var(--gray-900)]',
+            ].filter(Boolean).join(' ')}
+            style={item.color ? { color: item.color } : undefined}
           >
             {item.value}
           </span>

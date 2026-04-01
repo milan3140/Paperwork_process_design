@@ -80,16 +80,22 @@ export interface PartData {
   drawingFiles: string[];
 }
 
+export type PricingLayout = 'equation' | 'table';
+
+/** Grid column template shared between PartBlock and column headers */
+export const PRICING_TABLE_COLS = '76px 40px 96px';
+
 interface PartBlockProps {
   part: PartData;
   showDivider?: boolean;
+  pricingLayout?: PricingLayout;
 }
 
 function formatCurrency(n: number): string {
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export function PartBlock({ part, showDivider = true }: PartBlockProps) {
+export function PartBlock({ part, showDivider = true, pricingLayout = 'equation' }: PartBlockProps) {
   return (
     <div
       data-comp="PartBlock"
@@ -132,14 +138,34 @@ export function PartBlock({ part, showDivider = true }: PartBlockProps) {
           </span>
         </div>
 
-        {/* Pricing: $48.00 × 50 pcs = $2,400.00 — key numbers bold, connectors muted */}
-        <div data-el="PartBlock-pricing" className="whitespace-nowrap text-[length:var(--doc-text-part-id)] text-[color:var(--gray-500)] text-right">
-          <span className="font-bold text-[color:var(--gray-900)]">{formatCurrency(part.unitPrice)}</span>
-          <span className="px-[var(--sp-2)]">×</span>
-          <span><span className="font-bold text-[color:var(--gray-900)]">{part.quantity}</span> pcs</span>
-          <span className="px-[var(--sp-2)]">=</span>
-          <span className="font-bold text-[length:var(--doc-text-party-name)] text-[color:var(--gray-900)]">{formatCurrency(part.amount)}</span>
-        </div>
+        {/* Pricing */}
+        {pricingLayout === 'table' ? (
+          <div data-el="PartBlock-pricing" className="grid items-end text-right whitespace-nowrap tabular-nums"
+            style={{ gridTemplateColumns: PRICING_TABLE_COLS, gap: 'var(--sp-3)' }}>
+            {[
+              { label: 'Price', value: formatCurrency(part.unitPrice), hero: false },
+              { label: 'Qty', value: String(part.quantity), hero: false },
+              { label: 'Subtotal', value: formatCurrency(part.amount), hero: true },
+            ].map(col => (
+              <div key={col.label} className="flex flex-col items-end gap-[var(--doc-sp-half)]">
+                <span className="text-[length:var(--doc-text-param-label)] font-semibold uppercase tracking-[var(--doc-tracking-label)] text-[color:var(--gray-400)]">
+                  {col.label}
+                </span>
+                <span className={`font-bold text-[color:var(--gray-900)] ${col.hero ? 'text-[length:var(--doc-text-party-name)]' : 'text-[length:var(--doc-text-part-id)]'}`}>
+                  {col.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div data-el="PartBlock-pricing" className="whitespace-nowrap text-[length:var(--doc-text-part-id)] text-[color:var(--gray-500)] text-right">
+            <span className="font-bold text-[color:var(--gray-900)]">{formatCurrency(part.unitPrice)}</span>
+            <span className="px-[var(--sp-2)]">×</span>
+            <span><span className="font-bold text-[color:var(--gray-900)]">{part.quantity}</span> pcs</span>
+            <span className="px-[var(--sp-2)]">=</span>
+            <span className="font-bold text-[length:var(--doc-text-party-name)] text-[color:var(--gray-900)]">{formatCurrency(part.amount)}</span>
+          </div>
+        )}
       </div>
 
       {/* ── Parameters grid — 7 columns with left border dividers ── */}

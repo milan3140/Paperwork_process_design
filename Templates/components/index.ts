@@ -57,3 +57,5 @@ export { QuoteDocument } from './QuoteDocument';
 export type { QuoteData, LeadTimeOption as QuoteLeadTimeOption } from './QuoteDocument';
 export { InvoiceDocument } from './InvoiceDocument';
 export type { InvoiceData, PartialPaymentInfo } from './InvoiceDocument';
+export { ReceiptDocument } from './ReceiptDocument';
+export type { ReceiptData } from './ReceiptDocument';

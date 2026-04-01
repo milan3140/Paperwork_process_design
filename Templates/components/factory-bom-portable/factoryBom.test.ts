@@ -116,10 +116,10 @@ describe('countUniquePartTypes', () => {
     expect(countUniquePartTypes(parts)).toBe(3);
   });
 
-  it('deduplicates sub-parts (P02\\n(1/2) and P02\\n(2/2) count as 1)', () => {
+  it('deduplicates variant labels (P02 A and P02 B count as 1)', () => {
     const parts = [
-      mkPart({ partId: 'P02\n(1/2)', qtyTiers: [1] }),
-      mkPart({ partId: 'P02\n(2/2)', qtyTiers: [1] }),
+      mkPart({ partId: 'P02', qtyTiers: [1] }),
+      mkPart({ partId: 'P02', qtyTiers: [1] }),
     ];
     expect(countUniquePartTypes(parts)).toBe(1);
   });
@@ -131,12 +131,12 @@ describe('countUniquePartTypes', () => {
     expect(countUniquePartTypes(parts)).toBe(1);
   });
 
-  it('handles mixed: unique + sub-parts + repeats', () => {
-    // Real demo data: P01, P02(1/2), P02(2/2), P03, P04, P05×4 → 5 unique
+  it('handles mixed: unique + variants + repeats', () => {
+    // Demo data: P01, P02(A), P02(B), P03, P04, P05×4 → 5 unique
     const parts = [
       mkPart({ partId: 'P01', qtyTiers: [1, 5, 10] }),
-      mkPart({ partId: 'P02\n(1/2)', qtyTiers: [2, 4, 8] }),
-      mkPart({ partId: 'P02\n(2/2)', qtyTiers: [2, 4, 8] }),
+      mkPart({ partId: 'P02', qtyTiers: [2, 4, 8] }),
+      mkPart({ partId: 'P02', qtyTiers: [2, 4, 8] }),
       mkPart({ partId: 'P03', qtyTiers: [1, 3] }),
       mkPart({ partId: 'P04', qtyTiers: [5, 10, 20] }),
       mkPart({ partId: 'P05', qtyTiers: [5, 10, 50] }),
@@ -384,8 +384,8 @@ describe('paginateParts', () => {
 describe('integration: full data flow', () => {
   const demoParts: FactoryBomPart[] = [
     mkPart({ partId: 'P01', dimsMm: { l: 127, w: 89, h: 45 }, weight: 0.34, material: '鋁合金 6061-T6', finish: '黑色陽極氧化', qtyTiers: [1, 5, 10] }),
-    mkPart({ partId: 'P02\n(1/2)', dimsMm: { l: 88, w: 62, h: 31 }, weight: 1.34, material: '不鏽鋼 304', finish: '標準', qtyTiers: [2, 4, 8] }),
-    mkPart({ partId: 'P02\n(2/2)', dimsMm: { l: 88, w: 62, h: 31 }, weight: 0.48, material: '鋁合金 7075-T6', finish: '透明陽極氧化', qtyTiers: [2, 4, 8] }),
+    mkPart({ partId: 'P02', dimsMm: { l: 88, w: 62, h: 31 }, weight: 1.34, material: '不鏽鋼 304', finish: '標準', qtyTiers: [2, 4, 8] }),
+    mkPart({ partId: 'P02', dimsMm: { l: 88, w: 62, h: 31 }, weight: 0.48, material: '鋁合金 7075-T6', finish: '透明陽極氧化', qtyTiers: [2, 4, 8] }),
     mkPart({ partId: 'P03', dimsMm: { l: 65, w: 52, h: 28 }, weight: 0.24, material: 'ZERODUR', finish: '標準', qtyTiers: [1, 3] }),
     mkPart({ partId: 'P04', dimsMm: { l: 220, w: 180, h: 55 }, weight: 2.18, material: '鋁合金 6061-T6', finish: '標準', qtyTiers: [5, 10, 20] }),
     ...Array.from({ length: 4 }, () =>

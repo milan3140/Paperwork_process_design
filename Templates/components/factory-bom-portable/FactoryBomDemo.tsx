@@ -23,7 +23,8 @@ const sampleBom: FactoryBomData = {
       qtyTiers: [1, 5, 10],
     },
     {
-      partId: 'P02\n(1/2)',
+      partId: 'P02',
+      variantLabel: 'A',
       dimsMm: { l: 88, w: 62, h: 31 },
       weight: 1.34,
       material: '不鏽鋼 304',
@@ -31,7 +32,8 @@ const sampleBom: FactoryBomData = {
       qtyTiers: [2, 4, 8],
     },
     {
-      partId: 'P02\n(2/2)',
+      partId: 'P02',
+      variantLabel: 'B',
       dimsMm: { l: 88, w: 62, h: 31 },
       weight: 0.48,
       material: '鋁合金 7075-T6',

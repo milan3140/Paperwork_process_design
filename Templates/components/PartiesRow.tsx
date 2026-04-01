@@ -61,6 +61,8 @@ interface PartiesRowProps {
   billTo: PartyInfo;
   shipTo?: PartyInfo;
   fromLabel?: string;
+  /** Override default "Bill To / Ship To" label. Use "Issued To" for declarative docs (Receipt, CoC). */
+  toLabel?: string;
 }
 
 export function PartiesRow({
@@ -68,6 +70,7 @@ export function PartiesRow({
   billTo,
   shipTo,
   fromLabel = 'From',
+  toLabel,
 }: PartiesRowProps) {
   return (
     <div data-comp="PartiesRow" className="flex flex-col gap-[var(--sp-4)]">
@@ -76,15 +79,15 @@ export function PartiesRow({
         <>
           <PartyBlock label={fromLabel} party={from} side="from" />
           <div className="grid grid-cols-2 gap-[var(--sp-6)]">
-            <PartyBlock label="Bill To" party={billTo} side="billTo" />
+            <PartyBlock label={toLabel ?? 'Bill To'} party={billTo} side="billTo" />
             <PartyBlock label="Ship To" party={shipTo} side="shipTo" />
           </div>
         </>
       ) : (
-        /* ── 2 parties: FROM (left) + BILL TO / SHIP TO (right) side by side ── */
+        /* ── 2 parties: FROM (left) + TO (right) side by side ── */
         <div className="grid grid-cols-2 gap-[var(--sp-6)]">
           <PartyBlock label={fromLabel} party={from} side="from" />
-          <PartyBlock label="Bill To / Ship To" party={billTo} side="billTo" />
+          <PartyBlock label={toLabel ?? 'Bill To / Ship To'} party={billTo} side="billTo" />
         </div>
       )}
     </div>

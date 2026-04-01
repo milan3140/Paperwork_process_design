@@ -21,6 +21,8 @@ const BomDemo      = lazy(() => import('./BomDemo'));
 const FactoryBomDemo   = lazy(() => import('./FactoryBomDemo'));
 const FactoryBomDemoV1 = lazy(() => import('./FactoryBomDemo_v1'));
 const InvoiceDemo    = lazy(() => import('./InvoiceDemo'));
+const InvoiceDemoV2  = lazy(() => import('./InvoiceDemo_v2'));
+const ReceiptDemo    = lazy(() => import('./ReceiptDemo'));
 import DemoIndex from './DemoIndex';
 
 function Router() {
@@ -43,6 +45,8 @@ function Router() {
           case '#/factory-bom':   return <FactoryBomDemo />;
           case '#/factory-bom-v1': return <FactoryBomDemoV1 />;
           case '#/invoice':       return <InvoiceDemo />;
+          case '#/invoice-v2':    return <InvoiceDemoV2 />;
+          case '#/receipt':       return <ReceiptDemo />;
           case '#/eval-v1':       return <EvalV1 />;
           case '#/eval-v2':       return <EvalV2 />;
           case '#/eval-v3':       return <EvalV3 />;

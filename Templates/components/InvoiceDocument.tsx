@@ -44,7 +44,7 @@ import { DocumentMeta, type MetaItem } from './DocumentMeta';
 import { SectionLabel } from './SectionLabel';
 import { PartiesRow, type PartyInfo } from './PartiesRow';
 import { InvoiceKeyInfoRow, type InvoiceVariant } from './InvoiceKeyInfoRow';
-import { PartBlock, type PartData } from './PartBlock';
+import { PartBlock, type PartData, type PricingLayout } from './PartBlock';
 import { NRETable, type NRECharge } from './NRETable';
 import { TotalsTable, type TotalLine } from './TotalsTable';
 import { NotesList } from './NotesList';
@@ -116,6 +116,7 @@ export interface InvoiceData {
 
 interface InvoiceDocumentProps {
   data: InvoiceData;
+  pricingLayout?: PricingLayout;
 }
 
 function fmt(n: number): string {
@@ -123,7 +124,7 @@ function fmt(n: number): string {
 }
 
 export const InvoiceDocument = React.forwardRef<HTMLDivElement, InvoiceDocumentProps>(
-  function InvoiceDocument({ data }, ref) {
+  function InvoiceDocument({ data, pricingLayout = 'equation' }, ref) {
 
     /* ── Build meta items ──
        4 items max (AP-focused): Date, Due Date, Quote Ref, PO Ref.
@@ -187,7 +188,7 @@ export const InvoiceDocument = React.forwardRef<HTMLDivElement, InvoiceDocumentP
           <div data-el="InvoiceDocument-parts">
             <SectionLabel>Invoiced Items ({data.parts.length} items)</SectionLabel>
             {data.parts.map((part, i) => (
-              <PartBlock key={part.id} part={part} showDivider={i < data.parts.length - 1} />
+              <PartBlock key={part.id} part={part} showDivider={i < data.parts.length - 1} pricingLayout={pricingLayout} />
             ))}
           </div>
 

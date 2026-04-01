@@ -138,9 +138,16 @@ export interface Dims3D {
 }
 
 export interface FactoryBomPart {
-  /** Part identifier. Use \n for sub-parts: "P02\n(1/2)".
-   *  Base ID (before \n) is used for unique part type counting. */
+  /** Part identifier. e.g. "P01", "P02".
+   *  Used for unique part type counting (零件種類). */
   partId: string;
+  /** Optional variant label for same-part material/finish alternatives.
+   *  Rendered as small gray "(A)" / "(B)" below partId.
+   *  Omit for standalone parts — no label shown.
+   *  Example: P02 with variantLabel "A" → displays "P02" + "(A)" below.
+   *  All variants still get quoted by the factory; the label just
+   *  distinguishes which material/finish option is which. */
+  variantLabel?: string;
   /** Thumbnail URL or base64 data URI. Omit for "3D" placeholder. */
   thumbnail?: string;
   /** Dimensions: structured {l, w, h} in mm → auto-formatted "127 × 89 × 45",
@@ -243,13 +250,12 @@ export function formatWeight(weight: number | string): string {
   return `${weight.toFixed(2)} kg`;
 }
 
-/** Count unique part types by base partId (text before first \n).
- *  "P02\n(1/2)" and "P02\n(2/2)" both have base "P02" → counted once.
- *  "P05" appearing 4 times → counted once.
+/** Count unique part types by partId.
+ *  Same partId with different variantLabels (A/B) = same part type → counted once.
+ *  Same partId repeated (P05 ×4) → counted once.
  *  Used to display "零件種類：N 種". */
 export function countUniquePartTypes(parts: FactoryBomPart[]): number {
-  const baseIds = new Set(parts.map(p => p.partId.split('\n')[0]));
-  return baseIds.size;
+  return new Set(parts.map(p => p.partId)).size;
 }
 
 /** Chinese ordinal number labels for summary tier rows.
@@ -644,9 +650,14 @@ function FactoryBomRow({ part, isLast }: { part: FactoryBomPart; isLast: boolean
         </div>
       </td>
 
-      {/* ── PART ID — 14px bold (KEY_VALUE) ── */}
-      <td className={`py-[var(--sp-3)] px-[var(--sp-2)] text-center align-middle border-r border-r-[var(--gray-100)] ${KEY_VALUE}`}>
-        {part.partId}
+      {/* ── PART ID — 14px bold (KEY_VALUE) + optional variant label ── */}
+      <td className={`py-[var(--sp-3)] px-[var(--sp-2)] text-center align-middle border-r border-r-[var(--gray-100)]`}>
+        <div className={KEY_VALUE}>{part.partId}</div>
+        {part.variantLabel && (
+          <div className="text-[length:10px] font-bold text-[color:var(--gray-400)] mt-[2px]">
+            ({part.variantLabel})
+          </div>
+        )}
       </td>
 
       {/* ── MATERIAL — 13px bold ── */}
