@@ -106,6 +106,11 @@ function PriceCell({ scenarios, annotations, showLeadTime = true }: {
           {annotations.get(s.id) && (
             <div className={ANNOTATION}>{annotations.get(s.id)}</div>
           )}
+          {s.note?.trim() && (
+            <div style={{ fontSize: '8px', color: 'var(--gray-400)', fontStyle: 'italic', marginTop: '2px' }}>
+              NOTE: {s.note}
+            </div>
+          )}
         </div>
       ))}
     </td>
@@ -154,11 +159,18 @@ function SingleLayout({ part, analysis, hideHeader }: { part: QuotePart; analysi
   if (!s) return null;
 
   return (
-    <div className="flex items-baseline gap-[var(--sp-4,16px)]">
-      {!hideHeader && <PartHeader part={part} analysis={analysis} />}
-      <span className="font-semibold text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-900,#1c1a25)]">
-        {fmtPrice(s.unitPrice)} /ea
-      </span>
+    <div>
+      <div className="flex items-baseline gap-[var(--sp-4,16px)]">
+        {!hideHeader && <PartHeader part={part} analysis={analysis} />}
+        <span className="font-semibold text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-900,#1c1a25)]">
+          {fmtPrice(s.unitPrice)} /ea
+        </span>
+      </div>
+      {s.note?.trim() && (
+        <div style={{ fontSize: '8px', color: 'var(--gray-400)', fontStyle: 'italic', marginTop: '2px' }}>
+          NOTE: {s.note}
+        </div>
+      )}
     </div>
   );
 }
@@ -326,7 +338,12 @@ function FlatListLayout({ part, analysis, showLeadTime, hideHeader }: { part: Qu
             return (
               <tr key={i} className={i < part.scenarios.length - 1 ? 'border-b border-[var(--gray-200,#e2e0e8)]' : ''}>
                 <td className={`${TD} text-left text-[color:var(--gray-600,#6b6780)]`}>{fullLabel}</td>
-                <td className={`${TD} text-left font-semibold text-[color:var(--gray-900,#1c1a25)]`}>{fmtPrice(s.unitPrice)}</td>
+                <td className={`${TD} text-left`}>
+                  <span className="font-semibold text-[color:var(--gray-900,#1c1a25)]">{fmtPrice(s.unitPrice)}</span>
+                  {s.note?.trim() && (
+                    <div style={{ fontSize: '8px', color: 'var(--gray-400)', fontStyle: 'italic', marginTop: '2px' }}>NOTE: {s.note}</div>
+                  )}
+                </td>
                 {showLeadTime && <td className={`${TD} text-left text-[color:var(--gray-400,#9a96a8)]`}>{s.leadTimeDays} workdays</td>}
                 <td className={`${TD} text-left ${ANNOTATION}`}>{annotations.get(s.id) || ''}</td>
               </tr>

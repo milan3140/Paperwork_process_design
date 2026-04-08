@@ -56,6 +56,8 @@ export interface Scenario {
   customLabel?: string;
   /** Custom dimension values — keyed by custom dimension id */
   customDimValues?: Record<string, string>;
+  /** Optional per-scenario note shown below the price row in the PDF */
+  note?: string;
 }
 
 /** Compute effective unit price from cost/margin/override */
@@ -118,10 +120,14 @@ export interface EditableSection {
   content: string;
 }
 
+/** Payment term options shown in PDF meta and used by How to Proceed section */
+export type PaymentTerm = 'pia' | 'net30';
+
 export interface QuoteBuilderData {
   quoteId: string;
   date: string;
   validDays: number;
+  paymentTerm: PaymentTerm;
   customer: Customer;
   coverLetterStrategy: CoverLetterStrategy;
   coverLetterCustom?: string;
@@ -192,6 +198,7 @@ export function createDefaultQuote(): QuoteBuilderData {
     quoteId: `Q${new Date().toISOString().slice(2, 10).replace(/-/g, '')}01A`,
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     validDays: 30,
+    paymentTerm: 'pia',
     customer: {
       companyName: '', contactName: '',
       billingAddress: createEmptyAddress(),

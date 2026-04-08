@@ -60,7 +60,7 @@ const BTN_PRIMARY = [
 const BTN_GHOST = [
   'h-[var(--h-sm)] px-[var(--sp-3)] text-[length:var(--text-xs)] font-medium',
   'text-[color:var(--gray-500)] rounded-[var(--radius-sm)]',
-  'hover:text-[color:var(--gray-700)] hover:bg-[color:var(--gray-100)]',
+  'hover:text-[color:var(--gray-700)] hover:bg-[color:var(--gray-75)]',
   'active:bg-[color:var(--gray-150)] transition-all duration-[var(--duration-fast)]',
   'cursor-pointer',
 ].join(' ');
@@ -298,6 +298,15 @@ function ScenarioRow({
           ))}
         </div>
       )}
+
+      {/* Optional per-scenario note */}
+      <div className="mt-[var(--sp-2)]">
+        <label className={LABEL}>Note <span className="font-normal normal-case tracking-normal text-[color:var(--gray-400)]">(optional — shown in PDF below price)</span></label>
+        <input className={`${INPUT_COMPACT} w-full`}
+          placeholder="e.g. includes surface treatment, expedite available..."
+          value={scenario.note || ''}
+          onChange={e => onChange({ ...scenario, note: e.target.value || undefined })} />
+      </div>
     </div>
   );
 }
@@ -665,15 +674,16 @@ function buildPdfSections(
       <div className="flex justify-between items-start cursor-pointer hover:opacity-80 transition-opacity" data-edit-target="proposal">
         <div>
           <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-            Quote Proposal
+            Quote Option Proposal
           </div>
           <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
             #{data.quoteId}
           </div>
         </div>
         <DocumentMeta items={[
-          { label: 'Date', value: data.date },
+          { label: 'Date',  value: data.date },
           { label: 'Valid', value: `${data.validDays} days` },
+          { label: 'Terms', value: data.paymentTerm === 'net30' ? 'NET 30' : 'PIA' },
         ]} />
       </div>
     ),
@@ -747,9 +757,10 @@ function buildPdfSections(
           <div className="text-[length:var(--doc-text-secondary,9px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[var(--sp-1)]">
             Line #{idx + 1}
           </div>
-          <div className="bg-[color:var(--gray-50)] rounded-[var(--radius-sm)] p-[var(--sp-3)]">
-            {/* Identity band: thumbnail (optional) + Part name, attributes & dimensions */}
-            <div className="flex gap-[20px] items-center mb-[var(--sp-2)] pl-[var(--sp-2)]">
+          <div style={{ borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+          {/* Block 1 — Identity band */}
+          <div style={{ backgroundColor: 'var(--gray-75)', padding: '8px 12px' }}>
+            <div className="flex gap-[20px] items-center">
               {rawPart.thumbnailUrl && (
                 <img src={rawPart.thumbnailUrl} alt=""
                   className="w-[60px] h-[60px] rounded-[var(--radius-sm)] object-cover border border-[color:var(--gray-200)] shrink-0" />
@@ -758,29 +769,37 @@ function buildPdfSections(
                 <PartHeader part={part} />
                 {rawPart.dimensions && (rawPart.dimensions.length > 0 || rawPart.dimensions.width > 0 || rawPart.dimensions.height > 0) && (() => {
                   const sorted = [rawPart.dimensions!.length, rawPart.dimensions!.width, rawPart.dimensions!.height].sort((a, b) => b - a);
+                  const volMm3 = sorted[0] * sorted[1] * sorted[2];
+                  const mmVol = volMm3 >= 1000
+                    ? `${(volMm3 / 1000).toFixed(1)} cm³`
+                    : `${volMm3.toFixed(0)} mm³`;
+                  const inDims = sorted.map(v => (v / 25.4).toFixed(1));
+                  const volIn3 = (volMm3 / (25.4 ** 3));
+                  const inVol = volIn3 < 1
+                    ? `${volIn3.toFixed(3)} in³`
+                    : `${volIn3.toFixed(2)} in³`;
                   return (
-                    <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)] mt-[1px]">
-                      {sorted[0]} × {sorted[1]} × {sorted[2]} mm
-                      <span className="mx-[6px]">·</span>
-                      {(sorted[0] / 25.4).toFixed(2)} × {(sorted[1] / 25.4).toFixed(2)} × {(sorted[2] / 25.4).toFixed(2)} in
+                    <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)] mt-[1px] flex items-baseline gap-[4px]">
+                      <span>{sorted[0].toFixed(1)} × {sorted[1].toFixed(1)} × {sorted[2].toFixed(1)} mm · {mmVol}</span>
+                      <span className="mx-[2px] text-[color:var(--gray-300)]">|</span>
+                      <span>{inDims[0]} × {inDims[1]} × {inDims[2]} in · {inVol}</span>
                     </div>
                   );
                 })()}
               </div>
             </div>
-            {/* Subtle separator */}
-            <div className="border-t border-[#fcfbfe] mb-[var(--sp-2)]" />
-            {/* Full-width comparison table (header hidden — rendered above) */}
-            <div className="pl-[var(--sp-2)]">
-              <QuoteComparisonTable part={part} hideHeader />
+          </div>
+          {/* Block 2 — Comparison table */}
+          <div style={{ backgroundColor: 'var(--gray-50)', padding: '10px 12px' }}>
+            <QuoteComparisonTable part={part} hideHeader />
+          </div>
+          {/* Block 3 — Per-Part Note */}
+          {rawPart.note?.trim() && (
+            <div style={{ backgroundColor: 'var(--gray-75)', padding: '8px 12px' }}>
+              <div className="text-[length:var(--doc-text-secondary,9px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-500)] mb-[2px]">Note</div>
+              <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">{rawPart.note}</p>
             </div>
-            {/* Per-Part Note */}
-            {rawPart.note?.trim() && (
-              <div className="mt-[var(--sp-2)] pl-[var(--sp-2)]">
-                <div className="text-[length:var(--doc-text-secondary,9px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-400)] mb-[2px]">Note</div>
-                <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">{rawPart.note}</p>
-              </div>
-            )}
+          )}
           </div>
         </div>
       ),
@@ -850,6 +869,11 @@ function buildPdfSections(
               </li>
             ))}
           </ul>
+          <p className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)] italic mt-[var(--sp-2)]">
+            {data.paymentTerm === 'pia'
+              ? `→ To confirm: wire payment referencing Quote #${data.quoteId}`
+              : `→ To confirm: issue a PO referencing Quote #${data.quoteId}`}
+          </p>
         </div>
       </div>
     ),
@@ -870,7 +894,49 @@ function buildPdfSections(
     });
   }
 
-  // 6. Terms — uses editable section content with custom label
+  // 6. How to Proceed — actionable steps for customer (varies by paymentTerm)
+  const isPia = data.paymentTerm === 'pia';
+  const proceedSteps = isPia
+    ? [
+        `Reply to this quote with your approval (email is sufficient)`,
+        `Wire full payment to the bank account below, referencing Quote #${data.quoteId}`,
+        `Send payment confirmation to sales@instavoxel.com — production begins within 5 business days`,
+      ]
+    : [
+        `Reply to this quote with your approval (email is sufficient)`,
+        `Issue a Purchase Order (PO) referencing Quote #${data.quoteId}`,
+        `Email your PO to sales@instavoxel.com — production begins upon receipt`,
+      ];
+
+  sections.push({
+    key: 'how-to-proceed',
+    content: (
+      <div style={{
+        border: '1px solid var(--gray-200)',
+        borderRadius: '4px',
+        padding: '12px 14px',
+        backgroundColor: 'color-mix(in srgb, var(--color-primary) 3%, transparent)',
+      }}>
+        <div className="text-[length:var(--doc-text-label,9px)] font-semibold uppercase tracking-[var(--doc-tracking-label,0.05em)] text-[color:var(--color-primary)] mb-[var(--sp-2)]">
+          How to Proceed
+        </div>
+        <ol style={{ margin: 0, paddingLeft: '16px', listStyleType: 'decimal' }}>
+          {proceedSteps.map((step, i) => (
+            <li key={i} className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-700)]" style={{ marginBottom: i < proceedSteps.length - 1 ? '4px' : 0 }}>
+              {step}
+            </li>
+          ))}
+        </ol>
+        {isPia && (
+          <div className="mt-[var(--sp-2)] text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-500)]">
+            Payment accepted via wire transfer (USD or TWD). Contact us for bank details.
+          </div>
+        )}
+      </div>
+    ),
+  });
+
+  // 7. Terms — uses editable section content with custom label
   sections.push({
     key: 'terms',
     content: (
@@ -1205,7 +1271,7 @@ export default function QuoteBuilder() {
               )}
             </section>
 
-            <div className="border-t border-[color:var(--gray-100)]" />
+            <div className="border-t border-[color:var(--gray-75)]" />
 
             {/* ── CUSTOMER (progressive disclosure) ── */}
             <section data-edit-id="customer"
@@ -1267,7 +1333,7 @@ export default function QuoteBuilder() {
               </div>
             </section>
 
-            <div className="border-t border-[color:var(--gray-100)]" />
+            <div className="border-t border-[color:var(--gray-75)]" />
 
             {/* ── PARTS ── */}
             <section>
@@ -1282,7 +1348,7 @@ export default function QuoteBuilder() {
                 {data.parts.map((part, idx) => (
                   <div key={part.id}
                     data-edit-id={`part:${part.id}`}
-                    className={`rounded-[var(--radius-md)] border border-[color:var(--gray-100)] transition-all duration-300 ${highlightSection === `part:${part.id}` ? 'ring-2 ring-[color:var(--color-primary)] ring-opacity-30' : ''}`}>
+                    className={`rounded-[var(--radius-md)] border border-[color:var(--gray-75)] transition-all duration-300 ${highlightSection === `part:${part.id}` ? 'ring-2 ring-[color:var(--color-primary)] ring-opacity-30' : ''}`}>
                     <PartEditor part={part} index={idx}
                       canRemove={data.parts.length > 1}
                       collapsed={collapsedParts.has(part.id)}
@@ -1301,7 +1367,7 @@ export default function QuoteBuilder() {
               </button>
             </section>
 
-            <div className="border-t border-[color:var(--gray-100)]" />
+            <div className="border-t border-[color:var(--gray-75)]" />
 
             {/* ── DELIVERY & TERMS ── */}
             <section>
@@ -1353,6 +1419,25 @@ export default function QuoteBuilder() {
                   <span className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] truncate flex-1">{data.sections.paymentTerms.content.split('\n')[0].slice(0, 40)}...</span>
                 </summary>
                 <div className="pt-[var(--sp-2)] pl-[var(--sp-5)]">
+                  {/* Payment term selector — drives PDF meta + How to Proceed section */}
+                  <div className="flex items-center gap-[var(--sp-3)] mb-[var(--sp-3)]">
+                    <span className={LABEL}>Term Type</span>
+                    {(['pia', 'net30'] as const).map(t => (
+                      <label key={t} className="flex items-center gap-[var(--sp-1)] cursor-pointer select-none">
+                        <input
+                          type="radio"
+                          name="paymentTerm"
+                          value={t}
+                          checked={data.paymentTerm === t}
+                          onChange={() => setData(d => ({ ...d, paymentTerm: t }))}
+                          className="accent-[var(--color-primary)] cursor-pointer"
+                        />
+                        <span className="text-[length:var(--text-sm)] font-semibold text-[color:var(--gray-700)]">
+                          {t === 'pia' ? 'PIA' : 'NET 30'}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                   <SectionEditor section={data.sections.paymentTerms} placeholder="One item per line"
                     onChange={s => setData(d => ({ ...d, sections: { ...d.sections, paymentTerms: s } }))} />
                 </div>

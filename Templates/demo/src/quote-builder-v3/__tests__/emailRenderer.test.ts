@@ -32,6 +32,7 @@ function mkQuote(rawParts: Partial<QuotePart>[], overrides?: Partial<QuoteBuilde
     quoteId: 'Q2603251A',
     date: 'March 25, 2026',
     validDays: 30,
+    paymentTerm: 'pia',
     customer: { companyName: 'Acme Corp', contactName: 'John Smith', billingAddress: { street: '', city: '', state: '', postalCode: '', country: '' }, shippingAddress: { street: '', city: '', state: '', postalCode: '', country: '' }, shippingSameAsBilling: true },
     coverLetterStrategy: 'standard',
     parts,

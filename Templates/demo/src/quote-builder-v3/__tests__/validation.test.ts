@@ -17,6 +17,7 @@ function mkQuote(parts: Partial<QuotePart>[]): QuoteBuilderData {
     quoteId: 'Q001',
     date: 'March 25, 2026',
     validDays: 30,
+    paymentTerm: 'pia',
     customer: { companyName: 'Acme', contactName: 'John', billingAddress: { street: '', city: '', state: '', postalCode: '', country: '' }, shippingAddress: { street: '', city: '', state: '', postalCode: '', country: '' }, shippingSameAsBilling: true },
     coverLetterStrategy: 'standard',
     parts: parts.map(p => ({

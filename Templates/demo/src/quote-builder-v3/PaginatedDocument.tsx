@@ -24,6 +24,49 @@ interface PaginatedDocumentProps {
   maxGapFactor?: number;
 }
 
+/* ── Continuation hint styles ──────────────────────────────────────────────
+ * Used at the bottom of non-last pages and top of non-first pages.
+ * Small, uppercase, gray — non-intrusive but clearly legible. */
+const CONT_HINT_BASE: React.CSSProperties = {
+  fontSize: '7.5px',
+  fontWeight: 600,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: 'var(--gray-300)',
+  lineHeight: 1,
+};
+
+function ContinuedOnNextPage() {
+  return (
+    <div
+      style={{
+        ...CONT_HINT_BASE,
+        borderTop: '1px solid var(--gray-100)',
+        paddingTop: '6px',
+        textAlign: 'right',
+        marginTop: '8px',
+      }}
+    >
+      Continued on next page ›
+    </div>
+  );
+}
+
+function ContinuedFromPreviousPage() {
+  return (
+    <div
+      style={{
+        ...CONT_HINT_BASE,
+        borderBottom: '1px solid var(--gray-100)',
+        paddingBottom: '6px',
+        marginBottom: '8px',
+      }}
+    >
+      ‹ Continued from previous page
+    </div>
+  );
+}
+
 export function PaginatedDocument({
   sections,
   docId,
@@ -68,6 +111,8 @@ export function PaginatedDocument({
     });
   }); // runs every render
 
+  const isMultiPage = pages.length > 1;
+
   return (
     <>
       {/* Hidden measuring container */}
@@ -89,40 +134,51 @@ export function PaginatedDocument({
       </div>
 
       {/* Paginated output — always renders (uses default layout initially) */}
-      {pages.map((page, pageIdx) => (
-        <div
-          key={pageIdx}
-          className="doc-page"
-          style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
-            marginBottom: pageIdx < pages.length - 1 ? '32px' : 0,
-          }}
-        >
-          <DocumentHeader docType="Quote Proposal" />
+      {pages.map((page, pageIdx) => {
+        const isFirst = pageIdx === 0;
+        const isLast  = pageIdx === pages.length - 1;
 
-          <div className="doc-content" style={{ gap: 0 }}>
-            {page.indices.map((sectionIdx, si) => {
-              const section = sections[sectionIdx];
-              if (!section) return null;
-              return (
-                <div key={section.key}>
-                  {si > 0 && (
-                    <div style={{ height: `${page.spacerHeights[si - 1] ?? gap}px` }} />
-                  )}
-                  {section.content}
-                </div>
-              );
-            })}
+        return (
+          <div
+            key={pageIdx}
+            className="doc-page"
+            style={{
+              fontFamily: "'Inter', system-ui, sans-serif",
+              marginBottom: !isLast ? '32px' : 0,
+            }}
+          >
+            <DocumentHeader docType="Quote Option Proposal" />
+
+            <div className="doc-content" style={{ gap: 0 }}>
+              {/* "Continued from previous page" — top of pages 2+ */}
+              {isMultiPage && !isFirst && <ContinuedFromPreviousPage />}
+
+              {page.indices.map((sectionIdx, si) => {
+                const section = sections[sectionIdx];
+                if (!section) return null;
+                return (
+                  <div key={section.key}>
+                    {si > 0 && (
+                      <div style={{ height: `${page.spacerHeights[si - 1] ?? gap}px` }} />
+                    )}
+                    {section.content}
+                  </div>
+                );
+              })}
+
+              {/* "Continued on next page" — bottom of all pages except last */}
+              {isMultiPage && !isLast && <ContinuedOnNextPage />}
+            </div>
+
+            <DocumentFooter
+              docId={docId}
+              page={pageIdx + 1}
+              totalPages={pages.length}
+              closing="We look forward to working with you."
+            />
           </div>
-
-          <DocumentFooter
-            docId={docId}
-            page={pageIdx + 1}
-            totalPages={pages.length}
-            closing="We look forward to working with you."
-          />
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 }
