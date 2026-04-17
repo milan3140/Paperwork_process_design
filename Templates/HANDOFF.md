@@ -56,17 +56,27 @@ Templates/
 
 ## 3. 執行指令
 
+**Node 版本**：20（見 repo 根的 `.nvmrc`）。Vite 5 需 Node 18+。
+
 ```bash
 cd Templates/demo
 npm install
 
-npm run dev                                    # localhost:5173
-npx tsc --noEmit                               # 型別檢查
-npx vitest run src/_archive/quote-builder-v3/__tests__/   # 舊測試（155+ 案）
-npx vitest run src/__tests__/factoryBom.test.ts           # Factory BOM 邏輯測試
+npm run dev                                    # 同時啟 Vite + PDF server（concurrently）
+npm run dev:vite                               # 只跑 Vite
+npm run dev:pdf                                # 只跑 PDF server
+
+npm run build                                  # 型別檢查 + production build
+npm run typecheck                              # 只型別檢查（= tsc --noEmit）
+npm run test                                   # 跑全部 vitest 測試
+npm run test:bom                               # 只跑 Factory BOM 測試
 ```
 
-**PDF 產生**（任何 demo 頁）：點右下 `Download PDF` 按鈕 → 觸發 `downloadPdf.ts` → 呼叫 `scripts/pdf-server.ts` → Puppeteer 渲染 → 下載。開 `node Templates/demo/scripts/pdf-server.ts` 先啟 PDF server。
+**Port 使用**：
+- `5173` — Vite dev server（所有 demo 頁）
+- `3001` — PDF server（`/api/pdf` 端點，`/api/health` 健康檢查）
+
+**PDF 產生**：任何 demo 頁點右下 `Download PDF` 按鈕即可（`npm run dev` 已經把 PDF server 一併啟起來）。`downloadPdf.ts` 抓當前 DOM + theme 變數 → POST 到 `http://localhost:3001/api/pdf` → Puppeteer 用 headless Chrome 渲染成 A4 PDF → 回傳下載。
 
 ---
 
@@ -164,12 +174,57 @@ Archive 裡的 demo 仍可透過路由預覽（供歷史比對），但不會再
 - **Quote Proposal Builder 沒正式版**：v5 是最新但未上線，全系列在 `_archive/quote-builder-v*/`。工程師接手若要推進，從 v5 開始即可。
 - **BOM / Quotation / PO / Receipt / Eval 沒正式版**：只有 base 或實驗版。若要導入這幾類的正式模板，需重新設計。
 - **`_archive/` 內含 pagination 相關測試**（`__tests__/pagination.test.ts` 等），搬進 archive 後仍可跑但不再為產品保證。
-- **`scripts/pdf-server.ts` 依賴 Puppeteer + 本機 Chrome**：`pdf-server.ts` 開頭 hardcode 了 Chrome 路徑；跨平台請先檢查。
+- **`scripts/pdf-server.ts` 依賴本機 Chrome**：用 `puppeteer-core`（不附帶 Chromium），開服前要有 Chrome。
+
+  預設搜尋順序（Windows）：
+  ```
+  C:/Program Files/Google/Chrome/Application/chrome.exe
+  C:/Program Files (x86)/Google/Chrome/Application/chrome.exe
+  $CHROME_PATH（環境變數）
+  ```
+
+  **Mac / Linux**：設環境變數後再 `npm run dev`
+  ```bash
+  # Mac
+  export CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+  # Linux
+  export CHROME_PATH="/usr/bin/google-chrome"
+  ```
+  或直接把 path 加入 `scripts/pdf-server.ts` 的 `CHROME_PATHS` 陣列常數（第 27 行）。
+
 - **`DocDesignChecklist.md` 與 `PaperWork_Design_Src/Archive/`**：不在此 repo（設計內部文件），如需請另索取。
+
+- **`src/__tests__/factoryBom.test.ts` 有 5 個失敗測試**（48 中的 5）：主要是 `paginateParts` 的 page-length 預期與實際值不符。推測是實作改過但測試沒同步。工程師接手時可順手 triage。
+
+- **`npm install` 回報 4 個 vulnerabilities**（1 moderate, 3 high，來自間接依賴）：跑 `npm audit` 看細節。若為嚴重可 `npm audit fix`；含 breaking change 要用 `--force` 前先確認相容性。
 
 ---
 
-## 9. Git 是主要交接文件
+## 9. 貢獻慣例
+
+目前 repo **無** ESLint / Prettier / pre-commit hook / CI。品質 gate 靠：
+
+- `npm run typecheck` — push 前確認無型別錯誤
+- `npm run test` — push 前跑全部單元測試（包含 archive）
+- `npm run build` — push 前確認能 build 出 production bundle
+- 人工 review — PR 描述清楚「改了什麼、為什麼」
+
+未來若要加 ESLint / Prettier / CI，請先跟 repo owner 對齊 config（避免一上 PR 就出現千行格式變更）。
+
+Commit message 慣例（看 `git log` 就知道）：
+```
+<type>: <scope / short summary>
+
+<optional body - why, not what>
+
+Co-Authored-By: ...
+```
+`type`：`feat` / `fix` / `refactor` / `chore` / `docs` / `test` / `sync`
+
+---
+
+## 10. Git 是主要交接文件
 
 `git log --oneline` 從 `062f3c6 chore: cleanup for handoff` 起，是交接前的整理 commits：
 
@@ -193,7 +248,7 @@ d661a1b feat: CoC document (Certificate of Conformance) v1-v4
 
 ---
 
-## 10. CLAUDE.md 與本檔分工
+## 11. CLAUDE.md 與本檔分工
 
 - `CLAUDE.md`（repo 根）— AI coding assistant 讀的 bug fix 方法論與執行指令
 - `HANDOFF.md`（本檔）— 工程師讀的專案總覽

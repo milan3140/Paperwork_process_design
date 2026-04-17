@@ -11,6 +11,7 @@
 
 # Step 3: Allow repo config files
 !.gitignore
+!.nvmrc
 !.claude/
 !README.md
 !CONTRIBUTING.md
