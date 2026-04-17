@@ -17,8 +17,7 @@
 import React from 'react';
 import { DocumentHeader } from './DocumentHeader';
 import { PRINT_ICONS } from './Icons_Print';
-import shot1 from '../../PaperWork_Design_Src/3D_model_shot1.jpg';
-import shot2 from '../../PaperWork_Design_Src/3D_model_shot2.jpg';
+import { MODEL_SHOT_1 as shot1, MODEL_SHOT_2 as shot2 } from './_assets';
 
 const CN_DIGITS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
 function toChineseNum(n: number): string {

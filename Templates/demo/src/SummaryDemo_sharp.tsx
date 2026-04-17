@@ -24,6 +24,7 @@ const sampleSummary: SummaryData = {
     { stage: '台灣工廠交貨', date: <span className="s-hi">5 月 6 日 (週三)</span>, note: '下午 4PM 前艾維收到', buffer: '留 2 天質檢緩衝' },
     { stage: '台灣最晚 DHL 出貨', date: '5 月 8 日 (週五)', note: '留 3 天 DHL 運輸' },
     { stage: '美國最終交期', date: '5 月 15 日 (週五)', note: '' },
+    { stage: '供應商', date: '禾登', note: '' },
   ],
 
   orderSummary: [
