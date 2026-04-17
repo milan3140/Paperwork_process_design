@@ -26,8 +26,3 @@ npx tsc --noEmit                                 # type check
 4. **Layer check** — symptom layer ≠ cause layer (types → logic → components → output adapters → browser)
 5. **Verify** — revert fix = bug returns? Apply only fix = bug gone?
 6. **Max 2 attempts** — then report analysis to user
-
-## References (read when needed, not every prompt)
-- `Templates/Quote_Build_Auotomate/Debug_Methodology.md` — full 6-step root cause analysis, anti-patterns, layer examples, design decisions
-- `Templates/Quote_Build_Auotomate/Known_Pitfalls.md` — 7 documented bug patterns with symptoms/causes/fixes
-- `Templates/Quote_Build_Auotomate/UI_Testing_Strategy.md` — testing approach comparison (Playwright, MCP, etc.)

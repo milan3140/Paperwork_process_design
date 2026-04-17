@@ -26,6 +26,7 @@ __pycache__/
 test-results/
 playwright-report/
 blob-report/
+Templates/demo/*.pdf
 
 # Step 5: Exclude personal/local files even in allowed dirs
 .claude/settings.local.json
