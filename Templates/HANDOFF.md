@@ -73,6 +73,7 @@ npm run typecheck                     # 只型別檢查（= tsc --noEmit）
 npm run test                          # 只跑 current 測試（src/__tests__/）
 npm run test:bom                      # 只跑 Factory BOM 測試
 npm run test:archive                  # 跑 archive 測試（src/_archive/，不再維護）
+npm run test:routes                   # Puppeteer 跑過所有 50 條 route（需 dev server 已啟）
 ```
 
 **Port 使用**：
@@ -373,6 +374,7 @@ Mac / Linux 沒裝 Chrome 或路徑非預設 → 設 `CHROME_PATH` 環境變數�
 - **`npm install` 回報 4 個 vulnerabilities**（1 moderate, 3 high，來自間接依賴）：跑 `npm audit` 看細節。
 - **`components/` 約 80 處 hardcoded 顏色（非 `var()`）**：違反 token 慣例但不 breaking。若觸碰相關檔案順手改成 token。
 - **`components/index.ts` 仍 re-export archive-only 組件**（CoC v1-v3、PackingSlip v1-v2、EvalDocument 等）：可清理但不影響功能。
+- **5 個 Factory BOM + Packing Slip v1 有 `validateDOMNesting` React dev warning**：colgroup/table 子節點有多餘 whitespace，production build 不顯示、視覺正常。整理時刪掉 `<colgroup>` 跟 `<tr>` 之間的空白 text node 即可。
 
 ---
 

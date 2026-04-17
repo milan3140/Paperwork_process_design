@@ -12,6 +12,7 @@
     "test": "vitest run src/__tests__/",
     "test:bom": "vitest run src/__tests__/factoryBom.test.ts",
     "test:archive": "vitest run src/_archive/",
+    "test:routes": "tsx scripts/smoke-test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
