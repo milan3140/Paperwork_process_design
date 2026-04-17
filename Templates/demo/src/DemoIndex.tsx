@@ -4,12 +4,15 @@
  * Two sections:
  *   1. Current — the picked official version per document type
  *   2. Archive — historical iterations + document types with no official pick yet
+ *      Each group is collapsed by default; click the group header to expand.
  *
  * Order follows Document_Analysis/Order_Workflow_Paths.html (path A workflow):
  *   Invoice → Traveler → Factory BOM → Summary → QC Package → Packing Slip → CoC
  * Archive keeps the same workflow-order grouping, with upstream tools
  * (Quote Proposal Builder) + internal-only items (Eval) at the ends.
  */
+
+import { useState } from 'react';
 
 type Route = { hash: string; label: string; desc: string };
 type Group = { title: string; routes: Route[] };
@@ -112,9 +115,9 @@ const archiveGroups: Group[] = [
   {
     title: 'CoC',
     routes: [
-      { hash: '#/coc-v3', label: 'v3',   desc: '符合性聲明 v3 — Snapshot' },
-      { hash: '#/coc-v2', label: 'v2',   desc: '符合性聲明 v2 — Snapshot' },
-      { hash: '#/coc',    label: 'v1',   desc: '符合性聲明 v1 — Snapshot' },
+      { hash: '#/coc-v3', label: 'v3', desc: '符合性聲明 v3 — Snapshot' },
+      { hash: '#/coc-v2', label: 'v2', desc: '符合性聲明 v2 — Snapshot' },
+      { hash: '#/coc',    label: 'v1', desc: '符合性聲明 v1 — Snapshot' },
     ],
   },
   {
@@ -133,27 +136,9 @@ const archiveGroups: Group[] = [
   },
 ];
 
-const sectionHeadingStyle: React.CSSProperties = {
-  fontSize: 'var(--text-xs)',
-  fontWeight: 700,
-  color: 'var(--gray-500)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.08em',
-  marginTop: 'var(--sp-8)',
-  marginBottom: 'var(--sp-3)',
-  borderBottom: '1px solid var(--gray-200)',
-  paddingBottom: 'var(--sp-2)',
-};
+/* ── shared row (Current + Archive sub-item) ───────────────────────────── */
 
-const archiveGroupTitleStyle: React.CSSProperties = {
-  fontSize: 'var(--text-sm)',
-  fontWeight: 600,
-  color: 'var(--gray-700)',
-  marginTop: 'var(--sp-4)',
-  marginBottom: 'var(--sp-1)',
-};
-
-function RouteLink({ r }: { r: Route }) {
+function RouteLink({ r, dim = false }: { r: Route; dim?: boolean }) {
   return (
     <a
       href={r.hash}
@@ -161,20 +146,30 @@ function RouteLink({ r }: { r: Route }) {
         display: 'flex',
         alignItems: 'baseline',
         gap: 'var(--sp-3)',
-        padding: 'var(--sp-2) 0',
-        borderBottom: '1px solid var(--gray-150)',
+        padding: `var(--sp-2) var(--sp-3)`,
+        paddingLeft: dim ? 'var(--sp-6)' : 'var(--sp-3)',
+        margin: '0 calc(var(--sp-3) * -1)',
+        borderRadius: '4px',
+        borderBottom: dim ? 'none' : '1px solid var(--gray-150)',
         textDecoration: 'none',
         color: 'inherit',
-        transition: 'color 0.15s',
+        transition: 'background-color 0.15s, color 0.15s',
       }}
-      onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-primary)')}
-      onMouseLeave={e => (e.currentTarget.style.color = 'inherit')}
+      onMouseEnter={e => {
+        e.currentTarget.style.backgroundColor = 'var(--color-primary-wash)';
+        e.currentTarget.style.color = 'var(--color-primary)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.backgroundColor = 'transparent';
+        e.currentTarget.style.color = 'inherit';
+      }}
     >
       <span style={{
         fontSize: 'var(--text-sm)',
-        fontWeight: 600,
-        minWidth: 140,
+        fontWeight: dim ? 400 : 600,
+        minWidth: dim ? 84 : 140,
         flexShrink: 0,
+        color: dim ? 'var(--gray-600)' : 'inherit',
       }}>
         {r.label}
       </span>
@@ -187,6 +182,84 @@ function RouteLink({ r }: { r: Route }) {
     </a>
   );
 }
+
+/* ── Collapsible archive group ─────────────────────────────────────────── */
+
+function ArchiveGroup({ group }: { group: Group }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--sp-2)',
+          width: '100%',
+          padding: `var(--sp-2) var(--sp-3)`,
+          margin: '0 calc(var(--sp-3) * -1)',
+          border: 'none',
+          background: 'transparent',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: 'var(--text-sm)',
+          fontWeight: 600,
+          color: 'var(--gray-700)',
+          fontFamily: 'inherit',
+          textAlign: 'left',
+          transition: 'background-color 0.15s, color 0.15s',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.backgroundColor = 'var(--color-primary-wash)';
+          e.currentTarget.style.color = 'var(--color-primary)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = 'var(--gray-700)';
+        }}
+        aria-expanded={open}
+      >
+        <span style={{
+          fontSize: '10px',
+          color: 'var(--gray-400)',
+          transition: 'transform 0.15s',
+          display: 'inline-block',
+          transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+          width: 8,
+        }}>▶</span>
+        <span>{group.title}</span>
+        <span style={{
+          fontSize: 'var(--text-xs)',
+          fontWeight: 400,
+          color: 'var(--gray-400)',
+          marginLeft: 'auto',
+        }}>
+          {group.routes.length} 版
+        </span>
+      </button>
+      {open && (
+        <nav style={{ display: 'flex', flexDirection: 'column', paddingBottom: 'var(--sp-2)' }}>
+          {group.routes.map(r => <RouteLink key={r.hash} r={r} dim />)}
+        </nav>
+      )}
+    </section>
+  );
+}
+
+/* ── Page ─────────────────────────────────────────────────────────────── */
+
+const sectionHeadingStyle = {
+  fontSize: 'var(--text-xs)',
+  fontWeight: 700,
+  color: 'var(--gray-500)',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.08em',
+  marginTop: 'var(--sp-8)',
+  marginBottom: 'var(--sp-3)',
+  borderBottom: '1px solid var(--gray-200)',
+  paddingBottom: 'var(--sp-2)',
+};
 
 export default function DemoIndex() {
   return (
@@ -220,14 +293,9 @@ export default function DemoIndex() {
       </nav>
 
       <h2 style={sectionHeadingStyle}>Archive 歷史版本與未採用</h2>
-      {archiveGroups.map(g => (
-        <section key={g.title}>
-          <h3 style={archiveGroupTitleStyle}>{g.title}</h3>
-          <nav style={{ display: 'flex', flexDirection: 'column' }}>
-            {g.routes.map(r => <RouteLink key={r.hash} r={r} />)}
-          </nav>
-        </section>
-      ))}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {archiveGroups.map(g => <ArchiveGroup key={g.title} group={g} />)}
+      </div>
     </div>
   );
 }
