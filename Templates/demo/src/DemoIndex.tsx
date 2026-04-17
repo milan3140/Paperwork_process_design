@@ -14,14 +14,14 @@
 
 import { useState } from 'react';
 
-type Route = { hash: string; label: string; desc: string };
+type Route = { hash: string; label: string; desc: string; badge?: 'new' };
 type Group = { title: string; routes: Route[] };
 
 const current: Route[] = [
   { hash: '#/invoice-v3',        label: 'Invoice (v3)',        desc: '請款單 — monochrome · Geist Sans · high-contrast' },
   { hash: '#/traveler-v3',       label: 'Traveler (v3)',       desc: '工作單 — 標題整合版，Logo/頁次併入標題右側' },
   { hash: '#/factory-bom-dated',     label: 'Factory BOM (dated)',          desc: '工廠報價用 RFQ BOM — 艾維數位工業下方顯示發行日期' },
-  { hash: '#/factory-bom-date-only', label: 'Factory BOM (date-only) [new]', desc: '工廠報價用 RFQ BOM — issueDate 不帶「2026 年」字樣（如「4 月 6 日（一）」）' },
+  { hash: '#/factory-bom-date-only', label: 'Factory BOM (date-only)', desc: '工廠報價用 RFQ BOM — issueDate 不帶「2026 年」字樣（如「4 月 6 日（一）」）', badge: 'new' },
   { hash: '#/summary-sharp',     label: 'Summary (sharp)',     desc: '訂單摘要（含 QC 空表）— 高對比純灰階' },
   { hash: '#/qc-package-sharp',  label: 'QC Package (sharp)',  desc: 'QC 驗收包 — 高對比純灰階，Inter 銳利字體' },
   { hash: '#/packing-slip-v13',  label: 'Packing Slip (v13)',  desc: '出貨單 — compound ID / filename 改用 Geist Sans' },
@@ -173,6 +173,20 @@ function RouteLink({ r, dim = false }: { r: Route; dim?: boolean }) {
         color: dim ? 'var(--gray-600)' : 'inherit',
       }}>
         {r.label}
+        {r.badge === 'new' && (
+          <span style={{
+            display: 'inline-block',
+            marginLeft: 6,
+            padding: '1px 6px',
+            background: 'var(--color-primary-subtle)',
+            color: 'var(--color-primary)',
+            fontSize: '10px',
+            fontWeight: 600,
+            borderRadius: 3,
+            letterSpacing: '0.04em',
+            verticalAlign: '1px',
+          }}>new</span>
+        )}
       </span>
       <span style={{
         fontSize: 'var(--text-xs)',
