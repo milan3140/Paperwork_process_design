@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InstaVoxel — Shop Traveler</title>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Arial', 'Helvetica', 'Inter', 'Noto Sans TC', sans-serif;
+  font-size: 9pt;
+  color: #000;
+  line-height: 1.25;
+  background: #fff;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 8mm;
+  margin: 0 auto;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─────────────── Grid box (shared) ─────────────── */
+.box { border: 1pt solid #000; }
+.box-row { display: flex; border-top: 1pt solid #000; }
+.box-row:first-child { border-top: none; }
+.cell { border-right: 1pt solid #000; padding: 1.2mm 2mm; flex: 1; position: relative; min-height: 8mm; }
+.cell:last-child { border-right: none; }
+.cell .lbl {
+  font-size: 6pt;
+  font-weight: 700;
+  letter-spacing: 0.4pt;
+  color: #000;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.cell .val {
+  font-size: 10pt;
+  font-weight: 700;
+  margin-top: 1mm;
+  color: #000;
+  min-height: 4mm;
+  line-height: 1.2;
+}
+.cell .val.small { font-size: 9pt; }
+.cell.stacked { padding: 1mm 2mm; }
+
+/* ─────────────── Top banner ─────────────── */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3mm;
+  height: 22mm;
+  border: 1pt solid #000;
+  border-bottom: none;
+}
+.banner .company {
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+}
+.banner .company .name {
+  font-size: 15pt;
+  font-weight: 900;
+  letter-spacing: 1pt;
+}
+.banner .company .name .mark {
+  display: inline-block;
+  width: 3.5mm; height: 3.5mm;
+  background: #000;
+  transform: rotate(45deg);
+  margin-right: 2mm;
+  vertical-align: middle;
+}
+.banner .company .addr {
+  font-size: 7.5pt;
+  color: #333;
+  line-height: 1.4;
+}
+.banner .title-block {
+  text-align: right;
+  border: 1.5pt solid #000;
+  padding: 2mm 5mm;
+  min-width: 55mm;
+}
+.banner .title-block .big {
+  font-size: 17pt;
+  font-weight: 900;
+  letter-spacing: 2pt;
+  line-height: 1;
+}
+.banner .title-block .sub {
+  font-size: 6.5pt;
+  font-weight: 700;
+  margin-top: 1.5mm;
+  letter-spacing: 0.3pt;
+}
+
+/* ─────────────── Critical note strip ─────────────── */
+.crit-strip {
+  border: 1pt solid #000;
+  border-top: none;
+  text-align: center;
+  font-size: 8pt;
+  font-weight: 900;
+  letter-spacing: 0.8pt;
+  padding: 1mm 0;
+  background: #000;
+  color: #fff;
+}
+
+/* ─────────────── Header fields ─────────────── */
+.hdr-grid {
+  border: 1pt solid #000;
+  border-top: none;
+}
+
+/* Serial number spanning */
+.serial-row {
+  display: flex;
+  border-top: 1pt solid #000;
+}
+.serial-row:first-child { border-top: none; }
+.serial-row .serial-box {
+  width: 60mm;
+  border-right: 1pt solid #000;
+  padding: 1.2mm 2mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 18mm;
+}
+.serial-row .serial-box .lbl { font-size: 6.5pt; font-weight: 700; letter-spacing: 0.4pt; }
+.serial-row .serial-box .val-big { font-size: 14pt; font-weight: 900; letter-spacing: 0.8pt; }
+.serial-row .right-col { flex: 1; display: flex; flex-direction: column; }
+.serial-row .right-col .sub-row { display: flex; flex: 1; border-bottom: 1pt solid #000; }
+.serial-row .right-col .sub-row:last-child { border-bottom: none; }
+.serial-row .right-col .sub-row .cell { min-height: 9mm; }
+
+/* QTY / Due Date row */
+.qty-row { display: flex; border-top: 1pt solid #000; }
+.qty-row .cell { min-height: 12mm; text-align: center; padding: 1mm 2mm; }
+.qty-row .cell .val {
+  font-size: 12pt;
+  font-weight: 900;
+  margin-top: 2mm;
+}
+
+/* ─────────────── Ship-to strip ─────────────── */
+.ship-to { border: 1pt solid #000; border-top: none; padding: 1.5mm 2mm; display: flex; gap: 5mm; }
+.ship-to .lbl {
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.4pt;
+  min-width: 14mm;
+  align-self: flex-start;
+}
+.ship-to .body-t { font-size: 9pt; font-weight: 700; flex: 1; }
+.ship-to .body-t .line { font-weight: 400; font-size: 8.5pt; }
+
+/* ─────────────── Legend strip ─────────────── */
+.legend {
+  border: 1pt solid #000;
+  border-top: none;
+  padding: 1mm 2mm;
+  display: flex;
+  gap: 10mm;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.3pt;
+  background: #f0f0f0;
+}
+.legend .mark {
+  display: inline-block;
+  width: 4mm; height: 4mm;
+  border: 0.8pt solid #000;
+  text-align: center;
+  line-height: 3.5mm;
+  font-weight: 900;
+  margin-right: 1.5mm;
+  background: #fff;
+}
+.legend .mark.h { background: #000; color: #fff; }
+
+/* ─────────────── Main routing table ─────────────── */
+.routing {
+  border: 1pt solid #000;
+  border-top: none;
+  width: 100%;
+  border-collapse: collapse;
+}
+.routing th,
+.routing td {
+  border: 0.6pt solid #000;
+  padding: 1mm 1.5mm;
+  font-size: 8pt;
+  vertical-align: middle;
+  text-align: left;
+}
+.routing thead th {
+  background: #000;
+  color: #fff;
+  font-size: 6.8pt;
+  font-weight: 800;
+  letter-spacing: 0.4pt;
+  text-transform: uppercase;
+  padding: 1.2mm 1.5mm;
+  text-align: center;
+  line-height: 1.2;
+}
+.routing thead th.grp {
+  background: #333;
+  padding-bottom: 0.8mm;
+}
+.routing th .sub {
+  display: block;
+  font-size: 6pt;
+  font-weight: 500;
+  letter-spacing: 0.2pt;
+  margin-top: 0.3mm;
+  opacity: 0.85;
+}
+
+/* Routing row heights — generous for handwritten signatures */
+.routing tbody tr { height: 8.5mm; }
+.routing tbody td.num {
+  text-align: center;
+  font-weight: 700;
+  font-size: 9pt;
+  width: 6mm;
+  background: #f0f0f0;
+}
+.routing tbody td.proc {
+  width: 44mm;
+  font-weight: 600;
+  font-size: 8.5pt;
+}
+.routing tbody td.proc .pt-mark {
+  display: inline-block;
+  width: 3.5mm; height: 3.5mm;
+  border: 0.7pt solid #000;
+  text-align: center;
+  line-height: 3.2mm;
+  font-size: 6.5pt;
+  font-weight: 900;
+  margin-right: 1.5mm;
+  vertical-align: middle;
+  background: #fff;
+}
+.routing tbody td.proc .pt-mark.h { background: #000; color: #fff; }
+.routing tbody td.proc .sub-t {
+  display: block;
+  font-size: 6.5pt;
+  font-weight: 400;
+  color: #333;
+  margin-left: 5mm;
+  margin-top: 0.3mm;
+}
+.routing td.sig {
+  width: 21mm;
+  background: #fafafa;
+}
+.routing td.dt { width: 13mm; background: #fafafa; }
+.routing td.sig-a { width: 21mm; background: #f2f2f2; }
+.routing td.dt-a { width: 13mm; background: #f2f2f2; }
+.routing td.cust { width: 15mm; background: #fafafa; }
+
+/* ─────────────── Plan rev log ─────────────── */
+.revlog { border: 1pt solid #000; border-top: none; width: 100%; border-collapse: collapse; }
+.revlog th,
+.revlog td {
+  border: 0.6pt solid #000;
+  padding: 1mm 2mm;
+  font-size: 8pt;
+}
+.revlog thead th {
+  background: #000;
+  color: #fff;
+  font-size: 6.8pt;
+  font-weight: 800;
+  letter-spacing: 0.4pt;
+  text-transform: uppercase;
+  text-align: left;
+}
+.revlog tbody tr { height: 6mm; }
+.revlog td.rev-no { width: 18mm; text-align: center; background: #f0f0f0; font-weight: 700; }
+.revlog td.rev-date { width: 22mm; }
+.revlog td.rev-by { width: 35mm; }
+
+/* ─────────────── Footer ─────────────── */
+.foot {
+  border: 1pt solid #000;
+  border-top: none;
+  padding: 1mm 2mm;
+  font-size: 6.5pt;
+  letter-spacing: 0.4pt;
+  display: flex;
+  justify-content: space-between;
+  color: #000;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════ 1. Top banner ═══════ -->
+  <div class="banner">
+    <div class="company">
+      <div class="name"><span class="mark"></span>INSTAVOXEL</div>
+      <div class="addr">
+        InstaVoxel Digital Industries Ltd.<br>
+        No. 1, Sec. 1, Daxue Rd., Hsinchu City, Taiwan &nbsp;·&nbsp; +886-3-571-2121 &nbsp;·&nbsp; www.instavoxel.com
+      </div>
+    </div>
+    <div class="title-block">
+      <div class="big">SHOP TRAVELER</div>
+      <div class="sub">JOB ROUTING &amp; ACCEPTANCE RECORD</div>
+    </div>
+  </div>
+
+  <!-- ═══════ 2. Critical note strip ═══════ -->
+  <div class="crit-strip">
+    ** FRACTURE / MAINTENANCE / SAFETY CRITICAL TRACEABLE DETAIL &amp; ASSEMBLY TRAVELER **
+  </div>
+
+  <!-- ═══════ 3. Header fields ═══════ -->
+  <div class="hdr-grid">
+
+    <!-- Row A: Serial (large left) + PO / Customer / Part / Rev (right grid) -->
+    <div class="serial-row">
+      <div class="serial-box">
+        <div class="lbl">SERIAL NUMBER</div>
+        <div class="val-big">U26033148F-001</div>
+      </div>
+      <div class="right-col">
+        <div class="sub-row">
+          <div class="cell stacked">
+            <div class="lbl">P.O.</div>
+            <div class="val small">PO-26033148F-01</div>
+          </div>
+          <div class="cell stacked">
+            <div class="lbl">CUSTOMER</div>
+            <div class="val small">Caltech Robotics Lab</div>
+          </div>
+          <div class="cell stacked">
+            <div class="lbl">PART NUMBER</div>
+            <div class="val small">26033148F_P01</div>
+          </div>
+          <div class="cell stacked" style="max-width:18mm">
+            <div class="lbl">REV</div>
+            <div class="val small">A</div>
+          </div>
+        </div>
+        <div class="sub-row">
+          <div class="cell stacked" style="flex:2">
+            <div class="lbl">PART NAME</div>
+            <div class="val small">Dehumidifier Housing Bracket · 除濕機 01B</div>
+          </div>
+          <div class="cell stacked">
+            <div class="lbl">DRAWING NUMBER</div>
+            <div class="val small">05-B-006</div>
+          </div>
+          <div class="cell stacked" style="max-width:18mm">
+            <div class="lbl">DWG REV</div>
+            <div class="val small">A</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row B: Job / QTY / Due -->
+    <div class="qty-row">
+      <div class="cell">
+        <div class="lbl">JOB NUMBER</div>
+        <div class="val">J26033148F</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">QTY REQ</div>
+        <div class="val">1</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">QTY RUNNING</div>
+        <div class="val">&nbsp;</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">QTY COMPLETE</div>
+        <div class="val">&nbsp;</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">DUE DATE</div>
+        <div class="val">12/31/2025</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">ADMIN APPROVAL</div>
+        <div class="val">&nbsp;</div>
+      </div>
+    </div>
+
+    <!-- Row C: Material / Finish / Cert / Inspection -->
+    <div class="qty-row">
+      <div class="cell" style="flex:1.5">
+        <div class="lbl">MATERIAL</div>
+        <div class="val small">Carbon Steel S15C</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">FINISH</div>
+        <div class="val small">As-Machined</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">CERTIFICATION</div>
+        <div class="val small">Material Cert (EN) · CoC</div>
+      </div>
+      <div class="cell" style="flex:1.3">
+        <div class="lbl">INSPECTION LEVEL</div>
+        <div class="val small">Formal Dimensional Report</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════ 4. Ship-To ═══════ -->
+  <div class="ship-to">
+    <div class="lbl">SHIP TO</div>
+    <div class="body-t">
+      Caltech Robotics Lab — Attn: Alex Delacroix
+      <span class="line">&nbsp;·&nbsp; 1200 E California Blvd &nbsp;·&nbsp; Pasadena, CA 91125 &nbsp;·&nbsp; USA</span>
+    </div>
+  </div>
+
+  <!-- ═══════ 5. Legend ═══════ -->
+  <div class="legend">
+    <span><span class="mark">I</span>= INSPECTION POINT</span>
+    <span><span class="mark h">H</span>= HOLD POINT (MUST BE CLEARED BEFORE NEXT OPERATION)</span>
+  </div>
+
+  <!-- ═══════ 6. Main routing table ═══════ -->
+  <table class="routing">
+    <thead>
+      <tr>
+        <th rowspan="2" style="width:6mm">#</th>
+        <th rowspan="2" style="width:44mm">QUALITY PROCEDURE / OPERATION</th>
+        <th colspan="2" class="grp">INITIAL INSPECTOR</th>
+        <th colspan="2" class="grp">ACCEPTED (AUTHORIZED INSPECTOR)</th>
+        <th rowspan="2" style="width:15mm">CUSTOMER</th>
+      </tr>
+      <tr>
+        <th>INITIAL<span class="sub">Sign</span></th>
+        <th>DATE</th>
+        <th>INITIAL<span class="sub">Sign</span></th>
+        <th>DATE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="num">1</td>
+        <td class="proc"><span class="pt-mark">I</span>Drawing &amp; BOM Review<span class="sub-t">Confirm drawing rev, tolerances, material spec vs BOM</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">2</td>
+        <td class="proc"><span class="pt-mark">I</span>3D Model ↔ Drawing Verification<span class="sub-t">GD&amp;T datum surfaces, critical dims match</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">3</td>
+        <td class="proc">Factory Work Order Dispatch<span class="sub-t">P.O. + drawing + BOM sent to supplier; acknowledged</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">4</td>
+        <td class="proc"><span class="pt-mark h">H</span>Factory Machining Complete<span class="sub-t">Supplier confirms completion + ready for inspection</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">5</td>
+        <td class="proc"><span class="pt-mark">I</span>Material Certificate Review<span class="sub-t">English mill cert received + attached to file</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">6</td>
+        <td class="proc">Supplier Acceptance Receipt<span class="sub-t">Qty accepted / rejected / short-ship recorded</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">7</td>
+        <td class="proc"><span class="pt-mark">I</span>Incoming Visual Inspection<span class="sub-t">Surface, markings, cleanliness, burrs per SOP-1004</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">8</td>
+        <td class="proc"><span class="pt-mark h">H</span>Dimensional Inspection &amp; Report<span class="sub-t">All GD&amp;T + precision tolerance features measured</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">9</td>
+        <td class="proc">Thread &amp; Feature Verification<span class="sub-t">Tapped holes, threads, chamfers, critical features</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">10</td>
+        <td class="proc">Cleaning &amp; Corrosion Protection<span class="sub-t">Final clean, anti-rust coating if applicable</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">11</td>
+        <td class="proc">Part Marking &amp; Bag-and-Tag<span class="sub-t">Customer PN + revision label per SOP-1006</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">12</td>
+        <td class="proc"><span class="pt-mark">I</span>Packaging per SOP-1011<span class="sub-t">Individual wrap, inner box ≤ 20kg, outer box ≤ 25kg</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">13</td>
+        <td class="proc">DHL Waybill &amp; Asana Record<span class="sub-t">Tracking #, declared value, recipient confirmed</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+      <tr>
+        <td class="num">14</td>
+        <td class="proc"><span class="pt-mark h">H</span>Final Review &amp; Shipment Release<span class="sub-t">CoC + Packing Slip + Invoice signed; OK to ship</span></td>
+        <td class="sig"></td><td class="dt"></td>
+        <td class="sig-a"></td><td class="dt-a"></td>
+        <td class="cust"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════ 7. Plan revision change log ═══════ -->
+  <table class="revlog">
+    <thead>
+      <tr>
+        <th style="width:18mm">PLAN REV</th>
+        <th>DESCRIPTION OF CHANGE</th>
+        <th style="width:22mm">DATE</th>
+        <th style="width:35mm">REVISED BY</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="rev-no">0</td>
+        <td>Initial release</td>
+        <td class="rev-date">2025-12-03</td>
+        <td class="rev-by">PM · Malin Ning</td>
+      </tr>
+      <tr><td class="rev-no">&nbsp;</td><td></td><td class="rev-date"></td><td class="rev-by"></td></tr>
+      <tr><td class="rev-no">&nbsp;</td><td></td><td class="rev-date"></td><td class="rev-by"></td></tr>
+      <tr><td class="rev-no">&nbsp;</td><td></td><td class="rev-date"></td><td class="rev-by"></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════ 8. Footer ═══════ -->
+  <div class="foot">
+    <span>InstaVoxel Form TD-2005 · Rev 2025-12</span>
+    <span>Retain Original with Job File · Copy to Customer on Request</span>
+    <span>Page 1 of 1</span>
+  </div>
+
+</div>
+</body>
+</html>

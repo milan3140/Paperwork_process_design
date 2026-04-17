@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InstaVoxel Shop Traveler — Xometry-style</title>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, 'Noto Sans TC', sans-serif;
+  font-size: 10pt;
+  color: #222;
+  line-height: 1.45;
+  background: #fff;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 18mm 22mm;
+  margin: 0 auto;
+  background: #fff;
+}
+
+/* ─── Centered brand header (Xometry pattern) ─── */
+.brand-hdr {
+  text-align: center;
+  padding: 0 0 8mm 0;
+}
+.brand-hdr .logo {
+  font-size: 28pt;
+  font-weight: 700;
+  color: #2E0D77;
+  letter-spacing: 0.5pt;
+  line-height: 1;
+}
+.brand-hdr .logo .mark {
+  display: inline-block;
+  color: #2E0D77;
+  font-weight: 900;
+  margin-right: 2pt;
+  transform: none;
+}
+.brand-hdr .sublogo {
+  font-size: 8pt;
+  color: #888;
+  margin-top: 1mm;
+  letter-spacing: 1pt;
+  text-transform: uppercase;
+}
+
+/* ─── 3D preview area ─── */
+.preview {
+  text-align: center;
+  margin-bottom: 10mm;
+}
+.preview .thumb {
+  display: inline-block;
+  width: 55mm;
+  height: 36mm;
+  background: linear-gradient(135deg, #f0f0f0 0%, #dcdcdc 50%, #f5f5f5 100%);
+  border: 0.3pt solid #ccc;
+  position: relative;
+  border-radius: 0.5mm;
+}
+.preview .thumb::after {
+  content: '3D';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: #aaa;
+  font-size: 11pt;
+  letter-spacing: 1pt;
+  font-weight: 600;
+}
+
+/* ─── Main data table (Xometry double-border style) ─── */
+.data-tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 6mm;
+  border: 1pt solid #000;
+}
+.data-tbl th,
+.data-tbl td {
+  border-right: 1pt solid #000;
+  border-bottom: 1pt solid #000;
+  padding: 2.2mm 3mm;
+  font-size: 9.5pt;
+  vertical-align: middle;
+}
+.data-tbl th:last-child,
+.data-tbl td:last-child { border-right: none; }
+.data-tbl tr:last-child th,
+.data-tbl tr:last-child td { border-bottom: none; }
+.data-tbl thead th {
+  background: #DCE6F1;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-align: center;
+  font-size: 9.5pt;
+  padding: 2.2mm 3mm;
+  letter-spacing: 0.2pt;
+}
+/* Simulate double-border look between header/data cells */
+.data-tbl .hdr-cell {
+  background: #DCE6F1;
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 3pt double #000;
+}
+.data-tbl td.data-cell {
+  text-align: center;
+  border-bottom: 3pt double #000;
+}
+.data-tbl .hdr-cell-last {
+  background: #DCE6F1;
+  font-weight: 700;
+  text-align: center;
+}
+.data-tbl td.data-cell-last {
+  text-align: center;
+}
+.data-tbl td.empty {
+  background: #fff;
+}
+
+/* ─── Features + Notes sections ─── */
+.section {
+  border-top: 0.8pt solid #888;
+  padding: 4mm 0 2mm 0;
+  font-size: 10pt;
+}
+.section .sec-label {
+  font-size: 10pt;
+  font-weight: 400;
+  margin-bottom: 2mm;
+  color: #333;
+}
+.section ul {
+  margin: 0 0 0 8mm;
+  padding: 0;
+  list-style: disc;
+}
+.section ul li {
+  margin-bottom: 1mm;
+  font-size: 10pt;
+  line-height: 1.5;
+}
+.section ul li b { font-weight: 700; }
+
+.notes-body {
+  font-size: 9.5pt;
+  line-height: 1.55;
+  color: #333;
+  white-space: pre-line;
+}
+.notes-body .seg { margin-top: 2mm; }
+.notes-body .seg-head {
+  font-weight: 700;
+  letter-spacing: 0.3pt;
+}
+
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Brand header (centered, Xometry pattern) -->
+  <div class="brand-hdr">
+    <div class="logo"><span class="mark">◆</span>InstaVoxel</div>
+    <div class="sublogo">Digital Industries</div>
+  </div>
+
+  <!-- 3D thumbnail -->
+  <div class="preview">
+    <div class="thumb"></div>
+  </div>
+
+  <!-- Main data table -->
+  <table class="data-tbl">
+    <tbody>
+      <!-- Row 1: PO / Due Date / Contact -->
+      <tr>
+        <td class="hdr-cell" style="width:33.33%">Purchase Order</td>
+        <td class="hdr-cell" style="width:33.33%">Due Date</td>
+        <td class="hdr-cell" style="width:33.33%">Contact</td>
+      </tr>
+      <tr>
+        <td class="data-cell">PO-26033148F-01</td>
+        <td class="data-cell">12/31/2025</td>
+        <td class="data-cell">pm@instavoxel.com</td>
+      </tr>
+
+      <!-- Row 2: Part ID / Part Name / Quantity -->
+      <tr>
+        <td class="hdr-cell">Part ID</td>
+        <td class="hdr-cell">Part Name</td>
+        <td class="hdr-cell">Quantity</td>
+      </tr>
+      <tr>
+        <td class="data-cell">26033148F_P01</td>
+        <td class="data-cell">05-B-006.step</td>
+        <td class="data-cell">1</td>
+      </tr>
+
+      <!-- Row 3: Finish / Material / Certifications -->
+      <tr>
+        <td class="hdr-cell">Finish</td>
+        <td class="hdr-cell">Material</td>
+        <td class="hdr-cell">Certifications</td>
+      </tr>
+      <tr>
+        <td class="data-cell">As-Machined</td>
+        <td class="data-cell">Carbon Steel S15C</td>
+        <td class="data-cell-last">Material Cert (EN) · CoC</td>
+      </tr>
+
+      <!-- Row 4: Inspection Requirement (full-width label) + data row -->
+      <tr>
+        <td class="hdr-cell-last">Inspection Requirement</td>
+        <td class="empty"></td>
+        <td class="empty"></td>
+      </tr>
+      <tr>
+        <td class="data-cell-last">Formal Inspection with<br>Dimensional Report</td>
+        <td class="empty"></td>
+        <td class="empty"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Features -->
+  <div class="section">
+    <div class="sec-label">Features:</div>
+    <ul>
+      <li><b>Threads/Tapped Holes:</b> 3</li>
+      <li><b>Tolerances:</b> precision +/-.0005"(+/-.0127mm), 3 locations</li>
+      <li><b>Surface Roughness:</b> finish 12.5μm / 3.2μm Ra (N8), entire part</li>
+      <li><b>Part Markings:</b> Bag and Tag: 1 — Customer PN "26033148F"</li>
+    </ul>
+  </div>
+
+  <!-- Notes -->
+  <div class="section">
+    <div class="sec-label">Notes:</div>
+    <div class="notes-body">
+<span class="seg-head">** MATERIAL NOTES **</span>
+-- CARBON STEEL S15C — ENGLISH MILL CERTIFICATE REQUIRED WITH SHIPMENT --
+
+<span class="seg-head">** MACHINING NOTES **</span>
+SURFACE FINISH, THREAD, AND TOLERANCE REQUIREMENTS PER PRINT.
+IN CASE OF DISCREPANCY REACH OUT TO INSTAVOXEL BEFORE PROCEEDING.
+-- UNDIMENSIONED FEATURES &lt; 305MM DEFAULT TO +/- .005" --
+-- ALL SHARP EDGES DEBURRED 0.25–0.75MM --
+-- CLEAN IMMEDIATELY AFTER MACHINING — NO OXIDATION/BLACKENING --
+
+<span class="seg-head">** INSPECTION NOTES **</span>
+-- FORMAL INSPECTION WITH DIMENSIONAL REPORT (ENGLISH) --
+DIMENSIONAL REPORT REQUIRED FOR ALL TOLERANCE-CRITICAL FEATURES.
+
+<span class="seg-head">** PART MARKING NOTES **</span>
+PART MARK PER INSTAVOXEL PO.
+- BAG AND TAG EACH PART INDIVIDUALLY WITH CUSTOMER PART NUMBER AND
+  REVISION "26033148F_REV-A"
+
+<span class="seg-head">** SHIPPING NOTES **</span>
+PACKAGE PART TO PREVENT SHIPPING DAMAGE OR CORROSION.
+SINGLE-PART INDIVIDUAL PACKAGING — INNER BOX ≤ 20KG, OUTER BOX ≤ 25KG.
+
+<span class="seg-head">** CONTACT REFERENCES **</span>
+PM@INSTAVOXEL.COM FOR GENERAL QUESTIONS
+QC@INSTAVOXEL.COM FOR INSPECTIONS
+SHIP@INSTAVOXEL.COM FOR FREIGHT/PACKING ASSISTANCE
+
+BY ACCEPTING THIS JOB PARTNER AGREES TO PURCHASE MATERIAL PER
+INSTAVOXEL SPEC. PARTNER TO COMMENCE TRANSACTION BY EMAILING
+SUPPLIES@INSTAVOXEL.COM WITH YOUR JOB NUMBER IN THE SUBJECT LINE.</div>
+  </div>
+
+</div>
+</body>
+</html>

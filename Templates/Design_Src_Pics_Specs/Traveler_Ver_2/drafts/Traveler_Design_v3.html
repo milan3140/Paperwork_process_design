@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InstaVoxel Traveler — Brand Design</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   InstaVoxel Design Tokens (from Design_Sys_style.css)
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --color-primary: #2E0D77;
+  --color-primary-hover: #3A1199;
+  --color-primary-light: #5B2FD4;
+  --color-primary-subtle: #EDE8FA;
+  --color-primary-wash: #F7F5FD;
+  --color-primary-dark: #240a5e;
+  --color-primary-muted: #A89BE8;
+
+  --gray-950: #0F0D17;
+  --gray-900: #1A1625;
+  --gray-800: #2B2638;
+  --gray-700: #3D3654;
+  --gray-600: #56516A;
+  --gray-500: #6B6480;
+  --gray-400: #8E89A3;
+  --gray-300: #B5B0C7;
+  --gray-200: #D8D5E4;
+  --gray-175: #E8E5F0;
+  --gray-100: #EDEBF4;
+  --gray-75: #F2F0F7;
+  --gray-50: #F7F6FB;
+
+  --color-success: #1e8c45;
+  --color-success-bg: #e9f6e8;
+  --color-error: #B61F1F;
+  --color-error-bg: #FEE2E2;
+  --color-warning: #E5A100;
+  --color-warning-bg: #FFF8E1;
+  --color-warning-text: #78621F;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-card: 10px;
+  --radius-pill: 99px;
+
+  --shadow-sm: 0 1px 3px rgba(46, 13, 119, 0.06), 0 1px 2px rgba(46, 13, 119, 0.04);
+  --shadow-md: 0 4px 12px rgba(46, 13, 119, 0.08), 0 2px 4px rgba(46, 13, 119, 0.04);
+}
+
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Inter', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, sans-serif;
+  font-size: 10pt;
+  color: var(--gray-900);
+  line-height: 1.45;
+  background: var(--gray-50);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Page shell
+   ═══════════════════════════════════════════════════════════ */
+.doc-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: #fff;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── Header band (44px equivalent) ─── */
+.doc-header {
+  height: 12mm;
+  background: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12mm;
+  flex-shrink: 0;
+}
+.doc-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 2.5mm;
+  font-size: 12pt;
+  font-weight: 700;
+  letter-spacing: 1pt;
+}
+.doc-header .brand .diamond {
+  width: 3mm; height: 3mm;
+  background: #fff;
+  transform: rotate(45deg);
+}
+.doc-header .doc-type {
+  font-size: 8.5pt;
+  font-weight: 600;
+  letter-spacing: 1.4pt;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.doc-header .issue {
+  font-size: 7.5pt;
+  letter-spacing: 0.4pt;
+  opacity: 0.75;
+}
+
+/* ─── Content area ─── */
+.doc-content {
+  flex: 1;
+  padding: 7mm 12mm 4mm 12mm;
+  display: flex;
+  flex-direction: column;
+  gap: 5mm;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Title block (like DocumentMeta pattern)
+   ═══════════════════════════════════════════════════════════ */
+.title-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 4mm;
+  border-bottom: 1pt solid var(--gray-175);
+}
+.title-block .left .eyebrow {
+  font-size: 7.5pt;
+  color: var(--color-primary-light);
+  font-weight: 700;
+  letter-spacing: 1.2pt;
+  text-transform: uppercase;
+  margin-bottom: 1.5mm;
+}
+.title-block .left .title {
+  font-size: 22pt;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.3pt;
+  line-height: 1;
+}
+.title-block .left .subtitle {
+  font-size: 9pt;
+  color: var(--gray-500);
+  margin-top: 2mm;
+}
+.title-block .right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+}
+.title-block .right .order-id {
+  font-size: 14pt;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: 0.3pt;
+  font-variant-numeric: tabular-nums;
+}
+.title-block .right .order-id .rev {
+  color: var(--gray-400);
+  font-weight: 500;
+  margin-left: 1mm;
+}
+.title-block .right .meta-line {
+  font-size: 7.5pt;
+  color: var(--gray-500);
+  letter-spacing: 0.2pt;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Meta chip row (like KeyInfoRow)
+   ═══════════════════════════════════════════════════════════ */
+.meta-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3mm;
+  padding: 3mm 3.5mm;
+  background: var(--color-primary-wash);
+  border-radius: var(--radius-md);
+}
+.meta-cell { display: flex; flex-direction: column; gap: 0.8mm; }
+.meta-cell .k {
+  font-size: 6.5pt;
+  color: var(--color-primary-light);
+  font-weight: 700;
+  letter-spacing: 0.8pt;
+  text-transform: uppercase;
+}
+.meta-cell .v {
+  font-size: 10pt;
+  color: var(--gray-900);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Part spec card
+   ═══════════════════════════════════════════════════════════ */
+.part-card {
+  border: 1pt solid var(--gray-200);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: #fff;
+}
+.part-card .pc-head {
+  background: var(--gray-50);
+  padding: 2.2mm 3.5mm;
+  border-bottom: 1pt solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.part-card .pc-head .id-compound {
+  font-size: 12pt;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3pt;
+}
+.part-card .pc-head .filename {
+  font-size: 8.5pt;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.part-card .pc-body {
+  display: grid;
+  grid-template-columns: 32mm 1fr;
+  gap: 4mm;
+  padding: 3mm 3.5mm;
+}
+.part-card .thumb {
+  width: 32mm;
+  height: 32mm;
+  background: linear-gradient(135deg, var(--gray-75) 0%, var(--gray-100) 100%);
+  border: 1pt solid var(--gray-175);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-400);
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.8pt;
+}
+.part-card .specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5mm 4mm;
+}
+.part-card .spec-cell { display: flex; flex-direction: column; gap: 0.6mm; }
+.part-card .spec-cell .k {
+  font-size: 6.5pt;
+  color: var(--gray-500);
+  font-weight: 700;
+  letter-spacing: 0.6pt;
+  text-transform: uppercase;
+}
+.part-card .spec-cell .v {
+  font-size: 9pt;
+  color: var(--gray-900);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.part-card .spec-cell.emphasis .v {
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  padding: 0.5mm 1.5mm;
+  border-radius: var(--radius-sm);
+  align-self: flex-start;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Section (generic)
+   ═══════════════════════════════════════════════════════════ */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  margin-bottom: 2mm;
+}
+.section-label .dot {
+  width: 2.5mm;
+  height: 2.5mm;
+  background: var(--color-primary-light);
+  border-radius: 50%;
+}
+.section-label .text {
+  font-size: 7.5pt;
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 1.2pt;
+  text-transform: uppercase;
+}
+.section-label .count {
+  font-size: 7pt;
+  color: var(--gray-400);
+  font-weight: 500;
+  letter-spacing: 0.3pt;
+}
+
+/* Features pill list */
+.features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.8mm 3mm;
+  padding: 0;
+}
+.feat {
+  display: flex;
+  gap: 2mm;
+  padding: 1.5mm 2.5mm;
+  background: var(--gray-50);
+  border-left: 2.5pt solid var(--color-primary-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 8.5pt;
+  color: var(--gray-800);
+  line-height: 1.3;
+}
+.feat .ft-tag {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 7pt;
+  letter-spacing: 0.5pt;
+  text-transform: uppercase;
+  align-self: flex-start;
+  min-width: 18mm;
+  padding-top: 0.5mm;
+}
+
+/* Notes — category bars */
+.notes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm 4mm;
+}
+.note-blk {
+  display: grid;
+  grid-template-columns: 22mm 1fr;
+  gap: 2.5mm;
+  font-size: 8.5pt;
+  padding: 1.2mm 0;
+  border-bottom: 0.3pt solid var(--gray-175);
+}
+.note-blk:last-child { border-bottom: none; }
+.note-blk .cat {
+  font-size: 6.8pt;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: 0.8pt;
+  text-transform: uppercase;
+  align-self: start;
+  padding-top: 0.3mm;
+}
+.note-blk .txt {
+  color: var(--gray-700);
+  line-height: 1.45;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Routing table (compact, brand-styled)
+   ═══════════════════════════════════════════════════════════ */
+.routing {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8pt;
+  border: 1pt solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.routing thead th {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 1.8mm 2mm;
+  text-align: left;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.6pt;
+  text-transform: uppercase;
+}
+.routing thead th.ctr { text-align: center; }
+.routing tbody td {
+  padding: 1.5mm 2mm;
+  border-bottom: 0.3pt solid var(--gray-175);
+  vertical-align: middle;
+  line-height: 1.3;
+}
+.routing tbody tr:last-child td { border-bottom: none; }
+.routing tbody tr:nth-child(even) { background: var(--gray-50); }
+.routing .step-no {
+  width: 8mm;
+  text-align: center;
+  font-weight: 700;
+  color: var(--gray-400);
+  font-variant-numeric: tabular-nums;
+}
+.routing .step-name { font-weight: 600; color: var(--gray-900); }
+.routing .step-desc {
+  display: block;
+  font-weight: 400;
+  color: var(--gray-500);
+  font-size: 7.5pt;
+  margin-top: 0.3mm;
+}
+.routing .pt-chip {
+  display: inline-block;
+  width: 3.5mm; height: 3.5mm;
+  font-size: 6pt;
+  font-weight: 800;
+  text-align: center;
+  line-height: 3.3mm;
+  border-radius: var(--radius-sm);
+  margin-right: 1.5mm;
+  vertical-align: middle;
+}
+.routing .pt-chip.i {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+.routing .pt-chip.h {
+  background: var(--color-primary);
+  color: #fff;
+}
+.routing .sig-col { width: 22mm; }
+.routing .dt-col { width: 14mm; }
+
+/* Legend above routing */
+.legend {
+  display: flex;
+  gap: 5mm;
+  font-size: 7.5pt;
+  color: var(--gray-500);
+  margin-bottom: 1.5mm;
+}
+.legend .itm { display: flex; align-items: center; gap: 1.5mm; }
+.legend .itm .pt-chip {
+  display: inline-block;
+  width: 3.5mm; height: 3.5mm;
+  font-size: 6pt;
+  font-weight: 800;
+  text-align: center;
+  line-height: 3.3mm;
+  border-radius: var(--radius-sm);
+}
+.legend .itm .pt-chip.i { background: var(--color-primary-subtle); color: var(--color-primary); }
+.legend .itm .pt-chip.h { background: var(--color-primary); color: #fff; }
+
+/* ═══════════════════════════════════════════════════════════
+   Acknowledgment block
+   ═══════════════════════════════════════════════════════════ */
+.ack {
+  background: var(--color-primary-wash);
+  border: 1pt solid var(--color-primary-subtle);
+  border-radius: var(--radius-md);
+  padding: 3mm 3.5mm;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3mm 5mm;
+}
+.ack .slot { display: flex; flex-direction: column; gap: 1mm; }
+.ack .slot .role {
+  font-size: 6.5pt;
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 0.6pt;
+  text-transform: uppercase;
+}
+.ack .slot .line {
+  border-bottom: 0.8pt solid var(--color-primary);
+  height: 6mm;
+}
+.ack .slot .date-hint {
+  font-size: 6.5pt;
+  color: var(--gray-500);
+  letter-spacing: 0.3pt;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════════════════════════ */
+.doc-footer {
+  border-top: 1pt solid var(--gray-175);
+  padding: 2.5mm 12mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 7pt;
+  color: var(--gray-400);
+  letter-spacing: 0.4pt;
+}
+.doc-footer .center { color: var(--gray-500); font-weight: 600; }
+
+@media print {
+  body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .doc-page { box-shadow: none; margin: 0 auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-page">
+
+  <!-- ═══════ Header band ═══════ -->
+  <div class="doc-header">
+    <div class="brand"><span class="diamond"></span>INSTAVOXEL</div>
+    <div class="doc-type">Shop Traveler</div>
+    <div class="issue">Issued 2025-12-03</div>
+  </div>
+
+  <!-- ═══════ Content ═══════ -->
+  <div class="doc-content">
+
+    <!-- Title block -->
+    <div class="title-block">
+      <div class="left">
+        <div class="eyebrow">Job Routing &amp; Acceptance Record</div>
+        <div class="title">Shop Traveler</div>
+        <div class="subtitle">Dispatch-to-Delivery traceability for one job · retained with the part</div>
+      </div>
+      <div class="right">
+        <div class="order-id">U26033148F<span class="rev">· Rev&nbsp;A</span></div>
+        <div class="meta-line">Serial · U26033148F-001</div>
+        <div class="meta-line">Due · 12 / 31 / 2025 (Wed)</div>
+      </div>
+    </div>
+
+    <!-- Meta chip row -->
+    <div class="meta-row">
+      <div class="meta-cell"><span class="k">Purchase Order</span><span class="v">PO-26033148F-01</span></div>
+      <div class="meta-cell"><span class="k">Customer</span><span class="v">Caltech Robotics Lab</span></div>
+      <div class="meta-cell"><span class="k">Qty</span><span class="v">1 piece</span></div>
+      <div class="meta-cell"><span class="k">Inspection Level</span><span class="v">Formal · Dim. Report</span></div>
+    </div>
+
+    <!-- Part spec card -->
+    <div class="part-card">
+      <div class="pc-head">
+        <div class="id-compound">26033148F_P01</div>
+        <div class="filename">05-B-006.step &nbsp;·&nbsp; Drawing Rev A</div>
+      </div>
+      <div class="pc-body">
+        <div class="thumb">3D</div>
+        <div class="specs">
+          <div class="spec-cell"><span class="k">Process</span><span class="v">CNC Milling · Steel</span></div>
+          <div class="spec-cell emphasis"><span class="k">Material</span><span class="v">Carbon Steel S15C</span></div>
+          <div class="spec-cell"><span class="k">Finish</span><span class="v">As-Machined</span></div>
+          <div class="spec-cell"><span class="k">Dimensions</span><span class="v">482 × 55 × 26 mm</span></div>
+          <div class="spec-cell"><span class="k">Unit Weight</span><span class="v">2.58 kg</span></div>
+          <div class="spec-cell"><span class="k">Certifications</span><span class="v">Material Cert (EN) · CoC</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div>
+      <div class="section-label">
+        <span class="dot"></span><span class="text">Features</span><span class="count">· 4 items</span>
+      </div>
+      <div class="features">
+        <div class="feat"><span class="ft-tag">Tolerances</span><span>precision ±.0005″ / ±.0127 mm · 3 locations per GD&amp;T</span></div>
+        <div class="feat"><span class="ft-tag">Threads</span><span>3 tapped holes · default 2A / 2B imperial</span></div>
+        <div class="feat"><span class="ft-tag">Roughness</span><span>12.5 μm / 3.2 μm Ra (N8) · entire part</span></div>
+        <div class="feat"><span class="ft-tag">Markings</span><span>Bag &amp; Tag · Customer PN "26033148F" + Rev A</span></div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <div class="section-label">
+        <span class="dot"></span><span class="text">Notes</span><span class="count">· by category</span>
+      </div>
+      <div class="notes">
+        <div class="note-blk"><span class="cat">Material</span><span class="txt">S15C mill certificate (English) required with shipment.</span></div>
+        <div class="note-blk"><span class="cat">Machining</span><span class="txt">Tolerances per print. If discrepancy, contact InstaVoxel before proceeding.</span></div>
+        <div class="note-blk"><span class="cat">Inspection</span><span class="txt">Formal inspection with dimensional report — English, signed.</span></div>
+        <div class="note-blk"><span class="cat">Marking</span><span class="txt">Bag &amp; tag individually with Customer PN + revision label.</span></div>
+        <div class="note-blk"><span class="cat">Shipping</span><span class="txt">Prevent damage/corrosion. Inner box ≤ 20 kg · Outer box ≤ 25 kg.</span></div>
+        <div class="note-blk"><span class="cat">Contact</span><span class="txt">qc@instavoxel.com · ship@instavoxel.com · supplies@instavoxel.com</span></div>
+      </div>
+    </div>
+
+    <!-- Routing table -->
+    <div>
+      <div class="section-label">
+        <span class="dot"></span><span class="text">Routing &amp; Acceptance</span><span class="count">· 12 steps</span>
+      </div>
+      <div class="legend">
+        <span class="itm"><span class="pt-chip i">I</span>Inspection Point</span>
+        <span class="itm"><span class="pt-chip h">H</span>Hold Point (must be cleared)</span>
+      </div>
+      <table class="routing">
+        <thead>
+          <tr>
+            <th class="ctr step-no">#</th>
+            <th>Operation / Procedure</th>
+            <th class="sig-col">Initial Inspector</th>
+            <th class="dt-col">Date</th>
+            <th class="sig-col">Accepted by (Authorized)</th>
+            <th class="dt-col">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="step-no">1</td>
+            <td><span class="pt-chip i">I</span><span class="step-name">Drawing &amp; BOM Review</span><span class="step-desc">Confirm rev, tolerances, material spec vs BOM</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">2</td>
+            <td><span class="pt-chip i">I</span><span class="step-name">3D Model ↔ Drawing Verification</span><span class="step-desc">GD&amp;T datums, critical dims cross-check</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">3</td>
+            <td><span class="step-name">Factory Dispatch</span><span class="step-desc">Work order + drawing + BOM sent, acknowledged</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">4</td>
+            <td><span class="pt-chip h">H</span><span class="step-name">Factory Machining Complete</span><span class="step-desc">Supplier confirms, ready for inspection</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">5</td>
+            <td><span class="pt-chip i">I</span><span class="step-name">Material Certificate Review</span><span class="step-desc">English mill cert attached to job file</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">6</td>
+            <td><span class="step-name">Supplier Acceptance Receipt</span><span class="step-desc">Qty accepted / rejected / shortage logged</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">7</td>
+            <td><span class="pt-chip i">I</span><span class="step-name">Incoming Visual Inspection</span><span class="step-desc">Surface, markings, burrs per SOP-1004</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">8</td>
+            <td><span class="pt-chip h">H</span><span class="step-name">Dimensional Inspection &amp; Report</span><span class="step-desc">All GD&amp;T + precision features measured</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">9</td>
+            <td><span class="step-name">Cleaning &amp; Part Marking</span><span class="step-desc">Final clean, Bag &amp; Tag with Customer PN</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">10</td>
+            <td><span class="pt-chip i">I</span><span class="step-name">Packaging per SOP-1011</span><span class="step-desc">Individual wrap, inner ≤ 20 kg · outer ≤ 25 kg</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">11</td>
+            <td><span class="step-name">DHL Waybill &amp; Asana Record</span><span class="step-desc">Tracking #, declared value, recipient</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td class="step-no">12</td>
+            <td><span class="pt-chip h">H</span><span class="step-name">Final Review &amp; Shipment Release</span><span class="step-desc">CoC · Packing Slip · Invoice signed — OK to ship</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Acknowledgment block -->
+    <div>
+      <div class="section-label">
+        <span class="dot"></span><span class="text">Authorization</span><span class="count">· internal sign-off</span>
+      </div>
+      <div class="ack">
+        <div class="slot">
+          <div class="role">Prepared by PM</div>
+          <div class="line"></div>
+          <div class="date-hint">Name · Date</div>
+        </div>
+        <div class="slot">
+          <div class="role">Engineering Reviewer</div>
+          <div class="line"></div>
+          <div class="date-hint">Name · Date</div>
+        </div>
+        <div class="slot">
+          <div class="role">QC Reviewer</div>
+          <div class="line"></div>
+          <div class="date-hint">Name · Date</div>
+        </div>
+        <div class="slot">
+          <div class="role">QC Lead Approval</div>
+          <div class="line"></div>
+          <div class="date-hint">Name · Date</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════ Footer ═══════ -->
+  <div class="doc-footer">
+    <span>U26033148F · InstaVoxel Digital Industries Ltd.</span>
+    <span class="center">www.instavoxel.com · supplies@instavoxel.com</span>
+    <span>Form TD-2005 · Page 1 of 1</span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -18,5 +18,5 @@
 
 // 3D-model placeholder shots — used by Factory BOM, Summary, Invoice v3,
 // Packing Slip v5+, Traveler v2+ to fill the part-image slot in BOM rows.
-export { default as MODEL_SHOT_1 } from '../../PaperWork_Design_Src/Design_Src_Pics_Specs/3D_model_pic_placeholder/3D_model_shot1.jpg';
-export { default as MODEL_SHOT_2 } from '../../PaperWork_Design_Src/Design_Src_Pics_Specs/3D_model_pic_placeholder/3D_model_shot2.jpg';
+export { default as MODEL_SHOT_1 } from '../Design_Src_Pics_Specs/3D_model_pic_placeholder/3D_model_shot1.jpg';
+export { default as MODEL_SHOT_2 } from '../Design_Src_Pics_Specs/3D_model_pic_placeholder/3D_model_shot2.jpg';
