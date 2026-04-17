@@ -58,33 +58,23 @@ export function NRETable({ charges }: NRETableProps) {
   if (charges.length === 0) return null;
 
   return (
-    <div data-comp="NRETable" className="flex flex-col gap-0">
-      <SectionLabel>Non-Recurring Charges (NRE)</SectionLabel>
-      <div className="h-[var(--sp-1)]" />
-      <table className="w-full border-collapse text-[length:var(--doc-text-body)]">
-        <thead>
-          <tr>
-            <th data-el="NRETable-th-desc" className="bg-[var(--color-primary-wash)] text-[color:var(--color-primary)] text-[length:var(--doc-text-file-tag)] font-semibold uppercase tracking-[var(--doc-tracking-label)] py-[var(--doc-sp-table-y)] px-[var(--sp-2)] text-left border-b-[var(--doc-border-emphasis)] border-[var(--color-primary-subtle)]">
-              Description
-            </th>
-            <th data-el="NRETable-th-amount" className="bg-[var(--color-primary-wash)] text-[color:var(--color-primary)] text-[length:var(--doc-text-file-tag)] font-semibold uppercase tracking-[var(--doc-tracking-label)] py-[var(--doc-sp-table-y)] px-[var(--sp-2)] text-right border-b-[var(--doc-border-emphasis)] border-[var(--color-primary-subtle)]">
-              Amount
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {charges.map((charge, i) => (
-            <tr key={i} data-el="NRETable-row">
-              <td className="py-[var(--doc-sp-table-y)] px-[var(--sp-2)] border-b border-[var(--gray-150)] text-[color:var(--gray-900)] leading-[1.4]">
-                {charge.description}
-              </td>
-              <td className="py-[var(--doc-sp-table-y)] px-[var(--sp-2)] border-b border-[var(--gray-150)] text-right text-[color:var(--gray-900)] whitespace-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {fmt(charge.amount)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div data-comp="NRETable">
+      <div className="flex items-end justify-between pb-[var(--sp-1)] border-b border-[color:var(--gray-150)]">
+        <SectionLabel className="!border-b-0 !pb-0">Non-Recurring Charges (NRE)</SectionLabel>
+        <span className="text-[length:var(--doc-text-param-label)] font-semibold uppercase tracking-[var(--doc-tracking-label)] text-[color:var(--gray-400)]">
+          Subtotal
+        </span>
+      </div>
+      {charges.map((charge, i) => (
+        <div key={i} data-el="NRETable-row" className="flex justify-between items-baseline py-[var(--doc-sp-table-y)]">
+          <span className="text-[length:var(--doc-text-body)] text-[color:var(--gray-900)] leading-[1.4]">
+            {charge.description}
+          </span>
+          <span className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)] whitespace-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {fmt(charge.amount)}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

@@ -5,6 +5,7 @@
  */
 
 import { InvoiceDocument, type InvoiceData } from '../../components/InvoiceDocument';
+import { DownloadPdfButton } from './DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — Net 30 Invoice
@@ -65,8 +66,8 @@ const sampleNet30: InvoiceData = {
 
   parts: [
     {
-      id: 'P01',
-      dims: '255.0 × 225.0 × 34.5 mm · 0.86 kg',
+      id: 'M-509743A-mfg / A',
+      dims: '10.04 × 8.86 × 1.36 in · 1.90 lb',
       material: 'Aluminum 6061-T6',
       quantity: 50,
       unitPrice: 48,
@@ -84,8 +85,8 @@ const sampleNet30: InvoiceData = {
       drawingFiles: ['115425AT_Rev.C.pdf', '2595-ST30.2.1-001-R00.pdf'],
     },
     {
-      id: 'P02',
-      dims: '180.0 × 120.0 × 12.0 mm · 2.05 kg',
+      id: 'M-217865B-mfg / B',
+      dims: '7.09 × 4.72 × 0.47 in · 4.52 lb',
       material: 'Stainless Steel 304',
       quantity: 30,
       unitPrice: 72.5,
@@ -101,10 +102,11 @@ const sampleNet30: InvoiceData = {
       ],
       modelFile: '220817MP_MountingPlate.STEP',
       drawingFiles: ['220817MP_Drawing.pdf'],
+      note: 'Unit price reflects volume tier for qty ≥ 30; tooling NRE billed separately on line below.',
     },
     {
-      id: 'P03',
-      dims: '30.0 × 30.0 × 4.0 mm · 0.01 kg',
+      id: 'M-384021C-mfg / C',
+      dims: '1.18 × 1.18 × 0.16 in · 0.02 lb',
       material: 'Garolite G11',
       quantity: 100,
       unitPrice: 12.8,
@@ -157,16 +159,20 @@ const sampleNet30: InvoiceData = {
     },
   ],
 
+  shipments: [
+    {
+      shipDate: 'April 20, 2026',
+      carrier: 'DHL Express',
+      trackingNumber: '1234567890',
+      packingSlipRef: 'PS-2026-0031',
+    },
+  ],
   notes: [
     'Payment due within 30 days of ship date.',
     'Please reference Invoice # INV-2026-0047 on all remittances.',
-    'Overdue invoices subject to 1.5% monthly late fee.',
   ],
-  overdueNote:
-    'Invoices outstanding beyond 30 days are subject to a late payment fee of 1.5% per month on the unpaid balance.',
-
   termsText:
-    '1. All amounts are in USD unless otherwise noted. 2. Payment terms begin from the ship date indicated above. 3. InstaVoxel, Inc. retains title to all goods until payment is received in full. 4. For complete terms, visit: www.instavoxel.com/terms. By accepting delivery, you acknowledge that you have read and agreed to our General Sales Terms & Conditions.',
+    '1. All amounts are in USD unless otherwise noted. 2. Payment terms begin from the ship date indicated above. 3. InstaVoxel, Inc. retains title to all goods until payment is received in full. 4. Invoices outstanding beyond 30 days are subject to a late payment fee of 1.5% per month on the unpaid balance. 5. For complete terms, visit: www.instavoxel.com/terms. By accepting delivery, you acknowledge that you have read and agreed to our General Sales Terms & Conditions.',
   termsLinkUrl: 'https://www.instavoxel.com/terms',
 
   closingMessage: 'Thank you for your business.',
@@ -207,8 +213,8 @@ const samplePIA: InvoiceData = {
 
   parts: [
     {
-      id: 'P01',
-      dims: '45.0 × 45.0 × 12.0 mm · 0.05 kg',
+      id: 'M-440218D-mfg / A',
+      dims: '1.77 × 1.77 × 0.47 in · 0.11 lb',
       material: 'Titanium Grade 5 (Ti-6Al-4V)',
       quantity: 8,
       unitPrice: 185,
@@ -268,20 +274,20 @@ const samplePIA: InvoiceData = {
  * ════════════════════════════════════════════════════════════════ */
 export default function InvoiceDemo() {
   return (
-    <div className="flex flex-col items-center gap-12 py-10 bg-[var(--gray-100)]">
-      {/* ── Net 30 Invoice ── */}
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
-          Invoice — Net 30
-        </span>
-        <InvoiceDocument data={sampleNet30} pricingLayout="table" />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="Invoice-v2" />
+
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Invoice v2
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          Table pricing layout
+        </div>
       </div>
 
-      {/* ── PIA Invoice ── */}
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
-          Invoice — Payment In Advance
-        </span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        <InvoiceDocument data={sampleNet30} pricingLayout="table" />
         <InvoiceDocument data={samplePIA} pricingLayout="table" />
       </div>
     </div>

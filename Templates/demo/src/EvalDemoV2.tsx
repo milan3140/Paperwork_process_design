@@ -1,3 +1,4 @@
+import { DownloadPdfButton } from './DownloadPdfButton';
 import { EvalDocumentV2, type EvalV2Data } from '../../components/EvalDocumentV2';
 
 /** Mode A demo: Fixed material (6061-T6), 3 quantity tiers, 5 factories */
@@ -11,9 +12,9 @@ export const modeA: EvalV2Data = {
     deadline: '3月25日（週二）晚上4PM前',
     orderDate: '3月26日',
     milestones: [
-      { label: '工廠交期', date: '4月15日 (二)', note: '留12天質檢緩衝' },
-      { label: '台灣寄出', date: '4月28日 (一)', note: '留3天DHL運輸' },
-      { label: '美國到貨', date: '5月1日 (四)', note: '' },
+      { label: '工廠交期', date: '4月15日 （二）', note: '留12天質檢緩衝' },
+      { label: '台灣寄出', date: '4月28日 （一）', note: '留3天DHL運輸' },
+      { label: '美國到貨', date: '5月1日 （四）', note: '' },
     ],
     partTypes: 2,
     totalParts: 200,
@@ -112,7 +113,7 @@ export const modeA: EvalV2Data = {
       { phase: 'DHL', days: 3, note: 'Express' },
     ],
     totalDays: 22,
-    estimatedDelivery: '2026-04-21 (二)',
+    estimatedDelivery: '2026-04-21 （二）',
     deliveryNote: '已排除週末與假日',
   },
 
@@ -194,7 +195,7 @@ export const modeA: EvalV2Data = {
     {
       name: '理泰精密',
       status: 'quoted',
-      expectedReplyDate: '3月22日 (六)',
+      expectedReplyDate: '3月22日 （六）',
       pricing: {
         scenarios: ['100 pcs', '200 pcs', '500 pcs'],
         rows: [
@@ -231,9 +232,9 @@ export const modeABlockers: EvalV2Data = {
     deadline: '3月25日（週二）晚上4PM前',
     orderDate: '3月26日',
     milestones: [
-      { label: '工廠交期', date: '5月5日 (一)', note: '留12天質檢緩衝' },
-      { label: '台灣寄出', date: '5月19日 (一)', note: '留3天DHL運輸' },
-      { label: '美國到貨', date: '5月22日 (四)', note: '' },
+      { label: '工廠交期', date: '5月5日 （一）', note: '留12天質檢緩衝' },
+      { label: '台灣寄出', date: '5月19日 （一）', note: '留3天DHL運輸' },
+      { label: '美國到貨', date: '5月22日 （四）', note: '' },
     ],
     partTypes: 1,
     totalParts: 4,
@@ -268,7 +269,7 @@ export const modeABlockers: EvalV2Data = {
     aiBenchmarks: [
       { label: 'P01', cells: [null] }, // MACOR not available on AI platforms
     ],
-    nextUpdateDate: '3月26日 (二) 中午前',
+    nextUpdateDate: '3月26日 （二） 中午前',
     factories: [
       {
         name: '鑫源',
@@ -302,12 +303,12 @@ export const modeABlockers: EvalV2Data = {
       { phase: 'DHL', days: 3, note: 'Express' },
     ],
     totalDays: 48,
-    estimatedDelivery: '2026-05-22 (四)',
+    estimatedDelivery: '2026-05-22 （四）',
     deliveryNote: '已排除週末與假日',
   },
 
   techFeasibility: {
-    nextUpdateDate: '3月26日 (二) 中午前',
+    nextUpdateDate: '3月26日 （二） 中午前',
     matrix: [
       { criterion: '材料可加工性', requirement: 'MACOR', capability: '不可加工 — 深孔易震裂', cannotAchieve: true },
       { criterion: '公差', requirement: '±0.05mm', capability: '可達到（氧化鋁方案）' },
@@ -342,7 +343,7 @@ export const modeABlockers: EvalV2Data = {
     {
       name: '鑫源金屬',
       status: 'pending',
-      expectedReplyDate: '3月26日 (二) 中午前',
+      expectedReplyDate: '3月26日 （二） 中午前',
       capability: [
         { criterion: '材料可加工性', requirement: 'MACOR', capability: '⊘ 不可加工' },
         { criterion: '材料可加工性', requirement: '氧化鋁 99%', capability: '評估中' },
@@ -396,9 +397,9 @@ export const modeC: EvalV2Data = {
     deadline: '3月22日（週六）晚上4PM前',
     orderDate: '3月24日',
     milestones: [
-      { label: '工廠交期', date: '4月20日 (日)', note: '留10天質檢緩衝' },
-      { label: '台灣寄出', date: '5月2日 (五)', note: '留3天DHL運輸' },
-      { label: '美國到貨', date: '5月7日 (三)', note: '' },
+      { label: '工廠交期', date: '4月20日 （日）', note: '留10天質檢緩衝' },
+      { label: '台灣寄出', date: '5月2日 （五）', note: '留3天DHL運輸' },
+      { label: '美國到貨', date: '5月7日 （三）', note: '' },
     ],
     partTypes: 2,
     totalParts: 200,
@@ -488,7 +489,7 @@ export const modeC: EvalV2Data = {
       { phase: 'DHL', days: 3, note: 'Express' },
     ],
     totalDays: 29,
-    estimatedDelivery: '2026-04-28 (一)',
+    estimatedDelivery: '2026-04-28 （一）',
     deliveryNote: '200 pcs PEEK 方案交期',
   },
 
@@ -579,21 +580,34 @@ export const modeC: EvalV2Data = {
 
 export default function EvalDemoV2() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '60px', alignItems: 'center' }}>
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode A — 固定材質 × 多件數（最常見 ~50%）
-      </div>
-      <EvalDocumentV2 data={modeA} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="Evaluation-v2" />
 
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode A with Blockers — MACOR 不可達到 + 氧化鋁替代方案
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Evaluation Report v2
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          3 variants
+        </div>
       </div>
-      <EvalDocumentV2 data={modeABlockers} />
 
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode C — 數量 × 材質交叉 (6061 + PEEK)
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode A — 固定材質 × 多件數（最常見 ~50%）
+        </div>
+        <EvalDocumentV2 data={modeA} />
+
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode A with Blockers — MACOR 不可達到 + 氧化鋁替代方案
+        </div>
+        <EvalDocumentV2 data={modeABlockers} />
+
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode C — 數量 × 材質交叉 (6061 + PEEK)
+        </div>
+        <EvalDocumentV2 data={modeC} />
       </div>
-      <EvalDocumentV2 data={modeC} />
     </div>
   );
 }

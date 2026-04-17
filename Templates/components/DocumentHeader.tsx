@@ -40,21 +40,39 @@ import { PRINT_ICONS } from './Icons_Print';
 
 interface DocumentHeaderProps {
   docType: string;
+  /** Optional text label to replace the SVG logo (e.g. Chinese company name for factory docs) */
+  logoLabel?: string;
+  /**
+   * Override the header band background color. Accepts any CSS color value.
+   * Defaults to `var(--color-primary)`. Use this for per-document-variant
+   * header coloring (e.g. neutral black, mid-gray, brand purple) without
+   * injecting scoped CSS or overriding the whole palette.
+   */
+  headerBg?: string;
 }
 
-export function DocumentHeader({ docType }: DocumentHeaderProps) {
+export function DocumentHeader({ docType, logoLabel, headerBg }: DocumentHeaderProps) {
   return (
     <div
       data-comp="DocumentHeader"
-      className="flex items-center justify-between shrink-0 bg-[var(--color-primary)]"
-      style={{ height: 'var(--doc-header-h)', padding: '0 var(--doc-margin-x)' }}
+      className="flex items-center justify-between shrink-0"
+      style={{
+        height: 'var(--doc-header-h)',
+        padding: '0 var(--doc-margin-x)',
+        background: headerBg ?? 'var(--color-primary)',
+      }}
     >
       <div data-el="DocumentHeader-logo" className="flex items-center">
-        {PRINT_ICONS.logoText(22)}
+        {logoLabel ? (
+          <span className="text-white font-bold" style={{ fontSize: 23 }}>{logoLabel}</span>
+        ) : (
+          PRINT_ICONS.logoText(28)
+        )}
       </div>
       <span
         data-el="DocumentHeader-docType"
-        className="text-white/85 text-[length:var(--doc-text-doc-type)] font-semibold tracking-[var(--doc-tracking-doc-type)] uppercase"
+        className="text-white font-semibold tracking-[var(--doc-tracking-doc-type)] uppercase" /* was text-white/85, changed to full opacity for print compatibility */
+        style={{ fontSize: 14 }}
       >
         {docType}
       </span>

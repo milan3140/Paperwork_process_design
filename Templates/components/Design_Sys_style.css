@@ -81,7 +81,16 @@
   --text-inverse: #FFFFFF;
 
   /* ── Typography ── */
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* ── Font stack ──
+   * Latin: Inter / system UI fonts
+   * CJK fallback: Noto Sans TC → PingFang TC → Microsoft JhengHei → system CJK
+   * Why CJK is required:
+   *   Without a CJK font in the chain, mixed strings like "日 (三)" split
+   *   across two fonts: "(", ")" from Inter (ASCII), "三" from OS CJK fallback.
+   *   Different metrics + Chrome's text-autospace produce visible gaps in PDF.
+   *   Listing a CJK font ensures CJK + adjacent ASCII punctuation render in
+   *   the same font (Noto Sans TC has ASCII glyphs designed to align with CJK). */
+  --font: 'Inter', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --text-xxs: 11px;
   --text-xs: 12px;
   --text-sm: 13px;

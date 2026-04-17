@@ -17,8 +17,7 @@
  */
 
 import React from 'react';
-import { DocumentHeader } from './DocumentHeader';
-import { DocumentFooter } from './DocumentFooter';
+import { PaginatedDocument, type PageSection } from './PaginatedDocument';
 
 /* ═══════════════════════════════════════════════════════════
    Types
@@ -123,34 +122,38 @@ export const BomDocument = React.forwardRef<HTMLDivElement, BomDocumentProps>(
     const loc = LOCALES[lang];
     const isBilingual = lang === 'zh-en';
 
-    return (
-      <div ref={ref} data-comp="BomDocument" className="doc-page">
-        <DocumentHeader docType={loc.docType} />
+    const sections: PageSection[] = [
+      {
+        key: 'title-summary',
+        content: (
+          <>
+            {/* ── Title row ── */}
+            <div data-el="BomDocument-titleRow" className="flex items-baseline gap-[var(--sp-4)]">
+              <span className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
+                BOM
+              </span>
+              <span className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-title)]">
+                {data.orderId}
+              </span>
+              <span className="flex-1" />
+              <span className="text-[length:var(--doc-text-body)] text-[color:var(--gray-500)]">
+                {data.date}
+              </span>
+            </div>
 
-        <div className="doc-content">
-          {/* ── Title row ── */}
-          <div data-el="BomDocument-titleRow" className="flex items-baseline gap-[var(--sp-4)]">
-            <span className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-              BOM
-            </span>
-            <span className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-title)]">
-              {data.orderId}
-            </span>
-            <span className="flex-1" />
-            <span className="text-[length:var(--doc-text-body)] text-[color:var(--gray-500)]">
-              {data.date}
-            </span>
-          </div>
-
-          {/* ── Summary line ── */}
-          <div
-            data-el="BomDocument-summary"
-            className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-500)] -mt-[var(--sp-4)]"
-          >
-            {loc.summary(data.itemCount, data.totalParts)}
-          </div>
-
-          {/* ── Table ── */}
+            {/* ── Summary line ── */}
+            <div
+              data-el="BomDocument-summary"
+              className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-500)] -mt-[var(--sp-4)]"
+            >
+              {loc.summary(data.itemCount, data.totalParts)}
+            </div>
+          </>
+        ),
+      },
+      {
+        key: 'table',
+        content: (
           <table
             data-el="BomDocument-table"
             className="w-full border-collapse"
@@ -189,9 +192,17 @@ export const BomDocument = React.forwardRef<HTMLDivElement, BomDocumentProps>(
               ))}
             </tbody>
           </table>
-        </div>
+        ),
+      },
+    ];
 
-        <DocumentFooter docId={data.orderId} page={1} totalPages={1} />
+    return (
+      <div ref={ref} data-comp="BomDocument">
+        <PaginatedDocument
+          docType={loc.docType}
+          docId={data.orderId}
+          sections={sections}
+        />
       </div>
     );
   }

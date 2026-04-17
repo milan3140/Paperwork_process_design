@@ -5,6 +5,7 @@
  */
 
 import { ReceiptDocument, type ReceiptData } from '../../components/ReceiptDocument';
+import { DownloadPdfButton } from './DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — Full Payment Receipt
@@ -133,21 +134,28 @@ const samplePartialPayment: ReceiptData = {
  * ════════════════════════════════════════════════════════════════ */
 export default function ReceiptDemo() {
   return (
-    <div className="flex flex-col items-center gap-12 py-10 bg-[var(--gray-100)]">
-      {/* ── Full Payment Receipt ── */}
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
-          Receipt — Full Payment
-        </span>
-        <ReceiptDocument data={sampleFullPayment} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="Receipt" />
+
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Receipt
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          2 variants: Full Payment · Partial Payment
+        </div>
       </div>
 
-      {/* ── Partial Payment Receipt ── */}
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
-          Receipt — Partial Payment (Deposit)
-        </span>
-        <ReceiptDocument data={samplePartialPayment} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
+            Receipt — Full Payment · Partial Payment
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+            <ReceiptDocument data={sampleFullPayment} />
+            <ReceiptDocument data={samplePartialPayment} />
+          </div>
+        </div>
       </div>
     </div>
   );

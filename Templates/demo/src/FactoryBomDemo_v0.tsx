@@ -6,6 +6,7 @@
  */
 
 import { BomDocument, type BomData } from '../../components/BomDocument';
+import { DownloadPdfButton } from './DownloadPdfButton';
 
 const sampleBom: BomData = {
   orderId: 'Q1211263U 噴火槍',
@@ -105,8 +106,21 @@ const sampleBom: BomData = {
 
 export default function FactoryBomDemo() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 0' }}>
-      <BomDocument data={sampleBom} lang="zh" />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="Factory-BOM-v0" />
+
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Factory BOM v0
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          Snapshot
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        <BomDocument data={sampleBom} lang="zh" />
+      </div>
     </div>
   );
 }

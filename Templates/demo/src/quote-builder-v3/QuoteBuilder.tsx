@@ -19,6 +19,7 @@ import { PartiesRow, type PartyInfo } from '../../../components/PartiesRow';
 import { SectionLabel } from '../../../components/SectionLabel';
 import { TermsSection } from '../../../components/TermsSection';
 import { PaginatedDocument, type PageSection } from './PaginatedDocument';
+import { downloadPdf } from '../downloadPdf';
 
 /* ═══════════════════════════════════════════════════════════════
    STYLE TOKENS — all reference CSS vars, strict 4px grid
@@ -437,20 +438,7 @@ function PartEditor({
                     const file = e.target.files?.[0];
                     if (!file) return;
                     const reader = new FileReader();
-                    reader.onload = (ev) => {
-                      const img = new Image();
-                      img.onload = () => {
-                        const MAX = 240;
-                        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-                        const w = Math.round(img.width * scale);
-                        const h = Math.round(img.height * scale);
-                        const canvas = document.createElement('canvas');
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
-                        onChange({ ...part, thumbnailUrl: canvas.toDataURL('image/jpeg', 0.8) });
-                      };
-                      img.src = ev.target!.result as string;
-                    };
+                    reader.onload = () => onChange({ ...part, thumbnailUrl: reader.result as string });
                     reader.readAsDataURL(file);
                     e.target.value = '';
                   }} />
@@ -771,49 +759,15 @@ function buildPdfSections(
             Line #{idx + 1}
           </div>
           <div style={{ borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-            {/* Block 1+2 — Identity (left) + Comparison table (right), same bg */}
-            <div style={{ backgroundColor: 'var(--gray-50)', display: 'flex', alignItems: 'stretch' }}>
-              {/* Left: identity band */}
-              <div style={{ minWidth: '180px', maxWidth: '220px', flexShrink: 0, borderRight: '4px solid white', display: 'flex', flexDirection: 'column' }}>
-                {/* Thumbnail (left half, flush) + Name/Details (right half, centered) */}
-                {(() => {
-                  const analysis = analyzeDimensions(part);
-                  const effectiveMaterial = analysis.fixed.material || part.material;
-                  const effectiveFinish = analysis.fixed.finish || part.finish;
-                  const fixedLocation = !analysis.varying.includes('location') && analysis.fixed.location
-                    ? (analysis.fixed.location === 'US' ? 'U.S.' : 'Taiwan') : undefined;
-                  const fixedQty = !analysis.varying.includes('qty') && analysis.fixed.qty
-                    ? `QTY ${analysis.fixed.qty}` : undefined;
-                  const details = [
-                    effectiveMaterial && !analysis.varying.includes('material') ? effectiveMaterial : null,
-                    effectiveFinish && !analysis.varying.includes('finish') ? effectiveFinish : null,
-                    fixedLocation ? `${fixedLocation} manufacturing` : null,
-                    fixedQty,
-                  ].filter(Boolean);
-                  return (
-                    <div style={{ display: 'flex', alignItems: 'stretch', flex: 1 }}>
-                      {/* Thumbnail — with padding */}
-                      {rawPart.thumbnailUrl && (
-                        <div style={{ padding: '10px 0 10px 10px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                          <img src={rawPart.thumbnailUrl} alt=""
-                            style={{ width: '90px', height: '90px', objectFit: 'cover', display: 'block', borderRadius: 'var(--radius-sm)' }} />
-                        </div>
-                      )}
-                      {/* Name + details — right half, centered */}
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '10px' }}>
-                        <div className="text-[length:var(--doc-text-body,10px)] font-semibold text-[color:var(--gray-900,#1c1a25)]" style={{ textAlign: 'center' }}>
-                          {part.name}
-                        </div>
-                        {details.length > 0 && (
-                          <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-500)]" style={{ marginTop: '6px', textAlign: 'center' }}>
-                            {details.join(' · ')}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })()}
-                {/* Dimensions — centered under the group above */}
+          {/* Block 1 — Identity band */}
+          <div style={{ backgroundColor: 'var(--gray-50)', padding: '8px 12px' }}>
+            <div className="flex gap-[20px] items-center">
+              {rawPart.thumbnailUrl && (
+                <img src={rawPart.thumbnailUrl} alt=""
+                  className="w-[60px] h-[60px] rounded-[var(--radius-sm)] object-cover border border-[color:var(--gray-200)] shrink-0" />
+              )}
+              <div>
+                <PartHeader part={part} />
                 {rawPart.dimensions && (rawPart.dimensions.length > 0 || rawPart.dimensions.width > 0 || rawPart.dimensions.height > 0) && (() => {
                   const sorted = [rawPart.dimensions!.length, rawPart.dimensions!.width, rawPart.dimensions!.height].sort((a, b) => b - a);
                   const volMm3 = sorted[0] * sorted[1] * sorted[2];
@@ -826,28 +780,27 @@ function buildPdfSections(
                     ? `${volIn3.toFixed(3)} in³`
                     : `${volIn3.toFixed(2)} in³`;
                   return (
-                    <div style={{ alignSelf: 'stretch' }}>
-                      <div style={{ borderTop: '1px solid white' }} />
-                      <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)]" style={{ textAlign: 'center', paddingTop: '4px', paddingBottom: '4px' }}>
-                        <div>{sorted[0].toFixed(1)} × {sorted[1].toFixed(1)} × {sorted[2].toFixed(1)} mm · {mmVol}</div>
-                        <div>{inDims[0]} × {inDims[1]} × {inDims[2]} in · {inVol}</div>
-                      </div>
+                    <div className="text-[length:var(--doc-text-secondary,9px)] text-[color:var(--gray-400)] mt-[1px] flex items-baseline gap-[4px]">
+                      <span>{sorted[0].toFixed(1)} × {sorted[1].toFixed(1)} × {sorted[2].toFixed(1)} mm · {mmVol}</span>
+                      <span className="mx-[2px] text-[color:var(--gray-300)]">|</span>
+                      <span>{inDims[0]} × {inDims[1]} × {inDims[2]} in · {inVol}</span>
                     </div>
                   );
                 })()}
               </div>
-              {/* Right: comparison table */}
-              <div style={{ flex: 1, padding: '10px 12px', minWidth: 0, display: 'flex', alignItems: 'center' }}>
-                <div style={{ width: '100%' }}><QuoteComparisonTable part={part} hideHeader /></div>
-              </div>
             </div>
-            {/* Block 3 — Per-Part Note */}
-            {rawPart.note?.trim() && (
-              <div style={{ backgroundColor: 'var(--gray-50)', padding: '8px 12px', borderTop: '1px solid var(--gray-100)' }}>
-                <div className="text-[length:var(--doc-text-secondary,9px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-500)] mb-[2px]">Note</div>
-                <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">{rawPart.note}</p>
-              </div>
-            )}
+          </div>
+          {/* Block 2 — Comparison table */}
+          <div style={{ backgroundColor: 'var(--gray-50)', padding: '10px 12px' }}>
+            <QuoteComparisonTable part={part} hideHeader />
+          </div>
+          {/* Block 3 — Per-Part Note */}
+          {rawPart.note?.trim() && (
+            <div style={{ backgroundColor: 'var(--gray-50)', padding: '8px 12px' }}>
+              <div className="text-[length:var(--doc-text-secondary,9px)] font-semibold uppercase tracking-[0.06em] text-[color:var(--gray-500)] mb-[2px]">Note</div>
+              <p className="text-[length:var(--doc-text-body,10px)] text-[color:var(--gray-600)]">{rawPart.note}</p>
+            </div>
+          )}
           </div>
         </div>
       ),
@@ -1195,38 +1148,7 @@ export default function QuoteBuilder() {
       revealErrors();
       if (!window.confirm(`Warnings:\n${allWarnings.map(w => `• ${w}`).join('\n')}\n\nDownload anyway?`)) return;
     }
-    if (!pdfRef.current) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
-      .map(el => el.outerHTML).join('\n');
-    const printCss = `
-      <style>
-        @media print {
-          @page { size: Letter; margin: 0; }
-          body { margin: 0; }
-        }
-        /* Force each doc-page to fill exactly one print page */
-        .doc-page {
-          width: 215.9mm;
-          height: 279.4mm;
-          display: flex;
-          flex-direction: column;
-          page-break-after: always;
-          overflow: hidden;
-        }
-        .doc-page:last-child { page-break-after: auto; }
-        .doc-content { flex: 1; }
-        /* Print colors */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-      </style>`;
-    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Quote Proposal ${data.quoteId}</title>${styles}${printCss}
-    </head><body>${pdfRef.current.outerHTML}</body></html>`);
-    printWindow.document.close();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);
+    downloadPdf({ filename: `Quote-Proposal-${data.quoteId}`, useHtmlMode: true });
   };
 
   /* ── Build party info for PDF ── */
@@ -1260,14 +1182,6 @@ export default function QuoteBuilder() {
       ...(data.customer.contactName ? [`Attn: ${data.customer.contactName}`] : []),
     ],
   };
-
-  // Memoize PDF sections — prevents PaginatedDocument re-renders + DOM measurements
-  // on every keystroke when only the left-panel state (collapsed, etc.) changes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const pdfSections = useMemo(
-    () => buildPdfSections(outputData, fromParty, billToParty, shipToParty, customerStarted),
-    [data], // data is the source of truth for all inputs
-  );
 
   return (
     <div data-comp="QuoteBuilder" className="flex h-screen w-screen bg-[color:var(--bg-base,var(--gray-50))]"
@@ -1625,9 +1539,10 @@ export default function QuoteBuilder() {
               if (target) scrollToEditor(target.getAttribute('data-edit-target')!);
             }}>
               <PaginatedDocument
+                docType="Quote Option Proposal"
                 docId={data.quoteId}
-                validDays={data.validDays}
-                sections={pdfSections}
+                sections={buildPdfSections(outputData, fromParty, billToParty, shipToParty, customerStarted)}
+                closing="We look forward to working with you."
               />
             </div>
           )}

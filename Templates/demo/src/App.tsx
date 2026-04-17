@@ -1,4 +1,7 @@
+import type { CSSProperties } from 'react';
 import { QuoteDocument, type QuoteData } from '../../components/QuoteDocument';
+import { DownloadPdfButton } from './DownloadPdfButton';
+import { PRINT_ICONS } from '../../components/Icons_Print';
 
 const sampleQuote: QuoteData = {
   quoteId: 'U260319042',
@@ -138,6 +141,153 @@ const sampleQuote: QuoteData = {
   closingMessage: 'We look forward to working with you.',
 };
 
+const monoTheme: CSSProperties = {
+  ['--color-primary' as any]: '#111111',
+  ['--color-primary-hover' as any]: '#000000',
+  ['--color-primary-light' as any]: '#6b6b6b',
+  ['--color-primary-subtle' as any]: '#f2f2f2',
+  ['--color-primary-wash' as any]: '#fafafa',
+  ['--color-primary-selected' as any]: '#f2f2f2',
+  ['--color-primary-dark' as any]: '#000000',
+  ['--color-primary-muted' as any]: '#a3a3a3',
+
+  ['--color-warning' as any]: '#6b6b6b',
+  ['--color-warning-bg' as any]: '#f2f2f2',
+  ['--color-warning-border' as any]: '#d4d4d4',
+  ['--color-warning-text' as any]: '#262626',
+
+  ['--color-success' as any]: '#4b4b4b',
+  ['--color-success-bg' as any]: '#f2f2f2',
+  ['--color-error' as any]: '#262626',
+  ['--color-error-hover' as any]: '#111111',
+  ['--color-error-bg' as any]: '#f2f2f2',
+  ['--color-info' as any]: '#4b4b4b',
+  ['--color-info-bg' as any]: '#f2f2f2',
+
+  ['--gray-950' as any]: '#0a0a0a',
+  ['--gray-900' as any]: '#171717',
+  ['--gray-800' as any]: '#262626',
+  ['--gray-700' as any]: '#404040',
+  ['--gray-600' as any]: '#525252',
+  ['--gray-500' as any]: '#737373',
+  ['--gray-400' as any]: '#a3a3a3',
+  ['--gray-300' as any]: '#d4d4d4',
+  ['--gray-250' as any]: '#dadada',
+  ['--gray-200' as any]: '#e5e5e5',
+  ['--gray-175' as any]: '#ededed',
+  ['--gray-160' as any]: '#f2f2f2',
+  ['--gray-150' as any]: '#e5e5e5',
+  ['--gray-100' as any]: '#f2f2f2',
+  ['--gray-75' as any]: '#f5f5f5',
+  ['--gray-60' as any]: '#fafafa',
+  ['--gray-50' as any]: '#fafafa',
+
+  ['--shadow-xs' as any]: '0 1px 2px rgba(0,0,0,0.04)',
+  ['--shadow-sm' as any]: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+  ['--shadow-md' as any]: '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+  ['--shadow-lg' as any]: '0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06)',
+  ['--shadow-xl' as any]: '0 16px 48px rgba(0,0,0,0.16), 0 8px 16px rgba(0,0,0,0.08)',
+  ['--shadow-focus' as any]: '0 0 0 3px #e5e5e5',
+
+  ['--doc-text-key-value' as any]: '12px',
+  ['--doc-text-party-name' as any]: '12px',
+  ['--doc-text-meta-value' as any]: '12px',
+  ['--doc-text-part-id' as any]: '12px',
+  ['--doc-text-body' as any]: '12px',
+  ['--doc-text-secondary' as any]: '12px',
+  ['--doc-text-label' as any]: '12px',
+  ['--doc-text-param-label' as any]: '12px',
+  ['--doc-text-fine' as any]: '12px',
+  ['--doc-text-footer' as any]: '12px',
+  ['--doc-text-file-tag' as any]: '12px',
+  ['--doc-text-thumb-placeholder' as any]: '12px',
+  ['--doc-text-logo' as any]: '12px',
+  ['--doc-text-doc-type' as any]: '12px',
+  ['--doc-text-grid-label' as any]: '12px',
+  ['--doc-text-urgent' as any]: '12px',
+  ['--text-xxs' as any]: '12px',
+  ['--text-xs' as any]: '12px',
+  ['--text-sm' as any]: '12px',
+  ['--text-md' as any]: '12px',
+
+  ['--font' as any]: '"Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif',
+
+  ['--doc-content-pad-top' as any]: '40px',
+};
+
+const MONO_CSS = `
+[data-mono-quote] [data-comp="QuoteDocument"] [style*="font-size"] { font-size: 12px !important; }
+[data-mono-quote] [data-comp="QuoteDocument"] * { font-weight: 400 !important; font-family: var(--font) !important; }
+[data-mono-quote] [data-comp="QuoteDocument"] .text-\\[length\\:var\\(--doc-text-title\\)\\] {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+[data-mono-quote] [data-comp="QuoteDocument"] .text-\\[length\\:var\\(--doc-text-subtitle\\)\\] {
+  font-size: 22px !important;
+  font-weight: 300 !important;
+  color: #000000 !important;
+}
+[data-mono-quote] [data-comp="SectionLabel"],
+[data-mono-quote] [data-el="QuoteDocument-contLabel"] {
+  font-size: 10px !important;
+  color: #404040 !important;
+}
+[data-mono-quote] [data-el="DocumentMeta-label"] {
+  font-size: 10px !important;
+  color: #737373 !important;
+}
+[data-mono-quote] [data-el="PartBlock-param"] > div:first-child {
+  font-size: 9px !important;
+}
+[data-mono-quote] [data-el="PartBlock-param"] > div:last-child {
+  font-size: 10px !important;
+}
+[data-mono-quote] [data-comp="QuoteDocument"] [data-el="QuoteMono-pageIndicator"],
+[data-mono-quote] [data-comp="QuoteDocument"] [data-el="QuoteMono-pageIndicator"] * {
+  font-size: 20px !important;
+  font-weight: 400 !important;
+}
+`;
+
 export default function App() {
-  return <QuoteDocument data={sampleQuote} />;
+  return (
+    <div
+      data-mono-quote
+      style={{ ...monoTheme, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}
+    >
+      <style>{MONO_CSS}</style>
+
+      <DownloadPdfButton filename="Quote" />
+
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Quote
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          {sampleQuote.quoteId} · {sampleQuote.parts.length} parts
+        </div>
+      </div>
+
+      <QuoteDocument
+        data={sampleQuote}
+        hideHeaderBand
+        renderLogoAboveMeta={(totalPages) => (
+          <div data-el="QuoteMono-logoBlock" className="flex flex-col items-end gap-[var(--doc-sp-half)]">
+            <div data-el="QuoteMono-logo" style={{ lineHeight: 0 }}>
+              {PRINT_ICONS.logoText(36, '#000000')}
+            </div>
+            <div
+              data-el="QuoteMono-pageIndicator"
+              style={{ fontSize: 20, lineHeight: 1, fontWeight: 400, color: '#000000' }}
+            >
+              <span style={{ textTransform: 'uppercase', marginRight: '0.35em', letterSpacing: '0.04em' }}>Page</span>
+              <span style={{ letterSpacing: '-0.04em' }}>1 of {totalPages}</span>
+            </div>
+          </div>
+        )}
+      />
+
+    </div>
+  );
 }

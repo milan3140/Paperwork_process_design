@@ -31,12 +31,16 @@
   --doc-text-thumb-placeholder: 7px; /* Thumbnail "3D" placeholder */
   --doc-text-logo: 15px;        /* Header brand name "INSTAVOXEL" */
   --doc-text-doc-type: 11px;    /* Header document type label */
+  --doc-text-grid-label: 10px;  /* Factory BOM table headers, note text, unit labels */
+  --doc-text-factory-main: 13px; /* Factory BOM material/finish values */
+  --doc-text-factory-value: 14px; /* Factory BOM high-emphasis values: qty, part ID */
+  --doc-text-urgent: 12px;      /* Factory BOM reply deadline text */
 
   /* ── Document Layout ── */
-  --doc-page-w: 215.9mm;        /* Letter width */
-  --doc-page-h: 279.4mm;        /* Letter height */
+  --doc-page-w: 210mm;          /* A4 width */
+  --doc-page-h: 297mm;          /* A4 height */
   --doc-margin-x: 16mm;         /* Content left/right margin */
-  --doc-header-h: 44px;         /* Header band height */
+  --doc-header-h: 56px;         /* Header band height */
   --doc-content-gap: 24px;      /* Vertical gap between content sections */
   --doc-content-pad-top: 20px;  /* Content top padding */
   --doc-content-pad-bottom: 16px; /* Content bottom padding */
@@ -52,9 +56,14 @@
   --doc-sp-part-y: 15px;        /* Part block vertical padding: user-specified 1.5× of 10px */
   --doc-sp-bullet-offset: 5px;  /* Note bullet vertical offset to align with text baseline */
   --doc-gap-logo: 10px;         /* Header logo-to-text gap: 2.5× base, visual balance */
+  --doc-sp-note-footer-y: 10px; /* Notes section bottom padding above footer in factory BOM */
+  --doc-sp-unit-gap: 3px;       /* Gap between qty value and its unit label in factory BOM */
+  --doc-sp-variant-top: 2px;    /* Tight offset for variant label under part ID */
 
   /* ── Document Sizes ── */
   --doc-border-accent: 3px;     /* Accent left-border width (WarningBox) */
+  --doc-border-base: 1px;       /* Default document border width */
+  --doc-border-note-accent: 2px; /* Subtle note callout accent for factory BOM */
   --doc-size-bullet: 4px;       /* Note bullet diameter */
   --doc-w-date-line: 120px;     /* Signature date line max-width */
   --doc-file-tag-radius: 3px;   /* File tag border radius (smaller than --radius-sm) */
@@ -62,6 +71,11 @@
   --doc-border-emphasis: 1.5px; /* Emphasis border width (table headers, total row separator) */
   --doc-w-totals: 240px;        /* Totals table fixed width */
   --doc-micro-adjust: 1px;      /* Sub-pixel micro adjustment (icon alignment) */
+  --doc-guide-offset-edge: -0.5px; /* Border-collapse compensation for first-column guide line */
+  --doc-guide-height: 66%;      /* Height of metadata guide lines above the header row */
+  --doc-table-stretch-h: 1px;   /* Minimal height to force nested table stretch */
+  --doc-thumb-w: 100px;         /* Factory BOM thumbnail width */
+  --doc-thumb-h: 80px;          /* Factory BOM thumbnail height */
 
   /* ── Document Tracking ── */
   --doc-tracking-logo: 0.04em;  /* Header brand name letter-spacing */
@@ -70,15 +84,28 @@
   --doc-tracking-title: 0.02em; /* Document title letter-spacing */
 }
 
+/* ── Footer global toggle ──
+ * Hidden by default. To re-enable for a specific document, add:
+ *   <DocumentFooter ... style={{ display: 'flex' }} />
+ * or wrap in a container with:
+ *   [data-show-footer] [data-comp="DocumentFooter"] { display: flex !important; }
+ */
+/* !important needed: Tailwind's `.flex` (from DocumentFooter's className)
+   loads after documents.css → same specificity but later order wins.
+   Without !important, `.flex { display: flex }` overrides this. */
+[data-comp="DocumentFooter"] {
+  display: none !important;
+}
+
 /* ── Page Shell ── */
-@page { size: Letter; margin: 0; }
+@page { size: A4; margin: 0; }
 
 .doc-page {
   width: var(--doc-page-w);
   min-height: var(--doc-page-h);
   padding: 0;
   position: relative;
-  background: #FFFFFF;
+  background: var(--bg-surface);
   display: flex;
   flex-direction: column;
   font-family: var(--font);
@@ -101,16 +128,35 @@
 
 @media print {
   @page {
-    size: Letter;
+    size: A4;
     margin: 0;
   }
   body {
-    background: #FFFFFF !important;
+    background: var(--bg-surface) !important;
     margin: 0;
   }
   .doc-page {
+    /* Force exactly one physical A4 page per .doc-page element.
+       - height (not min-height) prevents sub-pixel overflow
+       - overflow: hidden clips any flex expansion rounding
+       - margin: 0 overrides PaginatedDocument's inline marginBottom: 32px
+       - page-break-after + break-after: page forces the next .doc-page onto
+         a new physical page (both legacy + modern syntax for compatibility) */
+    height: var(--doc-page-h) !important;
+    min-height: auto !important;
+    overflow: hidden !important;
+    margin: 0 !important;
     page-break-after: always;
-    margin: 0;
+    break-after: page;
+  }
+  /* Last .doc-page must NOT force a trailing blank page */
+  .doc-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  /* Exclude measurement sandbox from printed output */
+  [data-sandbox] {
+    display: none !important;
   }
 }
 

@@ -40,30 +40,34 @@ import { SectionLabel } from './SectionLabel';
 interface SignatureRowProps {
   leftLabel: string;
   rightLabel: string;
+  /** Override "Name / Title" sub-label (e.g., "姓名 / 職稱" for Chinese PO) */
+  nameSubLabel?: string;
+  /** Override "Date" sub-label (e.g., "日期" for Chinese PO) */
+  dateSubLabel?: string;
 }
 
-export function SignatureRow({ leftLabel, rightLabel }: SignatureRowProps) {
+export function SignatureRow({ leftLabel, rightLabel, nameSubLabel = 'Name / Title', dateSubLabel = 'Date' }: SignatureRowProps) {
   return (
     <div data-comp="SignatureRow" className="grid grid-cols-2 gap-[var(--sp-6)] mt-[var(--sp-1)]">
-      <SignatureBlock label={leftLabel} side="left" />
-      <SignatureBlock label={rightLabel} side="right" />
+      <SignatureBlock label={leftLabel} side="left" nameSubLabel={nameSubLabel} dateSubLabel={dateSubLabel} />
+      <SignatureBlock label={rightLabel} side="right" nameSubLabel={nameSubLabel} dateSubLabel={dateSubLabel} />
     </div>
   );
 }
 
-function SignatureBlock({ label, side }: { label: string; side: string }) {
+function SignatureBlock({ label, side, nameSubLabel, dateSubLabel }: { label: string; side: string; nameSubLabel: string; dateSubLabel: string }) {
   return (
     <div data-el={`SignatureRow-${side}`} className="flex flex-col gap-[var(--sp-6)]">
       <SectionLabel>{label}</SectionLabel>
       {/* Signature line */}
       <div data-el={`SignatureRow-${side}-sig`} className="border-b border-[var(--gray-200)] pb-[var(--sp-1)] flex flex-col justify-end" style={{ minHeight: 'var(--h-sm)' }} />
       <div className="text-[length:var(--doc-text-footer)] text-[color:var(--gray-400)] -mt-[var(--sp-5)]">
-        Name / Title
+        {nameSubLabel}
       </div>
       {/* Date line */}
       <div data-el={`SignatureRow-${side}-date`} className="border-b border-[var(--gray-200)] pb-[var(--sp-1)] flex flex-col justify-end" style={{ minHeight: 'var(--h-sm)', maxWidth: 'var(--doc-w-date-line)' }} />
       <div className="text-[length:var(--doc-text-footer)] text-[color:var(--gray-400)] -mt-[var(--sp-5)]">
-        Date
+        {dateSubLabel}
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ export function InvoiceKeyInfoRow({ paymentTerms, currency, shipDate, exchangeRa
     <div
       data-comp="InvoiceKeyInfoRow"
       className="grid gap-[var(--sp-6)] py-[var(--sp-2)]"
-      style={{ gridTemplateColumns: '2fr 1fr 1fr' }}
+      style={{ gridTemplateColumns: '1fr 1fr' }}
     >
       {/* ── Payment Terms ── */}
       <div data-el="InvoiceKeyInfoRow-paymentTerms" className="flex flex-col gap-[var(--doc-sp-1-5)]">
@@ -74,19 +74,6 @@ export function InvoiceKeyInfoRow({ paymentTerms, currency, shipDate, exchangeRa
             }}
           >
             Prepayment Required
-          </div>
-        )}
-      </div>
-
-      {/* ── Currency ── */}
-      <div data-el="InvoiceKeyInfoRow-currency" className="flex flex-col gap-[var(--doc-sp-1-5)]">
-        <SectionLabel>Currency</SectionLabel>
-        <div className="text-[length:var(--doc-text-part-id)] font-semibold text-[color:var(--gray-900)] mt-[var(--doc-sp-1-5)]">
-          {currency}
-        </div>
-        {exchangeRate && (
-          <div className="text-[length:var(--doc-text-fine)] text-[color:var(--gray-400)] leading-[1.4]">
-            {exchangeRate}
           </div>
         )}
       </div>

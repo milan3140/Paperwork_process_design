@@ -1,29 +1,22 @@
 /**
  * QuoteDocument — Full quotation page composed from shared document components
  *
- * Renders a complete, print-ready quotation document by composing all shared
- * document components into a Letter-size page. This is a "document renderer" —
- * purely visual, no interactivity. Pass a QuoteData object and it renders
- * a page ready for PDF export via react-to-print, Puppeteer, or browser Ctrl+P.
+ * Renders a complete, print-ready quotation document. Uses the two-pass
+ * useDocumentPagination hook to automatically distribute content across as
+ * many Letter-size pages as needed. Each atom (SectionLabel, PartBlock, NRE,
+ * Totals, etc.) is measured in a hidden sandbox, then placed on the correct
+ * page via greedy bin-packing — no hardcoded page-break constants required.
  *
  * ⚠️ REQUIRES:
  *   Design_Sys_style.css (design tokens)
  *   documents.css (document tokens + print styles)
  *   Icons_Print.tsx (icon registry)
- *   DocumentHeader.tsx
- *   DocumentFooter.tsx
- *   DocumentMeta.tsx
- *   SectionLabel.tsx
- *   PartiesRow.tsx
- *   KeyInfoRow.tsx
- *   PartBlock.tsx
- *   NRETable.tsx
- *   TotalsTable.tsx
- *   NotesList.tsx
- *   WarningBox.tsx
- *   PaymentInfo.tsx
- *   SignatureRow.tsx
- *   TermsSection.tsx
+ *   DocumentHeader.tsx, DocumentFooter.tsx, DocumentMeta.tsx
+ *   SectionLabel.tsx, PartiesRow.tsx, KeyInfoRow.tsx
+ *   PartBlock.tsx, NRETable.tsx, TotalsTable.tsx
+ *   NotesList.tsx, WarningBox.tsx, PaymentInfo.tsx
+ *   SignatureRow.tsx, TermsSection.tsx
+ *   useDocumentPagination.ts
  *
  * ─── Props ─────────────────────────────────────────────────────────────────
  *
@@ -31,60 +24,16 @@
  * |------|-----------|----------|---------|-----------------------------------|
  * | data | QuoteData | yes      | —       | Complete quote data object        |
  *
- * QuoteData shape:
- * | Field              | Type               | Required | Description                                        |
- * |--------------------|--------------------|----------|----------------------------------------------------|
- * | quoteId            | string             | yes      | Quote ID (e.g. "U260319042")                       |
- * | revision           | number             | no       | Revision number. >0 appends _REV-X to subtitle    |
- * | date               | string             | yes      | Issue date (e.g. "March 19, 2026")                 |
- * | validUntil         | string             | yes      | Expiration date                                     |
- * | rfqRef             | string             | no       | Customer RFQ reference number                      |
- * | from               | PartyInfo          | yes      | Sender company info                                 |
- * | billTo             | PartyInfo          | yes      | Billing recipient info                              |
- * | shipTo             | PartyInfo          | no       | Shipping recipient (if different from billTo)       |
- * | leadTimeOptions    | LeadTimeOption[]   | yes      | Lead time tiers for customer selection              |
- * | leadTimeNote       | string             | no       | Footnote below lead time options                    |
- * | paymentTerms       | string             | yes      | Payment terms (e.g. "Payment In Advance (PIA)")    |
- * | currency           | string             | yes      | Currency (e.g. "USD ($)")                           |
- * | parts              | PartData[]         | yes      | Array of part items with params and files           |
- * | nreCharges         | NRECharge[]        | yes      | Non-recurring charges (pass [] if none)             |
- * | totalsLines        | TotalLine[]        | yes      | Cost breakdown lines (Subtotal, Shipping, Tax)     |
- * | total              | TotalLine          | yes      | Final total line                                    |
- * | manufacturingNotes | string[]           | yes      | Manufacturing note strings                          |
- * | exclusions         | string             | yes      | Exclusions warning text                             |
- * | payments           | InfoItem[]         | yes      | Payment method items                                |
- * | termsText          | string             | yes      | T&C text content                                    |
- * | termsLinkUrl       | string             | no       | URL to full terms page                              |
- * | closingMessage     | string             | no       | Footer closing (e.g. "We look forward to...")      |
- *
- * ─── Callbacks ─────────────────────────────────────────────────────────────
- *
- * No callbacks — display only. For PDF export, use ref with react-to-print.
- *
- * ─── Customizable options ──────────────────────────────────────────────────
- *
- * - All content is driven by the `data` prop — no hardcoded business data.
- * - `ref` (via forwardRef): Attach a ref for react-to-print PDF export.
- * - Layout structure and component order are fixed by design intent.
- *
  * ─── Usage examples ────────────────────────────────────────────────────────
  *
- *   // Basic render
  *   <QuoteDocument data={quoteData} />
  *
- *   // With react-to-print
  *   const ref = useRef<HTMLDivElement>(null);
  *   <QuoteDocument ref={ref} data={quoteData} />
  *   <button onClick={() => handlePrint(ref)}>Export PDF</button>
- *
- * ─── When to use ───────────────────────────────────────────────────────────
- *
- * Use as the top-level component for rendering a quotation document.
- * This is a composition component — it orchestrates shared components
- * but does not define its own visual styles beyond layout.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DocumentHeader } from './DocumentHeader';
 import { DocumentFooter } from './DocumentFooter';
 import { DocumentMeta, type MetaItem } from './DocumentMeta';
@@ -99,6 +48,8 @@ import { WarningBox } from './WarningBox';
 import { PaymentInfo, type InfoItem } from './PaymentInfo';
 import { SignatureRow } from './SignatureRow';
 import { TermsSection } from './TermsSection';
+import { useDocumentPagination } from './useDocumentPagination';
+import { ContinuedOnNextPage, ContinuedFromPreviousPage } from './ContinuationHints';
 
 /** Lead time tier option for customer selection */
 export interface LeadTimeOption {
@@ -146,70 +97,83 @@ export interface QuoteData {
 
 interface QuoteDocumentProps {
   data: QuoteData;
+  /** When true, the purple brand header band is omitted from every page. Pair with
+      `renderLogoAboveMeta` to replace it with an in-content logo block. */
+  hideHeaderBand?: boolean;
+  /** Optional render fn placed above DocumentMeta in the title row (e.g. a text
+      logo + page indicator when hideHeaderBand removes the top banner). */
+  renderLogoAboveMeta?: (totalPages: number) => React.ReactNode;
 }
 
+/* ── Sandbox styles ─────────────────────────────────────────────────────────
+ * The measurement sandbox is positioned absolutely off-screen so it has real
+ * layout dimensions but is never visible. data-sandbox="true" lets print CSS
+ * exclude it via [data-sandbox] { display: none }. */
+const SANDBOX_STYLE: React.CSSProperties = {
+  position: 'absolute',
+  left: '-9999px',
+  top: 0,
+  width: 'var(--doc-page-w)',
+  visibility: 'hidden',
+  pointerEvents: 'none',
+  zIndex: -9999,
+};
+
 export const QuoteDocument = React.forwardRef<HTMLDivElement, QuoteDocumentProps>(
-  function QuoteDocument({ data }, ref) {
+  function QuoteDocument({ data, hideHeaderBand = false, renderLogoAboveMeta }, ref) {
+    /* ── Meta items ── */
     const metaItems: MetaItem[] = [
-      { label: 'Date', value: data.date },
+      { label: 'Date',        value: data.date },
       { label: 'Valid Until', value: data.validUntil },
     ];
     if (data.rfqRef) {
       metaItems.push({ label: 'RFQ Ref', value: data.rfqRef });
     }
 
-    /* ── Build subtitle with optional REV-X ── */
     const subtitle =
       data.revision && data.revision > 0
         ? `#${data.quoteId}_REV-${data.revision}`
         : `#${data.quoteId}`;
 
-    return (
-      <div ref={ref} data-comp="QuoteDocument" className="doc-page">
-        <DocumentHeader docType="Quotation" />
+    /* ── Atom descriptors ──────────────────────────────────────────────────
+     * atom[0]              = SectionLabel "Quoted Parts (N items)"
+     * atom[1..parts.length] = PartBlocks (showDivider computed per-page in render)
+     * atom[parts.length+1..] = tail sections (NRE, Totals, Notes, Warning, Sig, Terms)
+     *
+     * showDivider for PartBlocks in the sandbox uses true so measurement includes
+     * the 1px border-bottom. Actual render computes showDivider from page context. */
+    const partAtomEnd = data.parts.length; // inclusive index of last PartBlock atom
 
-        <div className="doc-content">
-          {/* ── Title + Meta ── */}
-          <div data-el="QuoteDocument-titleRow" className="flex justify-between items-start">
-            <div>
-              <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-                Quotation
-              </div>
-              <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
-                {subtitle}
-              </div>
-            </div>
-            <DocumentMeta items={metaItems} />
-          </div>
+    const atomDefs = useMemo<{ key: string; node: React.ReactNode }[]>(() => {
+      const defs: { key: string; node: React.ReactNode }[] = [];
 
-          {/* ── Parties: From (top), Bill To + Ship To (bottom row) ── */}
-          <PartiesRow
-            from={data.from}
-            billTo={data.billTo}
-            shipTo={data.shipTo}
-          />
+      // [0] Section header
+      defs.push({
+        key:  'parts-label',
+        node: <SectionLabel>Quoted Parts ({data.parts.length} items)</SectionLabel>,
+      });
 
-          {/* ── Key Info: Lead Time Options + Payment Terms + Currency ── */}
-          <KeyInfoRow
-            leadTimeOptions={data.leadTimeOptions}
-            leadTimeNote={data.leadTimeNote}
-            paymentTerms={data.paymentTerms}
-            currency={data.currency}
-          />
+      // [1..N] Parts — showDivider=true so sandbox height includes divider border
+      data.parts.forEach(part => {
+        defs.push({
+          key:  `part-${part.id}`,
+          node: <PartBlock part={part} showDivider />,
+        });
+      });
 
-          {/* ── Parts ── */}
-          <div data-el="QuoteDocument-parts">
-            <SectionLabel>Quoted Parts ({data.parts.length} items)</SectionLabel>
-            {data.parts.map((part, i) => (
-              <PartBlock key={part.id} part={part} showDivider={i < data.parts.length - 1} />
-            ))}
-          </div>
+      // Tail atoms
+      if (data.nreCharges.length > 0) {
+        defs.push({ key: 'nre', node: <NRETable charges={data.nreCharges} /> });
+      }
 
-          {data.nreCharges.length > 0 && <NRETable charges={data.nreCharges} />}
+      defs.push({
+        key:  'totals',
+        node: <TotalsTable lines={data.totalsLines} total={data.total} />,
+      });
 
-          <TotalsTable lines={data.totalsLines} total={data.total} />
-
-          {/* ── Manufacturing Notes (left) + Payment Methods (right) ── */}
+      defs.push({
+        key: 'info-row',
+        node: (
           <div data-el="QuoteDocument-infoRow" className="grid grid-cols-2 gap-[var(--sp-6)]">
             <div>
               {data.manufacturingNotes.length > 0 && (
@@ -220,19 +184,185 @@ export const QuoteDocument = React.forwardRef<HTMLDivElement, QuoteDocumentProps
               <PaymentInfo payments={data.payments} />
             </div>
           </div>
+        ),
+      });
 
-          {data.exclusions && (
-            <WarningBox>
-              <strong>Exclusions:</strong> {data.exclusions}
-            </WarningBox>
-          )}
+      if (data.exclusions) {
+        defs.push({
+          key:  'warning',
+          node: <WarningBox><strong>Exclusions:</strong> {data.exclusions}</WarningBox>,
+        });
+      }
 
-          <SignatureRow leftLabel="Authorized By (InstaVoxel)" rightLabel="Accepted By (Customer)" />
+      defs.push({
+        key:  'signature',
+        node: <SignatureRow leftLabel="Authorized By (InstaVoxel)" rightLabel="Accepted By (Customer)" />,
+      });
 
-          <TermsSection text={data.termsText} linkUrl={data.termsLinkUrl} />
+      defs.push({
+        key:  'terms',
+        node: <TermsSection text={data.termsText} linkUrl={data.termsLinkUrl} />,
+      });
+
+      return defs;
+    }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    /* ── Pagination hook ── */
+    const {
+      contentMeasureRef,
+      fixedRef,
+      contLabelRef,
+      atomRefs,
+      assignments,
+      isReady,
+    } = useDocumentPagination(atomDefs.length, 24 /* doc-content-gap */);
+
+    const totalPages = assignments?.pageCount ?? 1;
+
+    /* ── Fixed sections (page 0 only) — duplicated for sandbox + main render ── */
+    const FixedSections = (
+      <>
+        <div data-el="QuoteDocument-titleRow" className="flex justify-between items-start">
+          <div>
+            <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
+              Quotation
+            </div>
+            <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
+              {subtitle}
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-[var(--doc-sp-1-5)]">
+            {renderLogoAboveMeta?.(totalPages)}
+            <DocumentMeta items={metaItems} />
+          </div>
+        </div>
+        <PartiesRow from={data.from} billTo={data.billTo} shipTo={data.shipTo} />
+        <KeyInfoRow
+          leadTimeOptions={data.leadTimeOptions}
+          leadTimeNote={data.leadTimeNote}
+          paymentTerms={data.paymentTerms}
+          currency={data.currency}
+        />
+      </>
+    );
+
+    /* ── Continuation label — same markup in sandbox + main render ── */
+    const ContLabelInner = (
+      <div
+        data-el="QuoteDocument-contLabel"
+        className="text-[length:var(--doc-text-grid-label)] font-semibold text-[color:var(--gray-400)] tracking-[var(--doc-tracking-label)] uppercase"
+        style={{ borderBottom: '1px solid var(--gray-200)', paddingBottom: 'var(--sp-2)' }}
+      >
+        Quoted Parts — continued
+      </div>
+    );
+
+    return (
+      /* position: relative so the absolute-positioned sandbox is contained */
+      <div
+        ref={ref}
+        data-comp="QuoteDocument"
+        style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}
+      >
+        {/* ══ Measurement sandbox ══════════════════════════════════════════ */}
+        <div aria-hidden="true" data-sandbox="true" style={SANDBOX_STYLE}>
+
+          {/* Reference page → measures exact available content height */}
+          <div className="doc-page">
+            {!hideHeaderBand && <DocumentHeader docType="Quotation" />}
+            <div className="doc-content" ref={contentMeasureRef} style={{ minHeight: 0 }} />
+            <DocumentFooter docId={data.quoteId} page={1} totalPages={1} />
+          </div>
+
+          {/* Fixed first-page sections measured as a flex column with same gap */}
+          <div
+            ref={fixedRef}
+            style={{ display: 'flex', flexDirection: 'column', gap: 'var(--doc-content-gap)' }}
+          >
+            {FixedSections}
+          </div>
+
+          {/* Continuation label — measured for cont-page overhead */}
+          <div ref={contLabelRef}>{ContLabelInner}</div>
+
+          {/* Each atom measured individually */}
+          {atomDefs.map(({ key, node }, i) => (
+            <div key={key} ref={el => { atomRefs.current[i] = el; }}>
+              {node}
+            </div>
+          ))}
         </div>
 
-        <DocumentFooter docId={data.quoteId} page={1} totalPages={1} closing={data.closingMessage} />
+        {/* ══ Paginated pages (rendered only once measurements are ready) ══ */}
+        {isReady && assignments && assignments.pageAtoms.map((pageAtomIndices, pageIdx) => {
+          // Show cont label when this page starts with a PartBlock (not SectionLabel or tail)
+          const firstIdx = pageAtomIndices[0];
+          const showContLabel =
+            pageIdx > 0 &&
+            firstIdx !== undefined &&
+            firstIdx >= 1 &&
+            firstIdx <= partAtomEnd;
+
+          return (
+            <div
+              key={pageIdx}
+              className="doc-page"
+              style={{ height: 'var(--doc-page-h)', overflow: 'hidden' }}
+            >
+              {!hideHeaderBand && <DocumentHeader docType="Quotation" />}
+
+              <div className="doc-content" style={{ minHeight: 0, overflow: 'hidden' }}>
+                {/* Continued from previous page hint */}
+                {pageIdx > 0 && <ContinuedFromPreviousPage page={pageIdx + 1} totalPages={totalPages} />}
+
+                {/* Fixed sections on page 0 */}
+                {pageIdx === 0 && FixedSections}
+
+                {/* Continuation label on pages 1+ (parts only) */}
+                {showContLabel && ContLabelInner}
+
+                {/* Atoms assigned to this page */}
+                {pageAtomIndices.map((atomIdx, localIdx) => {
+                  const isPartBlock = atomIdx >= 1 && atomIdx <= partAtomEnd;
+
+                  if (isPartBlock) {
+                    const part = data.parts[atomIdx - 1];
+                    // showDivider only when the NEXT atom on this same page is also a PartBlock
+                    const nextIdx = pageAtomIndices[localIdx + 1];
+                    const showDivider =
+                      nextIdx !== undefined &&
+                      nextIdx >= 1 &&
+                      nextIdx <= partAtomEnd;
+                    return (
+                      <PartBlock
+                        key={part.id}
+                        part={part}
+                        showDivider={showDivider}
+                      />
+                    );
+                  }
+
+                  // All other atoms (SectionLabel, tail sections)
+                  return (
+                    <React.Fragment key={atomDefs[atomIdx].key}>
+                      {atomDefs[atomIdx].node}
+                    </React.Fragment>
+                  );
+                })}
+
+                {/* Continued on next page hint */}
+                {pageIdx < totalPages - 1 && <ContinuedOnNextPage page={pageIdx + 1} totalPages={totalPages} />}
+              </div>
+
+              <DocumentFooter
+                docId={data.quoteId}
+                page={pageIdx + 1}
+                totalPages={totalPages}
+                closing={pageIdx === totalPages - 1 ? data.closingMessage : undefined}
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }

@@ -18,18 +18,10 @@
     display: none !important;
   }
 
-  /* Each doc-page starts a new print page */
+  /* Each doc-page: strip screen-only chrome for print */
   .doc-page {
     box-shadow: none !important;
     border-radius: 0 !important;
-    page-break-before: always;
-    break-before: page;
-  }
-
-  /* First doc-page doesn't need a page break before it */
-  .doc-page:first-of-type {
-    page-break-before: auto;
-    break-before: auto;
   }
 
   /* Preserve exact colors (backgrounds, borders) in print */

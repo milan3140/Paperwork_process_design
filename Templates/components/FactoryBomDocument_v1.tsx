@@ -11,8 +11,7 @@
  */
 
 import React from 'react';
-import { DocumentHeader } from './DocumentHeader';
-import { DocumentFooter } from './DocumentFooter';
+import { PaginatedDocument, type PageSection } from './PaginatedDocument';
 
 /* ═══════════════════════════════════════════════════════════
    Types
@@ -114,12 +113,11 @@ function IconDrawing() {
 
 export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDocumentProps>(
   function FactoryBomDocument({ data }, ref) {
-    return (
-      <div ref={ref} data-comp="FactoryBomDocument" className="doc-page">
-        <DocumentHeader docType="BOM 表" />
 
-        <div className="doc-content">
-          {/* ── Title row ── */}
+    const sections: PageSection[] = [
+      {
+        key: 'title',
+        content: (
           <div className="flex items-baseline gap-[var(--sp-4)]">
             <span className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
               BOM
@@ -128,8 +126,11 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
               {data.orderId}
             </span>
           </div>
-
-          {/* ── Summary + deadline ── */}
+        ),
+      },
+      {
+        key: 'summary-deadline',
+        content: (
           <div className="flex items-baseline justify-between">
             <span className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-500)]">
               {data.itemCount} 種零件
@@ -138,8 +139,11 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
               回覆時間：{data.replyDeadline}
             </span>
           </div>
-
-          {/* ── Table ── */}
+        ),
+      },
+      {
+        key: 'table',
+        content: (
           <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: 180 }} />
@@ -169,9 +173,17 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
               <FactoryBomSummary data={data} />
             </tbody>
           </table>
-        </div>
+        ),
+      },
+    ];
 
-        <DocumentFooter docId={data.orderId} page={1} totalPages={1} />
+    return (
+      <div ref={ref} data-comp="FactoryBomDocument">
+        <PaginatedDocument
+          docType="BOM 表"
+          docId={data.orderId}
+          sections={sections}
+        />
       </div>
     );
   }

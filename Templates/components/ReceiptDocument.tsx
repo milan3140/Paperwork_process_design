@@ -20,7 +20,8 @@
  * ⚠️ REQUIRES:
  *   Design_Sys_style.css, documents.css, Icons_Print.tsx,
  *   DocumentHeader, DocumentFooter, DocumentMeta, SectionLabel,
- *   PartiesRow, NotesList, WarningBox, TermsSection
+ *   PartiesRow, NotesList, WarningBox, TermsSection,
+ *   PaginatedDocument
  *
  * ─── Props ─────────────────────────────────────────────────────────────────
  *
@@ -38,14 +39,13 @@
  */
 
 import React from 'react';
-import { DocumentHeader } from './DocumentHeader';
-import { DocumentFooter } from './DocumentFooter';
 import { DocumentMeta, type MetaItem } from './DocumentMeta';
 import { SectionLabel } from './SectionLabel';
 import { PartiesRow, type PartyInfo } from './PartiesRow';
 import { NotesList } from './NotesList';
 import { WarningBox } from './WarningBox';
 import { TermsSection } from './TermsSection';
+import { PaginatedDocument, type PageSection } from './PaginatedDocument';
 
 /* ── Types ── */
 
@@ -98,10 +98,7 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
 
     const isFullyPaid = data.balanceDue === 0;
 
-    /* ── Build meta items ──
-       Invoice Ref is the primary traceability point (highlighted).
-       Quote Ref always present. PO Ref optional.
-       Status as last item — AP scans this area top-to-bottom. */
+    /* ── Build meta items ── */
     const metaItems: MetaItem[] = [
       { label: 'Date', value: data.date },
       { label: 'Invoice Ref', value: data.invoiceRef, highlight: true },
@@ -119,10 +116,7 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
     /* ── Build notes list ── */
     const noteItems: string[] = [...(data.notes ?? [])];
 
-    /* ── Payment detail rows — ordered by AP task flow ──
-       1. Verify: amount + currency
-       2. Reconcile: date + method + transaction ref (find in bank records)
-       3. Context: description + installment (supplementary) */
+    /* ── Payment detail rows ── */
     const detailRows: { label: string; value: string; bold?: boolean }[] = [
       { label: 'Amount Received', value: fmt(data.amountReceived), bold: true },
       { label: 'Currency', value: data.currency },
@@ -137,12 +131,11 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
       detailRows.push({ label: 'Installment', value: data.paymentLabel });
     }
 
-    return (
-      <div ref={ref} data-comp="ReceiptDocument" className="doc-page">
-        <DocumentHeader docType="Receipt" />
-
-        <div className="doc-content">
-          {/* ── Title + Status + Meta ── */}
+    /* ── Build sections for PaginatedDocument ── */
+    const sections: PageSection[] = [
+      {
+        key: 'title-meta',
+        content: (
           <div data-el="ReceiptDocument-titleRow" className="flex justify-between items-start">
             <div>
               <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
@@ -154,15 +147,21 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
             </div>
             <DocumentMeta items={metaItems} />
           </div>
-
-          {/* ── Parties (From + Issued To — side by side) ── */}
+        ),
+      },
+      {
+        key: 'parties',
+        content: (
           <PartiesRow
             from={data.from}
             billTo={data.issuedTo}
             toLabel="Issued To"
           />
-
-          {/* ── Payment Details ── */}
+        ),
+      },
+      {
+        key: 'payment-details',
+        content: (
           <div data-el="ReceiptDocument-paymentDetails">
             <SectionLabel>Payment Details</SectionLabel>
             <div className="flex flex-col mt-[var(--doc-sp-1-5)]">
@@ -182,14 +181,16 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
               ))}
             </div>
           </div>
-
-          {/* ── Payment Summary (right-aligned, accounting convention) ── */}
+        ),
+      },
+      {
+        key: 'payment-summary',
+        content: (
           <div data-el="ReceiptDocument-paymentSummary">
             <SectionLabel>Payment Summary</SectionLabel>
             <div className="flex justify-end mt-[var(--doc-sp-1-5)]">
               <table className="w-[var(--doc-w-totals)] border-collapse" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 <tbody>
-                  {/* Invoice Total */}
                   <tr>
                     <td className="py-[var(--doc-sp-totals-y)] px-[var(--sp-2)] text-right pr-[var(--sp-4)] text-[length:var(--doc-text-body)] font-medium text-[color:var(--gray-600)]">
                       Invoice Total
@@ -198,8 +199,6 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
                       {fmt(data.invoiceTotal)}
                     </td>
                   </tr>
-
-                  {/* Previously Paid (partial payments only) */}
                   {data.isPartial && data.previouslyPaid != null && (
                     <tr>
                       <td className="py-[var(--doc-sp-totals-y)] px-[var(--sp-2)] text-right pr-[var(--sp-4)] text-[length:var(--doc-text-body)] font-medium text-[color:var(--gray-600)]">
@@ -210,8 +209,6 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
                       </td>
                     </tr>
                   )}
-
-                  {/* This Payment */}
                   <tr>
                     <td className="py-[var(--doc-sp-totals-y)] px-[var(--sp-2)] text-right pr-[var(--sp-4)] text-[length:var(--doc-text-body)] font-medium text-[color:var(--gray-600)]">
                       This Payment
@@ -220,8 +217,6 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
                       {fmt(data.amountReceived)}
                     </td>
                   </tr>
-
-                  {/* Balance Due — emphasized row, brand primary for both variants */}
                   <tr data-el="ReceiptDocument-balanceDue">
                     <td
                       className="py-[var(--sp-2)] px-[var(--sp-2)] text-right pr-[var(--sp-4)] text-[length:var(--doc-text-part-id)] font-bold text-[color:var(--color-primary)]"
@@ -240,29 +235,42 @@ export const ReceiptDocument = React.forwardRef<HTMLDivElement, ReceiptDocumentP
               </table>
             </div>
           </div>
+        ),
+      },
+    ];
 
-          {/* ── Partial Payment Warning (conditional) ── */}
-          {data.isPartial && data.balanceDue > 0 && (
-            <WarningBox>
-              <strong>Partial Payment:</strong> Remaining balance of {fmt(data.balanceDue)} must
-              be settled before shipment. Please reference Invoice #{data.invoiceRef} on all
-              future remittances.
-            </WarningBox>
-          )}
+    // Conditional sections
+    if (data.isPartial && data.balanceDue > 0) {
+      sections.push({
+        key: 'partial-warning',
+        content: (
+          <WarningBox>
+            <strong>Partial Payment:</strong> Remaining balance of {fmt(data.balanceDue)} must
+            be settled before shipment. Please reference Invoice #{data.invoiceRef} on all
+            future remittances.
+          </WarningBox>
+        ),
+      });
+    }
 
-          {/* ── Notes (conditional) ── */}
-          {noteItems.length > 0 && (
-            <NotesList label="Receipt Notes" items={noteItems} />
-          )}
+    if (noteItems.length > 0) {
+      sections.push({
+        key: 'notes',
+        content: <NotesList label="Receipt Notes" items={noteItems} />,
+      });
+    }
 
-          {/* ── Terms ── */}
-          <TermsSection text={data.termsText} />
-        </div>
+    sections.push({
+      key: 'terms',
+      content: <TermsSection text={data.termsText} />,
+    });
 
-        <DocumentFooter
+    return (
+      <div ref={ref} data-comp="ReceiptDocument">
+        <PaginatedDocument
+          docType="Receipt"
           docId={data.receiptId}
-          page={1}
-          totalPages={1}
+          sections={sections}
           closing={data.closingMessage}
         />
       </div>

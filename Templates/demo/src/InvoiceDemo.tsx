@@ -5,6 +5,7 @@
  */
 
 import { InvoiceDocument, type InvoiceData } from '../../components/InvoiceDocument';
+import { DownloadPdfButton } from './DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — Net 30 Invoice
@@ -268,21 +269,29 @@ const samplePIA: InvoiceData = {
  * ════════════════════════════════════════════════════════════════ */
 export default function InvoiceDemo() {
   return (
-    <div className="flex flex-col items-center gap-12 py-10 bg-[var(--gray-100)]">
-      {/* ── Net 30 Invoice ── */}
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
-          Invoice — Net 30
-        </span>
-        <InvoiceDocument data={sampleNet30} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="Invoice" />
+
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Invoice
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          2 variants: Net 30 · PIA
+        </div>
       </div>
 
-      {/* ── PIA Invoice ── */}
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
-          Invoice — Payment In Advance
-        </span>
-        <InvoiceDocument data={samplePIA} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        {/* ── Net 30 Invoice ── */}
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gray-400)]">
+            Invoice — Net 30
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+            <InvoiceDocument data={sampleNet30} />
+            <InvoiceDocument data={samplePIA} />
+          </div>
+        </div>
       </div>
     </div>
   );

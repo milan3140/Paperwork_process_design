@@ -51,6 +51,17 @@ export { InvoiceKeyInfoRow } from './InvoiceKeyInfoRow';
 export type { InvoiceVariant } from './InvoiceKeyInfoRow';
 export { PaymentInstructions } from './PaymentInstructions';
 export type { BankDetails } from './PaymentInstructions';
+export { ShipmentTable } from './ShipmentTable';
+export type { ShipmentRecord } from './ShipmentTable';
+
+// ── Continuation Hints ──
+export { ContinuedOnNextPage, ContinuedFromPreviousPage } from './ContinuationHints';
+
+// ── Pagination ──
+export { PaginatedDocument } from './PaginatedDocument';
+export type { PageSection, PaginatedDocumentProps } from './PaginatedDocument';
+export { computePageLayouts, assignToPages, computeSpacerHeights } from './pagination';
+export type { SectionMeta, PageLayout } from './pagination';
 
 // ── Composed Documents ──
 export { QuoteDocument } from './QuoteDocument';
@@ -59,3 +70,17 @@ export { InvoiceDocument } from './InvoiceDocument';
 export type { InvoiceData, PartialPaymentInfo } from './InvoiceDocument';
 export { ReceiptDocument } from './ReceiptDocument';
 export type { ReceiptData } from './ReceiptDocument';
+export { PODocument } from './PODocument';
+export type { POData, POPartItem, SupplyMode, MaterialSupplyInfo, ProcessingStep } from './PODocument';
+export { CoCDocument } from './CoCDocument';
+export type { CoCData, CoCPartEntry, CoCComplianceItem } from './CoCDocument';
+export { CoCDocumentV2 } from './CoCDocument_v2';
+export type { CoCDataV2, CoCPartEntryV2, CoCComplianceItemV2 } from './CoCDocument_v2';
+export { CoCDocumentV3 } from './CoCDocument_v3';
+export type { CoCDataV3, CoCPartEntryV3, CoCComplianceItemV3 } from './CoCDocument_v3';
+export { CoCDocumentV4 } from './CoCDocument_v4';
+export type { CoCDataV4, CoCPartEntryV4, CoCComplianceItemV4 } from './CoCDocument_v4';
+export { PackingSlipDocument } from './PackingSlipDocument';
+export type { PackingSlipData, PackingSlipItem } from './PackingSlipDocument';
+export { PackingSlipDocument as PackingSlipDocumentV2 } from './PackingSlipDocument_v2';
+export type { PackingSlipData as PackingSlipDataV2, PackingSlipItem as PackingSlipItemV2 } from './PackingSlipDocument_v2';

@@ -1,3 +1,4 @@
+import { DownloadPdfButton } from './DownloadPdfButton';
 import { EvalDocument, type EvalData } from '../../components/EvalDocument';
 
 /* ══════════════════════════════════════════════════════════════
@@ -72,8 +73,8 @@ const modeD: EvalData = {
     { label: '質檢緩衝', days: 2 },
     { label: 'DHL', days: 3 },
   ],
-  leadTimeStartDate: '2026-03-21 (五)',
-  leadTimeEndDate: '2026-04-09 (四)',
+  leadTimeStartDate: '2026-03-21 （五）',
+  leadTimeEndDate: '2026-04-09 （四）',
   leadTimeNote: '已排除週末與假日',
 
   feasibility: {
@@ -175,8 +176,8 @@ const modeA: EvalData = {
     { label: '質檢緩衝', days: 2 },
     { label: 'DHL', days: 3 },
   ],
-  leadTimeStartDate: '2026-03-21 (五)',
-  leadTimeEndDate: '2026-04-21 (二)',
+  leadTimeStartDate: '2026-03-21 （五）',
+  leadTimeEndDate: '2026-04-21 （二）',
   leadTimeNote: '200 件交期，已排除週末',
 
   feasibility: sharedFeasibility,
@@ -273,8 +274,8 @@ const modeB: EvalData = {
     { label: '質檢緩衝', days: 3 },
     { label: 'DHL', days: 3 },
   ],
-  leadTimeStartDate: '2026-03-21 (五)',
-  leadTimeEndDate: '2026-04-15 (二)',
+  leadTimeStartDate: '2026-03-21 （五）',
+  leadTimeEndDate: '2026-04-15 （二）',
   leadTimeNote: 'Delrin 交期，已排除週末',
 
   feasibility: {
@@ -368,8 +369,8 @@ const modeC: EvalData = {
     { label: '質檢緩衝', days: 3 },
     { label: 'DHL', days: 3 },
   ],
-  leadTimeStartDate: '2026-03-21 (五)',
-  leadTimeEndDate: '2026-04-21 (二)',
+  leadTimeStartDate: '2026-03-21 （五）',
+  leadTimeEndDate: '2026-04-21 （二）',
   leadTimeNote: '推薦方案 Delrin×200 交期',
 
   feasibility: sharedFeasibility,
@@ -382,27 +383,40 @@ const modeC: EvalData = {
 
 export default function EvalDemo() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '60px', alignItems: 'center' }}>
-      {/* Mode label between documents */}
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode D — 單一確認場景（G11 杯墊真實案例）
-      </div>
-      <EvalDocument data={modeD} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="Evaluation" />
 
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode A — 多件數級距（最常見 ~50%）
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Evaluation Report
+        </div>
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          4 modes: D · A · B · C
+        </div>
       </div>
-      <EvalDocument data={modeA} />
 
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode B — 多材質比較
-      </div>
-      <EvalDocument data={modeB} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        {/* Mode label between documents */}
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode D — 單一確認場景（G11 杯墊真實案例）
+        </div>
+        <EvalDocument data={modeD} />
 
-      <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
-        Mode C — 雙維度交叉矩陣（材質 × 數量）
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode A — 多件數級距（最常見 ~50%）
+        </div>
+        <EvalDocument data={modeA} />
+
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode B — 多材質比較
+        </div>
+        <EvalDocument data={modeB} />
+
+        <div style={{ textAlign: 'center', padding: '20px 0 0', color: '#8E89A3', fontSize: '13px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>
+          Mode C — 雙維度交叉矩陣（材質 × 數量）
+        </div>
+        <EvalDocument data={modeC} />
       </div>
-      <EvalDocument data={modeC} />
     </div>
   );
 }

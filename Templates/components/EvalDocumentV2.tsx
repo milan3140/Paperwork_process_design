@@ -8,8 +8,7 @@
  */
 
 import React from 'react';
-import { DocumentHeader } from './DocumentHeader';
-import { DocumentFooter } from './DocumentFooter';
+import { PaginatedDocument, type PageSection } from './PaginatedDocument';
 import { DocumentMeta, type MetaItem } from './DocumentMeta';
 import { SectionLabel } from './SectionLabel';
 import { StatusIndicator } from './StatusIndicator';
@@ -82,12 +81,10 @@ export const EvalDocumentV2 = React.forwardRef<HTMLDivElement, EvalDocumentV2Pro
       );
     }
 
-    return (
-      <div ref={ref} data-comp="EvalDocumentV2" className="doc-page">
-        <DocumentHeader docType="Internal Evaluation" />
-
-        <div className="doc-content">
-          {/* ── Title + Meta ── */}
+    const sections: PageSection[] = [
+      {
+        key: 'title-meta',
+        content: (
           <div className="flex justify-between items-start">
             <div>
               <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
@@ -99,37 +96,67 @@ export const EvalDocumentV2 = React.forwardRef<HTMLDivElement, EvalDocumentV2Pro
             </div>
             <DocumentMeta items={metaItems} />
           </div>
-
-          {/* ── 1. Quote Info ── */}
-          <SectionBreak num={1} label="Quote Info 訂單資訊" />
-          <QuoteInfo data={data.quoteInfo} />
-
-          {/* ── 2. Summary 此單統整 (報價統整 + 技術統整) ── */}
-          <SectionBreak num={2} label="Summary 此單統整" />
+        ),
+      },
+      {
+        key: 'section1-header',
+        content: <SectionBreak num={1} label="Quote Info 訂單資訊" />,
+        group: 'quote-info',
+      },
+      {
+        key: 'section1-body',
+        content: <QuoteInfo data={data.quoteInfo} />,
+        group: 'quote-info',
+      },
+      {
+        key: 'section2-header',
+        content: <SectionBreak num={2} label="Summary 此單統整" />,
+        group: 'summary',
+      },
+      {
+        key: 'section2-body',
+        content: (
           <div className="flex flex-col gap-[var(--sp-4)]">
-            {/* 報價統整 */}
             <PricingSummaryTable data={data.quoteEval} />
-            {/* 技術統整 — only show update date if explicitly set in data */}
             <TechFeasibility
               data={data.techFeasibility}
               labelPrefix="技術統整"
               scenarioCount={data.quoteEval.scenarios.length}
             />
           </div>
-
-          {/* ── 3. Lead Time ── */}
-          <SectionBreak num={3} label="Lead Time 交期" />
-          <LeadTimeTable data={data.leadTime} />
-
-          {/* ── 4. Quote Evaluation ── */}
-          <SectionBreak num={4} label="Quote Evaluation 報價評估" />
-          {tableVariant === 'part-first'
-            ? <QuoteEvaluationTableV2 data={data.quoteEval} />
-            : <QuoteEvaluationTable data={data.quoteEval} />
-          }
-
-          {/* ── 5. Factory Details ── */}
-          <SectionBreak num={5} label="Factory Details 工廠評估細節" />
+        ),
+        group: 'summary',
+      },
+      {
+        key: 'section3-header',
+        content: <SectionBreak num={3} label="Lead Time 交期" />,
+        group: 'leadtime',
+      },
+      {
+        key: 'section3-body',
+        content: <LeadTimeTable data={data.leadTime} />,
+        group: 'leadtime',
+      },
+      {
+        key: 'section4-header',
+        content: <SectionBreak num={4} label="Quote Evaluation 報價評估" />,
+        group: 'quote-eval',
+      },
+      {
+        key: 'section4-body',
+        content: tableVariant === 'part-first'
+          ? <QuoteEvaluationTableV2 data={data.quoteEval} />
+          : <QuoteEvaluationTable data={data.quoteEval} />,
+        group: 'quote-eval',
+      },
+      {
+        key: 'section5-header',
+        content: <SectionBreak num={5} label="Factory Details 工廠評估細節" />,
+        group: 'factories',
+      },
+      {
+        key: 'section5-body',
+        content: (
           <div className="flex flex-col gap-0 mt-[var(--sp-2)]">
             {data.factories.map((factory, i) => (
               <FactoryDetailBlock
@@ -139,13 +166,28 @@ export const EvalDocumentV2 = React.forwardRef<HTMLDivElement, EvalDocumentV2Pro
               />
             ))}
           </div>
+        ),
+        group: 'factories',
+      },
+      {
+        key: 'section6-header',
+        content: <SectionBreak num={6} label="Revision Log 修訂版本" />,
+        group: 'revisions',
+      },
+      {
+        key: 'section6-body',
+        content: <RevisionHistory entries={data.revisions} />,
+        group: 'revisions',
+      },
+    ];
 
-          {/* ── 6. Revision Log ── */}
-          <SectionBreak num={6} label="Revision Log 修訂版本" />
-          <RevisionHistory entries={data.revisions} />
-        </div>
-
-        <DocumentFooter docId={data.orderId} page={1} totalPages={1} />
+    return (
+      <div ref={ref} data-comp="EvalDocumentV2">
+        <PaginatedDocument
+          docType="Internal Evaluation"
+          docId={data.orderId}
+          sections={sections}
+        />
       </div>
     );
   }

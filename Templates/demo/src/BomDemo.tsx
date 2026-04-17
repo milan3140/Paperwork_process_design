@@ -5,6 +5,7 @@
  * using realistic CNC manufacturing data.
  */
 
+import { DownloadPdfButton } from './DownloadPdfButton';
 import { BomDocument, type BomData, type BomLang } from '../../components/BomDocument';
 
 const sampleBom: BomData = {
@@ -111,27 +112,40 @@ const versions: { lang: BomLang; label: string }[] = [
 
 export default function BomDemo() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 60, padding: '40px 0' }}>
-      {versions.map(({ lang, label }) => (
-        <div key={lang}>
-          <div
-            className="bom-demo-label"
-            style={{
-              textAlign: 'center',
-              marginBottom: 12,
-              fontFamily: 'Inter, system-ui, sans-serif',
-              fontSize: 13,
-              fontWeight: 600,
-              color: 'var(--gray-500)',
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase' as const,
-            }}
-          >
-            {label}
-          </div>
-          <BomDocument data={sampleBom} lang={lang} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
+      <DownloadPdfButton filename="BOM" />
+
+      <div style={{ textAlign: 'center' }}>
+        <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
+          Bill of Materials
         </div>
-      ))}
+        <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
+          3 language variants: English · Chinese · Bilingual
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+        {versions.map(({ lang, label }) => (
+          <div key={lang}>
+            <div
+              className="bom-demo-label"
+              style={{
+                textAlign: 'center',
+                marginBottom: 12,
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--gray-500)',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase' as const,
+              }}
+            >
+              {label}
+            </div>
+            <BomDocument data={sampleBom} lang={lang} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

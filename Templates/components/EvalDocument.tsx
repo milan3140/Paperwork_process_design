@@ -25,8 +25,7 @@
  */
 
 import React from 'react';
-import { DocumentHeader } from './DocumentHeader';
-import { DocumentFooter } from './DocumentFooter';
+import { PaginatedDocument, type PageSection } from './PaginatedDocument';
 import { DocumentMeta, type MetaItem } from './DocumentMeta';
 import { SectionLabel } from './SectionLabel';
 import { StatusIndicator, type StatusType } from './StatusIndicator';
@@ -131,34 +130,38 @@ export const EvalDocument = React.forwardRef<HTMLDivElement, EvalDocumentProps>(
       data.materialSections?.length || data.factorySections?.length ||
       data.gaugeCheck || data.notes?.length;
 
-    return (
-      <div ref={ref} data-comp="EvalDocument" className="doc-page">
-        <DocumentHeader docType="Internal Evaluation" />
-
-        <div className="doc-content">
-          {/* ══════════════════════════════════════════════════════
-              DECISION LAYER (Page 1)
-              ══════════════════════════════════════════════════════ */}
-
-          {/* ── Title + Meta ── */}
-          <div data-el="EvalDocument-titleRow" className="flex justify-between items-start">
-            <div>
-              <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-                Internal Evaluation Report
+    /* ── Build sections array ── */
+    const sections: PageSection[] = [
+      /* ══════════════════════════════════════════════════════
+         DECISION LAYER (Page 1)
+         ══════════════════════════════════════════════════════ */
+      {
+        key: 'title-meta',
+        content: (
+          <>
+            {/* ── Title + Meta ── */}
+            <div data-el="EvalDocument-titleRow" className="flex justify-between items-start">
+              <div>
+                <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
+                  Internal Evaluation Report
+                </div>
+                <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
+                  #{data.orderId}
+                </div>
               </div>
-              <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
-                #{data.orderId}
-              </div>
+              <DocumentMeta items={metaItems} />
             </div>
-            <DocumentMeta items={metaItems} />
-          </div>
 
-          {/* ── Last updated ── */}
-          <div className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)] -mt-[var(--sp-4)]">
-            最後更新: {data.lastUpdatedBy} — {data.date}
-          </div>
-
-          {/* ── Decision Summary ── */}
+            {/* ── Last updated ── */}
+            <div className="text-[length:var(--doc-text-secondary)] text-[color:var(--gray-400)] -mt-[var(--sp-4)]">
+              最後更新: {data.lastUpdatedBy} — {data.date}
+            </div>
+          </>
+        ),
+      },
+      {
+        key: 'decision',
+        content: (
           <div data-el="EvalDocument-decision" className="flex flex-col gap-[var(--sp-2)]">
             <SectionLabel>Decision Summary 決策摘要</SectionLabel>
             <div className="flex items-center gap-[var(--sp-6)] text-[length:var(--doc-text-body)]">
@@ -182,8 +185,11 @@ export const EvalDocument = React.forwardRef<HTMLDivElement, EvalDocumentProps>(
               {data.decision.confirmedBy && <span>確認: {data.decision.confirmedBy}</span>}
             </div>
           </div>
-
-          {/* ── Pricing Structure Table ── */}
+        ),
+      },
+      {
+        key: 'pricing',
+        content: (
           <PricingStructureTable
             subtitle={data.pricingSubtitle}
             costLines={data.costLines}
@@ -192,74 +198,118 @@ export const EvalDocument = React.forwardRef<HTMLDivElement, EvalDocumentProps>(
             marginPercent={data.marginPercent}
             matrixMode={data.pricingMatrixMode}
           />
-
-          {/* ── Lead Time ── */}
+        ),
+      },
+      {
+        key: 'leadtime',
+        content: (
           <LeadTimeBar
             phases={data.leadTimePhases}
             startDate={data.leadTimeStartDate}
             endDate={data.leadTimeEndDate}
             note={data.leadTimeNote}
           />
+        ),
+      },
+    ];
 
-          {/* ══════════════════════════════════════════════════════
-              SUPPORTING DETAILS (Page 2+)
-              ══════════════════════════════════════════════════════ */}
+    /* ══════════════════════════════════════════════════════
+       SUPPORTING DETAILS (Page 2+)
+       ══════════════════════════════════════════════════════ */
 
-          {hasSupporting && (
-            <div className="border-t-[var(--doc-border-emphasis)] border-[var(--gray-200)] pt-[var(--sp-4)] mt-[var(--sp-2)]">
-              <div className="text-[length:var(--doc-text-param-label)] font-semibold text-[color:var(--gray-300)] uppercase tracking-[var(--doc-tracking-label)]">
-                Supporting Details 支撐明細
-              </div>
+    if (hasSupporting) {
+      sections.push({
+        key: 'supporting-header',
+        content: (
+          <div className="border-t-[var(--doc-border-emphasis)] border-[var(--gray-200)] pt-[var(--sp-4)] mt-[var(--sp-2)]">
+            <div className="text-[length:var(--doc-text-param-label)] font-semibold text-[color:var(--gray-300)] uppercase tracking-[var(--doc-tracking-label)]">
+              Supporting Details 支撐明細
             </div>
-          )}
+          </div>
+        ),
+      });
+    }
 
-          {/* ── Technical Feasibility ── */}
-          {data.feasibility && (
-            <FeasibilityMatrix
-              items={data.feasibility.items}
-              overall={data.feasibility.overall}
-              conclusion={data.feasibility.conclusion}
-              reference={data.feasibility.reference}
-            />
-          )}
+    if (data.feasibility) {
+      sections.push({
+        key: 'feasibility',
+        content: (
+          <FeasibilityMatrix
+            items={data.feasibility.items}
+            overall={data.feasibility.overall}
+            conclusion={data.feasibility.conclusion}
+            reference={data.feasibility.reference}
+          />
+        ),
+        group: 'supporting',
+      });
+    }
 
-          {/* ── DFM Feedback ── */}
-          {data.dfmItems && data.dfmItems.length > 0 && (
-            <DFMSummary items={data.dfmItems} factory={data.dfmFactory} />
-          )}
+    if (data.dfmItems && data.dfmItems.length > 0) {
+      sections.push({
+        key: 'dfm',
+        content: <DFMSummary items={data.dfmItems} factory={data.dfmFactory} />,
+        group: 'supporting',
+      });
+    }
 
-          {/* ── Material Sourcing ── */}
-          {data.materialSections?.map((section, i) => (
-            <VendorComparisonTable key={`mat-${i}`} {...section} />
-          ))}
+    if (data.materialSections) {
+      data.materialSections.forEach((section, i) => {
+        sections.push({
+          key: `mat-${i}`,
+          content: <VendorComparisonTable {...section} />,
+          group: 'supporting',
+        });
+      });
+    }
 
-          {/* ── Factory Evaluation ── */}
-          {data.factorySections?.map((section, i) => (
-            <VendorComparisonTable key={`fac-${i}`} {...section} />
-          ))}
+    if (data.factorySections) {
+      data.factorySections.forEach((section, i) => {
+        sections.push({
+          key: `fac-${i}`,
+          content: <VendorComparisonTable {...section} />,
+          group: 'supporting',
+        });
+      });
+    }
 
-          {/* ── Gauge Check ── */}
-          {data.gaugeCheck && (
-            <div data-el="EvalDocument-gauge" className="flex flex-col gap-[var(--doc-sp-1-5)]">
-              <SectionLabel>Gauge / Tap Check 牙規詢價</SectionLabel>
-              <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)]">
-                <strong className="text-[color:var(--gray-900)]">結果: {data.gaugeCheck.result}</strong>
-                <br />
-                {data.gaugeCheck.detail}
-              </div>
+    if (data.gaugeCheck) {
+      sections.push({
+        key: 'gauge',
+        content: (
+          <div data-el="EvalDocument-gauge" className="flex flex-col gap-[var(--doc-sp-1-5)]">
+            <SectionLabel>Gauge / Tap Check 牙規詢價</SectionLabel>
+            <div className="text-[length:var(--doc-text-body)] text-[color:var(--gray-600)]">
+              <strong className="text-[color:var(--gray-900)]">結果: {data.gaugeCheck.result}</strong>
+              <br />
+              {data.gaugeCheck.detail}
             </div>
-          )}
+          </div>
+        ),
+        group: 'supporting',
+      });
+    }
 
-          {/* ── Notes ── */}
-          {data.notes && data.notes.length > 0 && (
-            <NotesList label="Notes 備註" items={data.notes} />
-          )}
+    if (data.notes && data.notes.length > 0) {
+      sections.push({
+        key: 'notes',
+        content: <NotesList label="Notes 備註" items={data.notes} />,
+        group: 'supporting',
+      });
+    }
 
-          {/* ── Revision History ── */}
-          <RevisionHistory entries={data.revisions} />
-        </div>
+    sections.push({
+      key: 'revisions',
+      content: <RevisionHistory entries={data.revisions} />,
+    });
 
-        <DocumentFooter docId={data.orderId} page={1} totalPages={1} />
+    return (
+      <div ref={ref} data-comp="EvalDocument">
+        <PaginatedDocument
+          docType="Internal Evaluation"
+          docId={data.orderId}
+          sections={sections}
+        />
       </div>
     );
   }

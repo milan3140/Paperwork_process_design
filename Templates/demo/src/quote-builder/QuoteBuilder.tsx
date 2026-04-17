@@ -19,6 +19,7 @@ import { PartiesRow, type PartyInfo } from '../../../components/PartiesRow';
 import { SectionLabel } from '../../../components/SectionLabel';
 import { TermsSection } from '../../../components/TermsSection';
 import { PaginatedDocument, type PageSection } from './PaginatedDocument';
+import { downloadPdf } from '../downloadPdf';
 
 /* ═══════════════════════════════════════════════════════════════
    STYLE TOKENS — all reference CSS vars, strict 4px grid
@@ -551,38 +552,7 @@ export default function QuoteBuilder() {
   };
 
   const handleDownloadPdf = () => {
-    if (!pdfRef.current) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
-      .map(el => el.outerHTML).join('\n');
-    const printCss = `
-      <style>
-        @media print {
-          @page { size: Letter; margin: 0; }
-          body { margin: 0; }
-        }
-        /* Force each doc-page to fill exactly one print page */
-        .doc-page {
-          width: 215.9mm;
-          height: 279.4mm;
-          display: flex;
-          flex-direction: column;
-          page-break-after: always;
-          overflow: hidden;
-        }
-        .doc-page:last-child { page-break-after: auto; }
-        .doc-content { flex: 1; }
-        /* Print colors */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-      </style>`;
-    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Quote ${data.quoteId}</title>${styles}${printCss}
-    </head><body>${pdfRef.current.outerHTML}</body></html>`);
-    printWindow.document.close();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);
+    downloadPdf({ filename: `Quote-Proposal-${data.quoteId}`, useHtmlMode: true });
   };
 
   /* ── Build party info for PDF ── */
@@ -850,9 +820,10 @@ export default function QuoteBuilder() {
             /* ── PDF preview — paginated document ── */
             <div ref={pdfRef}>
               <PaginatedDocument
+                docType="Quote Option Proposal"
                 docId={data.quoteId}
-                validDays={data.validDays}
                 sections={buildPdfSections(data, fromParty, billToParty, shipToParty)}
+                closing="We look forward to working with you."
               />
             </div>
           )}

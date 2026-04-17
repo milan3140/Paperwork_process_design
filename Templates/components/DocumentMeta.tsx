@@ -59,13 +59,28 @@ export interface MetaItem {
   /** Custom color override — e.g. 'var(--color-success)' for Receipt status.
       When set, applies this color + bold weight, overriding highlight. */
   color?: string;
+  /** Background color for the value cell — e.g. 'var(--color-primary-selected)'. */
+  bgColor?: string;
+  /** Override value font weight. Defaults: bold if highlight/color, else semibold. */
+  weight?: 'light' | 'normal' | 'semibold' | 'bold';
+  /** Per-item font size override for the value cell (in px). */
+  fontSize?: number;
+  /** Per-item font size override for the label cell (in px). Pairs with fontSize
+      to enlarge a single row without touching others. */
+  labelFontSize?: number;
+  /** Override label font weight (useful for emphasised rows like Page indicator). */
+  labelWeight?: 'light' | 'normal' | 'semibold' | 'bold';
 }
 
 interface DocumentMetaProps {
   items: MetaItem[];
+  /** Override label font size (default: --doc-text-label = 9px) */
+  labelFontSize?: number;
+  /** Override value font size (default: --doc-text-meta-value = 12px) */
+  valueFontSize?: number;
 }
 
-export function DocumentMeta({ items }: DocumentMetaProps) {
+export function DocumentMeta({ items, labelFontSize, valueFontSize }: DocumentMetaProps) {
   return (
     <div
       data-comp="DocumentMeta"
@@ -76,22 +91,33 @@ export function DocumentMeta({ items }: DocumentMetaProps) {
         <div key={i} className="contents">
           <span
             data-el="DocumentMeta-label"
-            className="text-[length:var(--doc-text-label)] font-semibold text-[color:var(--gray-400)] uppercase tracking-[var(--doc-tracking-label)] text-right"
+            className={[
+              (item.labelFontSize || labelFontSize) ? '' : 'text-[length:var(--doc-text-label)]',
+              item.labelWeight ? `font-${item.labelWeight}` : 'font-semibold',
+              'text-[color:var(--gray-400)] uppercase tracking-[var(--doc-tracking-label)] text-right',
+            ].filter(Boolean).join(' ')}
+            style={item.labelFontSize ? { fontSize: item.labelFontSize } : labelFontSize ? { fontSize: labelFontSize } : undefined}
           >
             {item.label}
           </span>
           <span
             data-el="DocumentMeta-value"
             className={[
-              'text-[length:var(--doc-text-meta-value)] text-right',
-              (item.color || item.highlight) ? 'font-bold' : 'font-semibold',
+              `${(valueFontSize || item.fontSize) ? '' : 'text-[length:var(--doc-text-meta-value)]'} text-right`,
+              item.weight
+                ? `font-${item.weight}`
+                : (item.color || item.highlight) ? 'font-bold' : 'font-semibold',
               item.color
                 ? ''
                 : item.highlight
                   ? 'text-[color:var(--color-primary)]'
                   : 'text-[color:var(--gray-900)]',
             ].filter(Boolean).join(' ')}
-            style={item.color ? { color: item.color } : undefined}
+            style={{
+              ...(item.fontSize ? { fontSize: item.fontSize } : valueFontSize ? { fontSize: valueFontSize } : {}),
+              ...(item.color ? { color: item.color } : {}),
+              ...(item.bgColor ? { backgroundColor: item.bgColor, padding: '3px 0 3px 10px', borderRadius: '3px 0 0 3px', marginLeft: '-4px' } : {}),
+            }}
           >
             {item.value}
           </span>
