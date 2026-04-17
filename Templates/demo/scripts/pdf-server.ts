@@ -24,10 +24,21 @@ const app = express();
 const PORT = 3001;
 
 // ── Chrome executable detection ──
+// Order: env override → platform defaults (Windows / Mac / Linux).
 const CHROME_PATHS = [
+  process.env.CHROME_PATH,
+  // Windows
   'C:/Program Files/Google/Chrome/Application/chrome.exe',
   'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-  process.env.CHROME_PATH,
+  // Mac
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
+  // Linux
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/snap/bin/chromium',
 ].filter(Boolean) as string[];
 
 function findChrome(): string {

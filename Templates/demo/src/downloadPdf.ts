@@ -8,7 +8,10 @@
  * Falls back to window.print() if the PDF server is unavailable.
  */
 
-const PDF_SERVER = 'http://localhost:3001';
+// PDF server URL. Override via Vite env var VITE_PDF_SERVER for production
+// deployments where pdf-server is hosted elsewhere (or behind a reverse proxy).
+const PDF_SERVER =
+  (import.meta.env.VITE_PDF_SERVER as string | undefined) || 'http://localhost:3001';
 
 export interface DownloadPdfOptions {
   /** Override URL to render (default: current window.location.href) */

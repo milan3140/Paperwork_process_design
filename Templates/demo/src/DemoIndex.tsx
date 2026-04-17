@@ -6,7 +6,7 @@
  *   2. Archive — historical iterations + document types with no official pick yet
  *      Each group is collapsed by default; click the group header to expand.
  *
- * Order follows Document_Analysis/Order_Workflow_Paths.html (path A workflow):
+ * Order follows Templates/Design_Src_Pics_Specs/Order_Workflow_Paths.html (path A workflow):
  *   Invoice → Traveler → Factory BOM → Summary → QC Package → Packing Slip → CoC
  * Archive keeps the same workflow-order grouping, with upstream tools
  * (Quote Proposal Builder) + internal-only items (Eval) at the ends.
@@ -19,7 +19,7 @@ type Group = { title: string; routes: Route[] };
 
 const current: Route[] = [
   { hash: '#/invoice-v3',        label: 'Invoice (v3)',        desc: '請款單 — monochrome · Geist Sans · high-contrast' },
-  { hash: '#/traveler-v3',       label: 'Traveler (v3)',       desc: '工作單 — 標題整合版，Logo/頁次併入標題右側' },
+  { hash: '#/traveler-v3',       label: 'Traveler (v3)',       desc: '隨工單 — 標題整合版，Logo/頁次併入標題右側' },
   { hash: '#/factory-bom-dated',     label: 'Factory BOM (dated)',          desc: '工廠報價用 RFQ BOM — 艾維數位工業下方顯示發行日期' },
   { hash: '#/factory-bom-date-only', label: 'Factory BOM (date-only)', desc: '工廠報價用 RFQ BOM — replyDeadline 不帶「2026 年」字樣（如「4 月 7 日（二）下午 4 點前」）', badge: 'new' },
   { hash: '#/summary-sharp',     label: 'Summary (sharp)',     desc: '訂單摘要（含 QC 空表）— 高對比純灰階' },
@@ -62,10 +62,10 @@ const archiveGroups: Group[] = [
   {
     title: 'Traveler',
     routes: [
-      { hash: '#/traveler-v4',       label: 'v4',       desc: '工作單 — 工廠動線優先，工件編號併入縮圖右側' },
-      { hash: '#/traveler-v2-sharp', label: 'v2 sharp', desc: '工作單 v2 高對比版 — 90% 黑表頭、Geist 銳利字體' },
-      { hash: '#/traveler-v2',       label: 'v2',       desc: '工作單 v2 — 縮圖放大、工件橫式、材料/品質並排' },
-      { hash: '#/traveler',          label: 'v1',       desc: '工作單 v1 — 4 欄表格（訂單/工件/材料/品質）' },
+      { hash: '#/traveler-v4',       label: 'v4',       desc: '隨工單 — 工廠動線優先，工件編號併入縮圖右側' },
+      { hash: '#/traveler-v2-sharp', label: 'v2 sharp', desc: '隨工單 v2 高對比版 — 90% 黑表頭、Geist 銳利字體' },
+      { hash: '#/traveler-v2',       label: 'v2',       desc: '隨工單 v2 — 縮圖放大、工件橫式、材料/品質並排' },
+      { hash: '#/traveler',          label: 'v1',       desc: '隨工單 v1 — 4 欄表格（訂單/工件/材料/品質）' },
     ],
   },
   {

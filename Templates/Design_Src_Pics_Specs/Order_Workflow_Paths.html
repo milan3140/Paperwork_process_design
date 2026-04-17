@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>InstaVoxel 訂單流程 — 雙路徑</title>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+  font-size: 11pt;
+  color: #1a1a1a;
+  line-height: 1.4;
+  background: #fff;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 12mm 12mm 10mm 12mm;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 18pt;
+  color: #2E0D77;
+  text-align: center;
+  margin-bottom: 2mm;
+  letter-spacing: 1pt;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 10pt;
+  color: #6B4FBB;
+  margin-bottom: 5mm;
+  padding-bottom: 3mm;
+  border-bottom: 1.5pt solid #2E0D77;
+}
+
+.paths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5mm;
+}
+
+.path {
+  border: 1pt solid #D8D5E5;
+  border-radius: 2mm;
+  overflow: hidden;
+}
+
+.path-header {
+  background: #2E0D77;
+  color: white;
+  padding: 2.5mm 3mm;
+  text-align: center;
+}
+
+.path-header .name {
+  font-size: 13pt;
+  font-weight: 700;
+  letter-spacing: 0.5pt;
+}
+
+.path-header .desc {
+  font-size: 9pt;
+  margin-top: 0.8mm;
+  opacity: 0.85;
+}
+
+.steps {
+  padding: 3mm 3mm 2mm 3mm;
+}
+
+.step {
+  display: flex;
+  gap: 2.5mm;
+  margin-bottom: 2mm;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 7mm;
+  height: 7mm;
+  background: #6B4FBB;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 10pt;
+}
+
+.step-body {
+  flex: 1;
+  padding-top: 0.3mm;
+}
+
+.step-title {
+  font-weight: 700;
+  font-size: 10pt;
+  color: #2E0D77;
+  margin-bottom: 0.8mm;
+}
+
+.step-content {
+  font-size: 9pt;
+  color: #444;
+  line-height: 1.45;
+}
+
+.step-content .doc {
+  display: inline-block;
+  background: #F0EDF8;
+  color: #2E0D77;
+  padding: 0.3mm 1.5mm;
+  border-radius: 1mm;
+  font-weight: 600;
+  margin: 0.4mm 0.6mm 0.4mm 0;
+}
+
+.step-content .doc.muted {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.step-content .accent {
+  color: #B61F1F;
+  font-weight: 600;
+}
+
+.step-content ul {
+  list-style: none;
+  margin-top: 1mm;
+  padding-left: 0;
+}
+
+.step-content ul li {
+  position: relative;
+  padding-left: 3mm;
+  margin-bottom: 0.5mm;
+}
+
+.step-content ul li::before {
+  content: '·';
+  position: absolute;
+  left: 0.8mm;
+  color: #6B4FBB;
+  font-weight: 700;
+}
+
+.arrow {
+  text-align: center;
+  color: #B0AAC4;
+  font-size: 11pt;
+  line-height: 1;
+  margin: 0.5mm 0 1.2mm 9.5mm;
+}
+
+.parallel-row {
+  display: flex;
+  gap: 2.5mm;
+  margin-bottom: 2mm;
+}
+
+.parallel-col {
+  flex: 1;
+  background: #FAFAFC;
+  border-radius: 1mm;
+  padding: 1.5mm 2mm;
+  font-size: 8.5pt;
+}
+
+.parallel-col .label {
+  font-weight: 700;
+  color: #6B4FBB;
+  font-size: 8pt;
+  display: block;
+  margin-bottom: 0.5mm;
+}
+
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>InstaVoxel 訂單流程</h1>
+  <div class="subtitle">雙路徑對照 — 依「步驟 2 是否需要工廠詢價」分歧</div>
+
+  <div class="paths">
+
+    <!-- 路徑 A -->
+    <div class="path">
+      <div class="path-header">
+        <div class="name">路徑 A</div>
+        <div class="desc">可自行估價</div>
+      </div>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">收到客戶資訊</div>
+            <div class="step-content">客戶 Email/平台提供 3D 檔、PDF 圖紙、需求說明</div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">內部建單</div>
+            <div class="step-content">
+              <span class="doc">完整 BOM</span><br>
+              業務 + 工程團隊共同建立零件規格 SoT
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">自行估價計算</div>
+            <div class="step-content">
+              業務依經驗自估成本 + 毛利<br>
+              <span class="doc">Quotation</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">送出報價、客戶確認</div>
+            <div class="step-content">
+              客戶確認後下單<br>
+              <span class="doc">Invoice</span> <span style="color:#999; font-size:8pt;">（PIA 情況時隨報價送出）</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">工廠下單</div>
+            <div class="step-content">
+              <span class="doc">預習</span><br>
+              <span class="doc">Traveler</span><br>
+              <span class="doc">RFQ BOM</span> <span class="accent">單選項 + 附預算</span><br>
+              → 工廠回價 →<br>
+              <span class="doc">PO</span> 給工廠<br>
+              <span class="doc">Summary(含 QC 空表)</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">收到貨並行作業</div>
+            <div class="step-content">
+              <strong style="color:#6B4FBB;">工程師端：</strong><br>
+              <span class="doc">QC Package(手動填寫)</span>
+              <span class="doc">Packing Slip</span>
+              <span class="doc">CoC</span><br>
+              <strong style="color:#6B4FBB;">業務端：</strong><br>
+              <span class="doc">Invoice</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <div class="step-title">客戶付款</div>
+            <div class="step-content">
+              收款後開立 <span class="doc">Receipt</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 路徑 B -->
+    <div class="path">
+      <div class="path-header">
+        <div class="name">路徑 B</div>
+        <div class="desc">無法自行估價</div>
+      </div>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">收到客戶資訊 + 詢價</div>
+            <div class="step-content">
+              客戶 Email/平台提供 3D 檔、PDF 圖紙、需求說明<br>
+              <span class="doc">RFQ BOM</span> <span class="accent">多選項</span>（多件數 / 多材質比價）<br>
+              → 工廠回覆比價方案
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">內部建單</div>
+            <div class="step-content">
+              <span class="doc">完整 BOM</span><br>
+              業務 + 工程團隊共同建立零件規格 SoT
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">整合工廠回饋計算</div>
+            <div class="step-content">
+              工廠成本 + 毛利<br>
+              <span class="doc">Quotation</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">送出報價、客戶確認</div>
+            <div class="step-content">
+              客戶確認後下單<br>
+              <span class="doc">Invoice</span> <span style="color:#999; font-size:8pt;">（PIA 情況時隨報價送出）</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">工廠下單</div>
+            <div class="step-content">
+              <span class="doc">預習</span><br>
+              <span class="doc">Traveler</span><br>
+              <span class="doc">Summary(含 QC 空表)</span><br>
+              <span class="doc">PO</span> <span class="accent">直接下單給工廠</span><br>
+              <span style="color:#999; font-size:8pt;">（步驟 1 已詢過價，無需再次 RFQ）</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">收到貨並行作業</div>
+            <div class="step-content">
+              <strong style="color:#6B4FBB;">工程師端：</strong><br>
+              <span class="doc">QC Package(手動填寫)</span>
+              <span class="doc">Packing Slip</span>
+              <span class="doc">CoC</span><br>
+              <strong style="color:#6B4FBB;">業務端：</strong><br>
+              <span class="doc">Invoice</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">↓</div>
+
+        <div class="step">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <div class="step-title">客戶付款</div>
+            <div class="step-content">
+              收款後開立 <span class="doc">Receipt</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

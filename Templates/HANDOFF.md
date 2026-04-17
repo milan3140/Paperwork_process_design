@@ -81,6 +81,13 @@ npm run test:archive                  # 跑 archive 測試（src/_archive/，不
 
 **PDF 產生**：任何 demo 頁點右下 `Download PDF` 按鈕即可（`npm run dev` 已經把 PDF server 一併啟起來）。詳細 pipeline 見 § 8。
 
+**整合到其他環境 / production**：`downloadPdf.ts` 的 PDF server URL 可透過 Vite 環境變數覆寫：
+```bash
+# .env.local 或 .env.production
+VITE_PDF_SERVER=https://pdf.instavoxel.com
+```
+不設則 fallback 到 `http://localhost:3001`。
+
 ---
 
 ## 4. 路由總覽
@@ -106,7 +113,7 @@ npm run test:archive                  # 跑 archive 測試（src/_archive/，不
 
 Quote Proposal Builder（v0~v5）· BOM · Quotation · Invoice（v1~v2）· Traveler（v1, v2, v2-sharp, v4）· Factory BOM（v1, v2, sharp, base）· PO · Summary（base）· QC Package（base）· Packing Slip（base, v1~v12）· CoC（v1~v3）· Receipt · Eval（v1~v3）
 
-**工作流順序依據**：`Document_Analysis/Order_Workflow_Paths.html`（雙路徑圖，Path A = 可自估；Path B = 需詢價）。
+**工作流順序依據**：`Design_Src_Pics_Specs/Order_Workflow_Paths.html`（雙路徑圖，Path A = 可自估；Path B = 需詢價）。
 
 ---
 

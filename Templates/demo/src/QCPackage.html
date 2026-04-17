@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>InstaVoxel QC Package</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary: #000;
+  --color-primary-light: #000;
+  --color-primary-gray: #000;
+  --color-ink: #000;
+  --color-ink-soft: #000;
+  --color-ink-muted: #000;
+  --color-ink-faint: #000;
+  --color-line: #D4D4D4;
+  --color-line-soft: #E5E5E5;
+  --color-surface: #F5F5F5;
+  --doc-header-h: 14mm;
+  --doc-margin-x: 12mm;
+  --font-stack: "Geist Sans", "Geist", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html, body {
+  font-family: var(--font-stack);
+  font-size: 10pt;
+  color: #000;
+  line-height: 1.4;
+  background: #EDEDED;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* ═══════════════ Page Shell ═══════════════ */
+.page {
+  width: 210mm;
+  height: 297mm;
+  padding: 0;
+  margin: 0;
+  background: #FFF;
+  position: relative;
+  page-break-after: always;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.page:last-child { page-break-after: auto; }
+
+/* Screen-only preview spacing (Puppeteer / print uses tight stacking) */
+@media screen {
+  .page { margin: 0 auto 8mm auto; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .page:last-child { margin-bottom: 0; }
+}
+
+/* ─── Header band (Summary-aligned) ─── */
+.doc-header {
+  flex-shrink: 0;
+  height: var(--doc-header-h);
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0 var(--doc-margin-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.doc-header .logo { display: flex; align-items: center; }
+.doc-header .logo svg { height: 7mm; width: auto; display: block; }
+.doc-header .doc-type {
+  font-size: 11pt;
+  font-weight: 600;
+  letter-spacing: 3pt;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* ─── Title row (Summary-aligned) ─── */
+.title-row {
+  margin: 40px var(--doc-margin-x) 0 var(--doc-margin-x);
+  padding-bottom: 5mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8mm;
+}
+.title-row .title-line { display: flex; align-items: baseline; gap: 4mm; flex-wrap: wrap; }
+.title-row .quote-id { font-size: 15pt; font-weight: 700; color: var(--color-primary); letter-spacing: 0.3pt; }
+.title-row .order-name { font-size: 12pt; font-weight: 600; color: var(--color-ink-soft); }
+.title-row .meta { text-align: right; font-size: 8.5pt; color: var(--color-ink-muted); line-height: 1.5; }
+.title-row .meta .label { color: var(--color-ink-faint); font-size: 7.5pt; letter-spacing: 0.3pt; }
+
+/* ─── Title row · doc-title + subtitle variant ─── */
+.title-row .title-group { display: flex; flex-direction: column; gap: 1.8mm; }
+.title-row .doc-title {
+  font-size: 21pt;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.2pt;
+  line-height: 1.1;
+}
+.title-row .doc-note {
+  font-size: 12px;
+  font-weight: 300;
+  color: #000;
+  line-height: 1.4;
+  margin-top: 1.8mm;
+}
+.title-row .doc-subtitle {
+  font-size: 16.5pt;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.1pt;
+  line-height: 1.2;
+}
+.title-row .doc-subtitle .quote-id { color: inherit; margin-right: 3mm; font-size: inherit; font-weight: inherit; letter-spacing: inherit; }
+
+/* ─── Right column (title-row right: brand + fill stacked) ─── */
+.title-row .right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+  align-self: flex-start;
+  gap: 12px;
+}
+.title-row .brand-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #000;
+}
+.title-row .brand-col svg { height: 34px; width: auto; display: block; }
+.title-row .brand-col .brand-name { font-size: 22px; font-weight: 700; line-height: 34px; color: #000; }
+
+.title-row .fill-row {
+  display: flex;
+  gap: 6mm;
+  justify-content: flex-end;
+}
+.title-row .fill-cell { display: flex; flex-direction: column; gap: 1mm; min-width: 42mm; }
+.title-row .fill-cell .k {
+  font-size: 12px;
+  color: var(--color-ink-faint);
+  font-weight: 300;
+}
+.title-row .fill-cell .line { border-bottom: 0.6pt solid var(--color-ink); height: 35px; }
+
+/* ─── Page subtitle (per-page identity under title-row) ─── */
+.page-subtitle {
+  margin: 2.5mm var(--doc-margin-x) 0 var(--doc-margin-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: var(--color-ink-muted);
+}
+.page-subtitle .label {
+  font-size: 9pt;
+  font-weight: 700;
+  color: var(--color-ink);
+  letter-spacing: 1.2pt;
+  text-transform: uppercase;
+}
+.page-subtitle .sub { font-size: 8.5pt; color: var(--color-ink-muted); }
+
+/* ─── Body ─── */
+.body {
+  flex: 1;
+  padding: 4mm 12mm 6mm 12mm;
+  display: flex;
+  flex-direction: column;
+  gap: 3.5mm;
+}
+
+/* ─── Section block (Summary-aligned: clean label + thin rule) ─── */
+.sec { border: none; border-radius: 0; overflow: visible; }
+.sec-hd {
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 16px;
+  font-weight: 300;
+  padding: 0 0 1.2mm 0;
+  border-bottom: 0.5pt solid var(--color-line);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2mm;
+}
+.sec-hd .note { font-size: 16px; color: var(--color-ink-muted); font-weight: 300; }
+.sec-bd { padding: 0; font-size: 9pt; }
+
+/* ─── Key-value grid ─── */
+.kv-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5mm 5mm; }
+.kv-grid.c2 { grid-template-columns: 1fr 1fr; }
+.kv { display: flex; flex-direction: column; gap: 0.5mm; }
+.kv .k {
+  font-size: 7pt;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+  font-weight: 600;
+}
+.kv .v { font-size: 9.5pt; color: #000; font-weight: 500; line-height: 1.3; }
+
+/* ─── Packaging Info grid (3 columns · 2 rows) ─── */
+.info-grid { display: grid; grid-template-columns: 240px 1fr 1fr; gap: 5mm 12mm; }
+.info-cell { display: flex; flex-direction: column; gap: 1.5mm; }
+.info-cell.weight { align-items: flex-end; }
+.info-cell.weight .info-k { width: auto; }
+.info-cell.weight .info-v { width: 66.67%; }
+.info-k {
+  font-size: 16px;
+  color: var(--color-ink-faint);
+  font-weight: 300;
+}
+.info-v { font-size: 16px; font-weight: 300; color: var(--color-ink); white-space: nowrap; }
+.info-v .opt { display: inline-block; margin-right: 3mm; line-height: 1.8; font-weight: 300; }
+.info-v.dims { display: flex; align-items: flex-end; gap: 2mm; }
+.info-v .blank {
+  flex: 1;
+  border-bottom: 0.8pt solid var(--color-ink);
+  height: 40px;
+  display: inline-block;
+  min-width: 8mm;
+}
+.info-v .blank.wide { width: 100%; flex: 1 1 100%; }
+.info-cell:not(.weight) .info-v.dims .blank.wide {
+  width: 110%;
+  flex: 0 0 110%;
+  margin-left: -10%;
+}
+.info-v .sep { color: var(--color-ink-muted); font-size: 16px; padding-bottom: 0.8mm; font-weight: 300; }
+.info-footnote {
+  margin-top: 4mm;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+}
+
+/* ─── Checkbox rows ─── */
+.chk-row { display: flex; align-items: center; gap: 1.5mm; font-size: 16px; font-weight: 300; line-height: 1.6; margin-bottom: 2mm; }
+.chk-row b { font-weight: 300; }
+.chk-row::before {
+  content: '';
+  width: 2.8mm; height: 2.8mm;
+  border: 0.6pt solid #000;
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: 0.3mm;
+}
+.chk-row.sub { margin-left: 6mm; }
+.chk-row.sub::before { width: 2.3mm; height: 2.3mm; }
+
+/* ─── Signature block ─── */
+.sig-block {
+  background: #F5F5F5;
+  border: 0.5pt solid #000;
+  border-radius: 1.5mm;
+  padding: 3mm 4mm;
+}
+.sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 6mm; }
+.sig-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+.sig-cell { display: flex; flex-direction: column; gap: 0.5mm; }
+.sig-cell .role {
+  font-size: 6.5pt;
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.6pt;
+  text-transform: uppercase;
+}
+.sig-cell .line {
+  border-bottom: 0.8pt solid #000;
+  height: 6mm;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 0.5mm;
+}
+.sig-cell .date-line { font-size: 7pt; color: #000; margin-top: 0.8mm; }
+
+/* ─── Two-column layout within body ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.two-col.narrow-left { grid-template-columns: 60mm 1fr; }
+
+/* ─── Drawing area (P6) ─── */
+.drawing-area {
+  flex: 1;
+  margin: 4mm 12mm;
+  border: 1pt dashed #000;
+  border-radius: 1.5mm;
+  background: repeating-linear-gradient(45deg, #F5F5F5 0, #F5F5F5 8mm, #FFF 8mm, #FFF 16mm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 10pt;
+  letter-spacing: 1pt;
+}
+.drawing-area .lbl-box {
+  text-align: center;
+  background: #FFF;
+  border: 0.5pt solid #000;
+  padding: 4mm 8mm;
+  border-radius: 1.5mm;
+}
+.drawing-area .lbl-box b { color: #000; font-size: 11pt; letter-spacing: 0.8pt; }
+.drawing-area .lbl-box small { display: block; font-size: 7.5pt; color: #000; margin-top: 1mm; letter-spacing: 0; }
+
+/* ─── Footer (Summary-aligned) ─── */
+.doc-footer {
+  flex-shrink: 0;
+  height: 8mm;
+  padding: 0 var(--doc-margin-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 7.5pt;
+  color: var(--color-ink-muted);
+  border-top: 0.6pt solid var(--color-ink);
+}
+.doc-footer .left { display: flex; align-items: center; gap: 4mm; }
+.doc-footer .sep { color: var(--color-line); }
+.doc-footer .quote-ref { font-weight: 600; color: var(--color-ink); }
+.doc-footer .internal-tag {
+  background: var(--color-ink);
+  color: #fff;
+  padding: 0.6mm 2mm;
+  border-radius: 1mm;
+  font-weight: 600;
+  font-size: 6.8pt;
+  letter-spacing: 0.4pt;
+  text-transform: uppercase;
+}
+
+/* ─── P5 split card ─── */
+.p5-card {
+  border: 0.5pt solid var(--color-ink);
+  border-radius: 2mm;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 6mm;
+  background: #FFF;
+}
+.card-hd {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 1pt;
+  padding: 1.5mm 3mm;
+  border-bottom: 0.5pt solid var(--color-line);
+  text-transform: uppercase;
+}
+.card-hd.secondary { background: #FAFAFA; color: var(--color-ink-muted); }
+.p5-scissor {
+  text-align: center;
+  color: #000;
+  font-size: 9pt;
+  margin: 3mm 0;
+  letter-spacing: 4pt;
+}
+
+/* ─── Chip ─── */
+.chip {
+  display: inline-block;
+  padding: 0.8mm 2mm;
+  border-radius: 99px;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.5pt;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.chip.internal { background: #F5F5F5; color: #000; }
+.chip.internal-eng { background: #F5F5F5; color: #000; }
+
+@media print {
+  body { background: #FFF; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     P1 — QC & PACKING CHECKLIST
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="title-row">
+    <div class="title-group">
+      <div class="doc-title">質檢包裝 Checklist</div>
+      <div class="doc-subtitle"><span class="quote-id">#U26033148F_REV-1</span>噴火槍</div>
+      <div class="doc-note">質檢複查人員最晚須在 DHL 發貨前核對任務是否確實完成</div>
+    </div>
+    <div class="right-col">
+      <div class="brand-col">
+        <svg width="34" height="34" viewBox="0 0 40 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.76 0.318C15.244 0.317 10.878 1.942 7.451 4.898C4.024 7.855 1.764 11.947 1.079 16.435C0.393 20.922 1.329 25.508 3.716 29.362C6.103 33.216 9.783 36.083 14.091 37.444V16.677L25.429 13.618V37.444C29.737 36.083 33.417 33.216 35.804 29.362C38.191 25.508 39.126 20.922 38.441 16.435C37.756 11.947 35.495 7.855 32.068 4.898C28.642 1.942 24.275 0.317 19.76 0.318Z" fill="#000"/>
+        </svg>
+        <span class="brand-name">艾維數位工業</span>
+      </div>
+      <div class="fill-row">
+        <div class="fill-cell">
+          <span class="k">填表人員</span>
+          <span class="line"></span>
+        </div>
+        <div class="fill-cell">
+          <span class="k">填表日期</span>
+          <span class="line"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="two-col">
+
+      <!-- QC Column -->
+      <div class="sec">
+        <div class="sec-hd">品檢 · SOP-1004</div>
+        <div class="sec-bd">
+          <div class="chk-row">Asana 紀錄收貨時間</div>
+          <div class="chk-row">確認工件材質、種類及數量</div>
+          <div class="chk-row"><b>檢查外觀</b></div>
+          <div class="chk-row sub">是否有刮/撞傷、氧化、污漬等</div>
+          <div class="chk-row sub">全件外觀輪廓</div>
+          <div class="chk-row sub">檢查刻字內容與方式 (雷刻/銑刻)</div>
+          <div class="chk-row sub">通孔/盲孔/螺紋的位置與數量</div>
+          <div class="chk-row sub">導角方式及大小是否正確</div>
+          <div class="chk-row sub">曲面/斜面視覺合理性</div>
+          <div class="chk-row sub">沉頭孔與通孔視覺同心度</div>
+          <div class="chk-row sub">溝槽位置、形狀是否正確</div>
+          <div class="chk-row">螺紋確認</div>
+          <div class="chk-row">PDF 圖紙重要尺寸量測</div>
+          <div class="chk-row">工件基礎清潔/防鏽</div>
+          <div class="chk-row"><b>拍照</b></div>
+          <div class="chk-row sub">表粗數值</div>
+          <div class="chk-row sub">單一工件<b>六面</b>拍照</div>
+          <div class="chk-row sub">此單全部工件合照</div>
+          <div class="chk-row sub">NG 品上傳拍照及更新於 Asana 子任務</div>
+        </div>
+      </div>
+
+      <!-- Packing Column -->
+      <div class="sec">
+        <div class="sec-hd">包裝 · SOP-1006 &amp; 1011</div>
+        <div class="sec-bd">
+          <div class="chk-row">將質檢結果紀錄於追蹤表</div>
+          <div class="chk-row">NG 品額外標註及包裝</div>
+          <div class="chk-row">單件獨立包裝</div>
+          <div class="chk-row">氣球圖 / CMM 檢測單</div>
+          <div class="chk-row">貼數字籤</div>
+          <div class="chk-row sub">數字籤拍照</div>
+          <div class="chk-row">裝袋貼標籤</div>
+          <div class="chk-row">貼列印標籤</div>
+          <div class="chk-row sub">外袋列印標籤拍照</div>
+          <div class="chk-row"><b>內箱包裝</b></div>
+          <div class="chk-row sub">貼手寫標籤或英文 PO</div>
+          <div class="chk-row sub">單箱沒超過 20 KG</div>
+          <div class="chk-row"><b>外箱包裝</b></div>
+          <div class="chk-row sub">單箱沒超過 25 KG</div>
+          <div class="chk-row sub">DHL 提單確認收件者及提單金額</div>
+          <div class="chk-row sub">Asana 紀錄 DHL 提單號及內箱資訊</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sec">
+      <div class="sec-hd">包裝資訊</div>
+      <div class="sec-bd">
+        <div class="info-grid">
+          <!-- Col 1 · 材質 + 單件尺寸 -->
+          <div class="info-cell">
+            <div class="info-k">材質</div>
+            <div class="info-v">
+              <span class="opt">☐ 金屬</span>
+              <span class="opt">☐ 塑膠</span>
+              <span class="opt">☐ 硬脆材</span>
+            </div>
+          </div>
+          <!-- Col 2 · 外箱尺寸 -->
+          <div class="info-cell">
+            <div class="info-k">外箱尺寸 (L × W × H cm)</div>
+            <div class="info-v dims"><span class="blank wide"></span></div>
+          </div>
+          <!-- Col 3 · 內箱尺寸 -->
+          <div class="info-cell">
+            <div class="info-k">內箱尺寸 (L × W × H cm)</div>
+            <div class="info-v dims"><span class="blank wide"></span></div>
+          </div>
+
+          <!-- Col 1 Row 2 · 單件尺寸 -->
+          <div class="info-cell">
+            <div class="info-k">單件尺寸</div>
+            <div class="info-v">
+              <span class="opt">☐ S (&lt;25)</span>
+              <span class="opt">☐ M (25–49)</span>
+              <span class="opt">☐ L (≥50) cm</span>
+            </div>
+          </div>
+          <!-- Col 2 Row 2 · 外箱重量 -->
+          <div class="info-cell weight">
+            <div class="info-k">外箱重量 (kg)</div>
+            <div class="info-v dims">
+              <span class="blank wide"></span>
+            </div>
+          </div>
+          <!-- Col 3 Row 2 · 內箱重量 -->
+          <div class="info-cell weight">
+            <div class="info-k">內箱重量 (kg)</div>
+            <div class="info-v dims">
+              <span class="blank wide"></span>
+            </div>
+          </div>
+        </div>
+        <div class="info-footnote">備註：內箱尺寸為 in，採無條件進位至整數位。若有裁切紙箱時，需重新測量裁切後紙箱尺寸</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     P2 — SUPPLIER ACCEPTANCE CARD (同頁兩份)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="title-row">
+    <div class="title-line">
+      <span class="quote-id">U26033148F_REV-1</span>
+      <span class="order-name">噴火槍</span>
+    </div>
+    <div class="meta">
+      <div><span class="label">ISSUED</span> &nbsp; 2026-04-14</div>
+      <div><span class="label">PM</span> &nbsp; Malin Ning</div>
+    </div>
+  </div>
+
+  <div class="page-subtitle">
+    <div class="label">P2 · Supplier Acceptance Card</div>
+    <div class="sub">供應商驗收卡 — 同頁列印兩份，沿虛線裁切</div>
+  </div>
+
+  <div class="body">
+
+    <!-- First card -->
+    <div class="p5-card">
+      <div class="card-hd">Card 1 of 2 · 送供應商</div>
+      <div class="sec-bd" style="padding:3mm 4mm">
+        <div class="kv-grid" style="gap:2mm 5mm">
+          <div class="kv"><span class="k">Supplier 供應商</span><span class="v">_______________________</span></div>
+          <div class="kv"><span class="k">Order No. 訂單號</span><span class="v">U26033148F</span></div>
+          <div class="kv"><span class="k">Part Name 案名</span><span class="v">除濕機 01B</span></div>
+          <div class="kv"><span class="k">Qty Ordered 訂單數量</span><span class="v">1 種 · 1 件</span></div>
+          <div class="kv"><span class="k">Expected Delivery 預計交貨</span><span class="v">12 / 31 / 2025</span></div>
+          <div class="kv"><span class="k">Actual Delivery 實際交貨</span><span class="v">_______________________</span></div>
+        </div>
+        <div style="margin-top:2.5mm;display:grid;grid-template-columns:1fr 1fr;gap:3mm">
+          <div>
+            <div style="font-size:7pt;color:#000;font-weight:600;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1mm">Acceptance Result</div>
+            <div class="chk-row">合格 Accepted</div>
+            <div class="chk-row">不合格 Rejected</div>
+            <div style="font-size:7pt;color:#000;margin-top:1mm">不合格原因 / NG 數量：</div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm"></div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm;margin-top:1mm"></div>
+          </div>
+          <div>
+            <div style="font-size:7pt;color:#000;font-weight:600;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1mm">Quantity Status</div>
+            <div class="chk-row">已交齊 Complete</div>
+            <div class="chk-row">缺料 Short</div>
+            <div style="font-size:7pt;color:#000;margin-top:1mm">缺料說明：</div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm"></div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm;margin-top:1mm"></div>
+          </div>
+        </div>
+        <div class="sig-grid c4" style="margin-top:3mm">
+          <div class="sig-cell"><div class="role">Inspected Qty</div><div class="line"></div></div>
+          <div class="sig-cell"><div class="role">QC Name</div><div class="line"></div></div>
+          <div class="sig-cell"><div class="role">QC Signature</div><div class="line"></div></div>
+          <div class="sig-cell"><div class="role">Date</div><div class="line"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p5-scissor">✂ ─────────────────────────────────────────────────────── ✂</div>
+
+    <!-- Second card -->
+    <div class="p5-card">
+      <div class="card-hd secondary">Card 2 of 2 · 內部存檔 (副本)</div>
+      <div class="sec-bd" style="padding:3mm 4mm">
+        <div class="kv-grid" style="gap:2mm 5mm">
+          <div class="kv"><span class="k">Supplier 供應商</span><span class="v">_______________________</span></div>
+          <div class="kv"><span class="k">Order No. 訂單號</span><span class="v">U26033148F</span></div>
+          <div class="kv"><span class="k">Part Name 案名</span><span class="v">除濕機 01B</span></div>
+          <div class="kv"><span class="k">Qty Ordered 訂單數量</span><span class="v">1 種 · 1 件</span></div>
+          <div class="kv"><span class="k">Expected Delivery 預計交貨</span><span class="v">12 / 31 / 2025</span></div>
+          <div class="kv"><span class="k">Actual Delivery 實際交貨</span><span class="v">_______________________</span></div>
+        </div>
+        <div style="margin-top:2.5mm;display:grid;grid-template-columns:1fr 1fr;gap:3mm">
+          <div>
+            <div style="font-size:7pt;color:#000;font-weight:600;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1mm">Acceptance Result</div>
+            <div class="chk-row">合格 Accepted</div>
+            <div class="chk-row">不合格 Rejected</div>
+            <div style="font-size:7pt;color:#000;margin-top:1mm">不合格原因 / NG 數量：</div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm"></div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm;margin-top:1mm"></div>
+          </div>
+          <div>
+            <div style="font-size:7pt;color:#000;font-weight:600;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1mm">Quantity Status</div>
+            <div class="chk-row">已交齊 Complete</div>
+            <div class="chk-row">缺料 Short</div>
+            <div style="font-size:7pt;color:#000;margin-top:1mm">缺料說明：</div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm"></div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm;margin-top:1mm"></div>
+          </div>
+        </div>
+        <div class="sig-grid c4" style="margin-top:3mm">
+          <div class="sig-cell"><div class="role">Inspected Qty</div><div class="line"></div></div>
+          <div class="sig-cell"><div class="role">QC Name</div><div class="line"></div></div>
+          <div class="sig-cell"><div class="role">QC Signature</div><div class="line"></div></div>
+          <div class="sig-cell"><div class="role">Date</div><div class="line"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     P3 — DIMENSIONAL INSPECTION (獨立不釘)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="title-row">
+    <div class="title-line">
+      <span class="quote-id">U26033148F_REV-1</span>
+      <span class="order-name">噴火槍</span>
+    </div>
+    <div class="meta">
+      <div><span class="label">ISSUED</span> &nbsp; 2026-04-14</div>
+      <div><span class="label">PM</span> &nbsp; Malin Ning</div>
+    </div>
+  </div>
+
+  <div class="page-subtitle">
+    <div class="label">P3 · Dimensional Inspection <span class="chip internal-eng">獨立列印不釘</span></div>
+    <div class="sub">工程師 / QC 到料後實測 — 於圖紙上手寫實測值 &nbsp;·&nbsp; Drawing Rev: A</div>
+  </div>
+
+  <div class="body" style="flex:none;padding-bottom:2mm">
+    <div class="sec">
+      <div class="sec-bd" style="padding:2mm 3mm">
+        <div class="kv-grid">
+          <div class="kv"><span class="k">Inspector 量測人員</span><span class="v">_______________________</span></div>
+          <div class="kv"><span class="k">Inspection Date 量測日期</span><span class="v">_______________________</span></div>
+          <div class="kv"><span class="k">Instrument 量測工具</span><span class="v">☐ 卡尺 ☐ 千分尺 ☐ CMM ☐ 其他 _______</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawing-area">
+    <div class="lbl-box">
+      <b>Customer Drawing — Annotate Measurements on Print</b>
+      <small>逐尺寸手寫實測值於標註旁</small>
+    </div>
+  </div>
+
+  <div class="body" style="flex:none">
+
+    <div class="sec">
+      <div class="sec-hd">Measurement Result · 量測結果</div>
+      <div class="sec-bd">
+        <div class="two-col narrow-left">
+          <div>
+            <div class="chk-row" style="font-weight:700;color:#000">所有尺寸在公差內 — PASS</div>
+            <div class="chk-row" style="font-weight:700;color:#000">以下尺寸超出公差 — FAIL</div>
+            <div style="font-size:7pt;color:#000;margin-top:2mm">Ambient Temperature 環境溫度：</div>
+            <div style="border-bottom:0.5pt solid #000;height:5mm"></div>
+          </div>
+          <div>
+            <div style="font-size:7pt;color:#000;font-weight:600;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1mm">Out-of-Tolerance Record · 超差記錄</div>
+            <table style="width:100%;border-collapse:collapse;font-size:8pt">
+              <thead>
+                <tr style="background:#F5F5F5">
+                  <th style="padding:1mm 2mm;text-align:left;border:0.3pt solid #000;width:12mm">Dim #</th>
+                  <th style="padding:1mm 2mm;text-align:left;border:0.3pt solid #000">Nominal</th>
+                  <th style="padding:1mm 2mm;text-align:left;border:0.3pt solid #000">Actual</th>
+                  <th style="padding:1mm 2mm;text-align:left;border:0.3pt solid #000">Tol.</th>
+                  <th style="padding:1mm 2mm;text-align:left;border:0.3pt solid #000">Δ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding:1.5mm 2mm;border:0.3pt solid #000">&nbsp;</td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td></tr>
+                <tr><td style="padding:1.5mm 2mm;border:0.3pt solid #000">&nbsp;</td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td></tr>
+                <tr><td style="padding:1.5mm 2mm;border:0.3pt solid #000">&nbsp;</td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td><td style="border:0.3pt solid #000"></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sig-block">
+      <div class="sig-grid">
+        <div class="sig-cell">
+          <div class="role">Inspector Signature 量測人員簽名</div>
+          <div class="line"></div>
+          <div class="date-line">Date: _______________</div>
+        </div>
+        <div class="sig-cell">
+          <div class="role">Reviewed by QC Lead 複核</div>
+          <div class="line"></div>
+          <div class="date-line">Date: _______________</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
