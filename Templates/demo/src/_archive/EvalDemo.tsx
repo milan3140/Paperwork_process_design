@@ -1,5 +1,5 @@
-import { DownloadPdfButton } from './DownloadPdfButton';
-import { EvalDocument, type EvalData } from '../../components/EvalDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { EvalDocument, type EvalData } from '../../../components/EvalDocument';
 
 /* ══════════════════════════════════════════════════════════════
    共用的支撐明細（所有模式共享，避免重複）

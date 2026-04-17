@@ -21,4 +21,4 @@ export {
   CONT_HINT_BOTTOM_H,
   type SectionMeta,
   type PageLayout,
-} from '../../../components/pagination';
+} from '../../../../components/pagination';

@@ -1,5 +1,5 @@
 import qcPackageHtml from '../../../Document_Analysis/QCPackage.html?raw';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 export default function QCPackageDemo() {
   return (

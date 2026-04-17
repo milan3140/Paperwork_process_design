@@ -1,5 +1,5 @@
-import { DownloadPdfButton } from './DownloadPdfButton';
-import { EvalDocumentV2, type EvalV2Data } from '../../components/EvalDocumentV2';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { EvalDocumentV2, type EvalV2Data } from '../../../components/EvalDocumentV2';
 
 /** Mode A demo: Fixed material (6061-T6), 3 quantity tiers, 5 factories */
 export const modeA: EvalV2Data = {

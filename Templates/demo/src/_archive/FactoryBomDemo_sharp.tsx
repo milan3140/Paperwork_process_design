@@ -16,10 +16,9 @@
  */
 
 import type { CSSProperties } from 'react';
-import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
-import shot1 from '../../../PaperWork_Design_Src/3D_model_shot1.jpg';
-import shot2 from '../../../PaperWork_Design_Src/3D_model_shot2.jpg';
+import { FactoryBomDocument, type FactoryBomData } from '../../../components/FactoryBomDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { MODEL_SHOT_1 as shot1, MODEL_SHOT_2 as shot2 } from '../../../components/_assets';
 
 const thumbs = [shot1, shot2];
 

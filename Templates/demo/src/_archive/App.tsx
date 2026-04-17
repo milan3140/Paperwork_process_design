@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import { QuoteDocument, type QuoteData } from '../../components/QuoteDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
-import { PRINT_ICONS } from '../../components/Icons_Print';
+import { QuoteDocument, type QuoteData } from '../../../components/QuoteDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { PRINT_ICONS } from '../../../components/Icons_Print';
 
 const sampleQuote: QuoteData = {
   quoteId: 'U260319042',

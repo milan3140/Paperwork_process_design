@@ -31,10 +31,9 @@
  * Download PDF uses the same print-window mechanism as FactoryBomDemo.
  */
 
-import { PackingSlipDocumentV12 as PackingSlipDocument, type PackingSlipData } from '../../components/PackingSlipDocument_v12';
-import { DownloadPdfButton } from './DownloadPdfButton';
-import thumb1 from '../../../PaperWork_Design_Src/3D_model_shot1.jpg';
-import thumb2 from '../../../PaperWork_Design_Src/3D_model_shot2.jpg';
+import { PackingSlipDocumentV12 as PackingSlipDocument, type PackingSlipData } from '../../../components/PackingSlipDocument_v12';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { MODEL_SHOT_1 as thumb1, MODEL_SHOT_2 as thumb2 } from '../../../components/_assets';
 
 const THUMBS = [thumb1, thumb2];
 

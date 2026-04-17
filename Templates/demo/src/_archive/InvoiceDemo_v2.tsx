@@ -4,8 +4,8 @@
  * 2. PIA Invoice — pre-production invoice for a new client
  */
 
-import { InvoiceDocument, type InvoiceData } from '../../components/InvoiceDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { InvoiceDocument, type InvoiceData } from '../../../components/InvoiceDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — Net 30 Invoice

@@ -2,9 +2,9 @@
  * TravelerDemo v2 — 新版工作單預覽
  */
 
-import { TravelerDocumentV2, type TravelerData } from '../../components/TravelerDocument_v2';
-import { DownloadPdfButton } from './DownloadPdfButton';
-import thumbUrl from '../../../PaperWork_Design_Src/3D_model_shot1.jpg';
+import { TravelerDocumentV2, type TravelerData } from '../../../components/TravelerDocument_v2';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { MODEL_SHOT_1 as thumbUrl } from '../../../components/_assets';
 
 const sampleTraveler: TravelerData = {
   travelerId: 'U26033148F',

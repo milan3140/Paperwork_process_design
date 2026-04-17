@@ -4,8 +4,8 @@
  * Uses FactoryBomDocument with qty tiers and fillable price/delivery fields.
  */
 
-import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument_v1';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { FactoryBomDocument, type FactoryBomData } from '../../../components/FactoryBomDocument_v1';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 const sampleBom: FactoryBomData = {
   orderId: 'Q1211263U 噴火槍',

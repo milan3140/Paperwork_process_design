@@ -14,12 +14,12 @@ import { analyzeDimensions } from './dimensionEngine';
 import { renderEmail, getCoverLetterText } from './emailRenderer';
 import { QuoteComparisonTable } from './QuoteComparisonTable';
 import { validateQuote, type ValidationResult, type ValidationError } from './validation';
-import { DocumentMeta } from '../../../components/DocumentMeta';
-import { PartiesRow, type PartyInfo } from '../../../components/PartiesRow';
-import { SectionLabel } from '../../../components/SectionLabel';
-import { TermsSection } from '../../../components/TermsSection';
+import { DocumentMeta } from '../../../../components/DocumentMeta';
+import { PartiesRow, type PartyInfo } from '../../../../components/PartiesRow';
+import { SectionLabel } from '../../../../components/SectionLabel';
+import { TermsSection } from '../../../../components/TermsSection';
 import { PaginatedDocument, type PageSection } from './PaginatedDocument';
-import { downloadPdf } from '../downloadPdf';
+import { downloadPdf } from '../../downloadPdf';
 
 /* ═══════════════════════════════════════════════════════════════
    STYLE TOKENS — all reference CSS vars, strict 4px grid

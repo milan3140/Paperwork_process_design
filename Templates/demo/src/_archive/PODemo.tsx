@@ -9,8 +9,8 @@
  *    Delivery address is InstaVoxel warehouse only.
  */
 
-import { PODocument, type POData } from '../../components/PODocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { PODocument, type POData } from '../../../components/PODocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — 代料加工 (Standard: Factory Sources Materials)

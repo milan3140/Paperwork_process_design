@@ -5,9 +5,9 @@
  * which renders QuoteEvaluationTableV2 (part → factory grouping + 成本總覽).
  */
 
-import { EvalDocumentV2 } from '../../components/EvalDocumentV2';
+import { EvalDocumentV2 } from '../../../components/EvalDocumentV2';
 import { modeA, modeABlockers, modeC } from './EvalDemoV2';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 export default function EvalDemoV3() {
   return (

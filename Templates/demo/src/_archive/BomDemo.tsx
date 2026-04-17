@@ -5,8 +5,8 @@
  * using realistic CNC manufacturing data.
  */
 
-import { DownloadPdfButton } from './DownloadPdfButton';
-import { BomDocument, type BomData, type BomLang } from '../../components/BomDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { BomDocument, type BomData, type BomLang } from '../../../components/BomDocument';
 
 const sampleBom: BomData = {
   orderId: 'Q1211263U 噴火槍',

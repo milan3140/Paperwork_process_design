@@ -5,10 +5,9 @@
  * notes section, and print handler.
  */
 
-import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
-import shot1 from '../../../PaperWork_Design_Src/3D_model_shot1.jpg';
-import shot2 from '../../../PaperWork_Design_Src/3D_model_shot2.jpg';
+import { FactoryBomDocument, type FactoryBomData } from '../../../components/FactoryBomDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { MODEL_SHOT_1 as shot1, MODEL_SHOT_2 as shot2 } from '../../../components/_assets';
 
 /** Alternating thumbnails — odd-indexed parts show shot1, even-indexed shot2.
  *  Both images sit outside Templates/demo but are served via Vite's

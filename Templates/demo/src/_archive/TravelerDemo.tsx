@@ -2,8 +2,8 @@
  * TravelerDemo — 工作單預覽（中文版，使用專案通用表頭）
  */
 
-import { TravelerDocument, type TravelerData } from '../../components/TravelerDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { TravelerDocument, type TravelerData } from '../../../components/TravelerDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 const sampleTraveler: TravelerData = {
   travelerId: 'U26033148F',

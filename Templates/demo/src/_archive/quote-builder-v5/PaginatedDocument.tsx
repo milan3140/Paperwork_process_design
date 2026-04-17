@@ -5,8 +5,8 @@
  * so existing imports within quote-builder-v5 continue to work.
  */
 
-export { PaginatedDocument, type PageSection } from '../../../components/PaginatedDocument';
-export type { PaginatedDocumentProps } from '../../../components/PaginatedDocument';
+export { PaginatedDocument, type PageSection } from '../../../../components/PaginatedDocument';
+export type { PaginatedDocumentProps } from '../../../../components/PaginatedDocument';
 export default PaginatedDocument;
 
-import { PaginatedDocument } from '../../../components/PaginatedDocument';
+import { PaginatedDocument } from '../../../../components/PaginatedDocument';

@@ -5,8 +5,8 @@
  * notes section, and print handler.
  */
 
-import { FactoryBomDocument, type FactoryBomData } from '../../components/FactoryBomDocument_v2';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { FactoryBomDocument, type FactoryBomData } from '../../../components/FactoryBomDocument_v2';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 const sampleBom: FactoryBomData = {
   orderCode: 'U26033148F',

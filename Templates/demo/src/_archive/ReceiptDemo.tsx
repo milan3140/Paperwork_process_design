@@ -4,8 +4,8 @@
  * 2. Partial Payment Receipt — installment payment with remaining balance
  */
 
-import { ReceiptDocument, type ReceiptData } from '../../components/ReceiptDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { ReceiptDocument, type ReceiptData } from '../../../components/ReceiptDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — Full Payment Receipt

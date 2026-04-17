@@ -14,8 +14,8 @@
  * Download PDF uses the same print-window mechanism as FactoryBomDemo.
  */
 
-import { PackingSlipDocument, type PackingSlipData } from '../../components/PackingSlipDocument';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { PackingSlipDocument, type PackingSlipData } from '../../../components/PackingSlipDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA 1 — International Full Shipment (Taiwan → US)

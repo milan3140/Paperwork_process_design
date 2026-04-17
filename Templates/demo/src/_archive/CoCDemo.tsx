@@ -6,8 +6,8 @@
  *   2. Domestic simple shipment (1 part, no FAI required)
  */
 
-import { DownloadPdfButton } from './DownloadPdfButton';
-import { CoCDocument, type CoCData } from '../../components/CoCDocument';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { CoCDocument, type CoCData } from '../../../components/CoCDocument';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO 1 — International, 3-part shipment

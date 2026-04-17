@@ -8,8 +8,8 @@
  * 3. International Partial Shipment (with qty discrepancy highlighting)
  */
 
-import { PackingSlipDocumentV1, type PackingSlipDataV1 } from '../../components/PackingSlipDocument_v1';
-import { DownloadPdfButton } from './DownloadPdfButton';
+import { PackingSlipDocumentV1, type PackingSlipDataV1 } from '../../../components/PackingSlipDocument_v1';
+import { DownloadPdfButton } from '../DownloadPdfButton';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO DATA — International Full Shipment (Taiwan → US)

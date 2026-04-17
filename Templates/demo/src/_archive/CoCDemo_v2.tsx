@@ -6,8 +6,8 @@
  *   2. Domestic simple shipment (2 parts, BioMed Devices)
  */
 
-import { DownloadPdfButton } from './DownloadPdfButton';
-import { CoCDocumentV2, type CoCDataV2 } from '../../components/CoCDocument_v2';
+import { DownloadPdfButton } from '../DownloadPdfButton';
+import { CoCDocumentV2, type CoCDataV2 } from '../../../components/CoCDocument_v2';
 
 /* ════════════════════════════════════════════════════════════════
  * DEMO 1 — International, 3-part shipment
