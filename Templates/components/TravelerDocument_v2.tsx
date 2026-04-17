@@ -1,5 +1,5 @@
 /**
- * TravelerDocument v2 — 工作單（新版佈局）
+ * TravelerDocument v2 — 隨工單（新版佈局）
  *
  * 相對 v1 的變更：
  *   · 移除「訂單」欄（PO / Due / Contact 已呈現於右上 DocumentMeta）
@@ -38,6 +38,8 @@ export interface TravelerPart {
   partId: string;
   /** 模型檔名（.step / .sldprt 等） */
   fileName: string;
+  /** 工件中文名稱 — 顯示於標題副標尾端，例如 "噴火槍" */
+  partName?: string;
   /** 圖紙 PDF 檔名 — 例如 "U26033148F_P01.PDF" */
   drawingFile?: string;
   thumbnail?: string;
@@ -192,7 +194,7 @@ function TitleRow({ data }: { data: TravelerData }) {
           className="font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]"
           style={{ fontSize: 28, lineHeight: 1.05 }}
         >
-          工作單
+          隨工單
         </div>
         <div
           className="font-semibold text-[color:var(--color-primary)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]"

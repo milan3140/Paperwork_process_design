@@ -1,5 +1,5 @@
 /**
- * TravelerDemo v2 — 新版工作單預覽
+ * TravelerDemo v2 — 新版隨工單預覽
  */
 
 import { TravelerDocumentV2, type TravelerData } from '../../../components/TravelerDocument_v2';
@@ -51,7 +51,7 @@ export default function TravelerDemoV2() {
 
       <div style={{ textAlign: 'center' }}>
         <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
-          工作單 v2
+          隨工單 v2
         </div>
         <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
           {sampleTraveler.travelerId}_REV-{sampleTraveler.revision} · 共 1 件

@@ -11,6 +11,7 @@ import './index.css';
 // ── Current official demos ──
 const InvoiceDemoV3       = lazy(() => import('./InvoiceDemo_v3'));
 const TravelerDemoV3      = lazy(() => import('./TravelerDemo_v3'));
+const TravelerDemoV5      = lazy(() => import('./TravelerDemo_v5'));
 const FactoryBomDemoDated    = lazy(() => import('./FactoryBomDemo_dated'));
 const FactoryBomDemoDateOnly = lazy(() => import('./FactoryBomDemo_dateOnly'));
 const SummaryDemoSharp    = lazy(() => import('./SummaryDemo_sharp'));
@@ -83,6 +84,7 @@ function Router() {
           // ── Current ──
           case '#/invoice-v3':        return <InvoiceDemoV3 />;
           case '#/traveler-v3':       return <TravelerDemoV3 />;
+          case '#/traveler-v5':       return <TravelerDemoV5 />;
           case '#/factory-bom-dated':     return <FactoryBomDemoDated />;
           case '#/factory-bom-date-only': return <FactoryBomDemoDateOnly />;
           case '#/summary-sharp':     return <SummaryDemoSharp />;

@@ -16,7 +16,7 @@ const sampleBom: FactoryBomData = {
   orderCode: 'U26033148F',
   orderName: '雷電',
   issueDate: '2026 年 4 月 6 日（一）',
-  replyDeadline: '2026 年 4 月 7 日（二）下午 4 點前',
+  replyDeadline: '2026 年 4 月 7 日（週二）下午 4 點前',
   orderNote: '所有零件需真空包裝出貨，交期以收到材料後起算',
   parts: [
     { partId: 'P01', thumbnail: thumbs[0], dimsMm: { l: 127, w: 89, h: 45 }, weight: 0.34, material: '鋁合金 6061-T6', finish: '黑色陽極氧化', qtyTiers: [1, 5, 10], note: '角度公差要求見圖紙 #3，R角不可大於 0.1mm' },

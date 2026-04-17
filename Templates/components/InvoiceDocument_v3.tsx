@@ -212,6 +212,11 @@ const V3_SCOPED_CSS = `
   [data-theme="invoice-v3"] [data-comp="TotalsTable"] {
     margin-top: calc(var(--doc-content-gap) * -0.5) !important;
   }
+
+  /* Invoice Notes items — pure black (印刷文件不強調層級) */
+  [data-theme="invoice-v3"] [data-comp="NotesList"] [data-el="NotesList-item"] {
+    color: #000000 !important;
+  }
 `;
 
 export function InvoiceDocumentV3({ data, pricingLayout = 'table' }: InvoiceDocumentV3Props) {
@@ -226,7 +231,10 @@ export function InvoiceDocumentV3({ data, pricingLayout = 'table' }: InvoiceDocu
         renderLogoAboveMeta={(totalPages) => (
           <div data-el="InvoiceDocumentV3-logoBlock" className="flex flex-col items-end gap-[var(--doc-sp-half)]">
             <div data-el="InvoiceDocumentV3-logo" style={{ lineHeight: 0 }}>
-              {PRINT_ICONS.logoText(36, '#000000')}
+              {/* Height 37 (vs default 36) so the "InstaVoxel" text portion
+                  (viewBox x=396.86 → 1215.08) matches the PAGE indicator width
+                  below — both right-aligned elements end up flush on the left. */}
+              {PRINT_ICONS.logoText(37, '#000000')}
             </div>
             <div
               data-el="InvoiceDocumentV3-pageIndicator"

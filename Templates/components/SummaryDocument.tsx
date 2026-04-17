@@ -598,6 +598,12 @@ const SUMMARY_CSS = `
   color: #737373;
 }
 
+/* "簽名 · 日期" hint — half-dimmed from #737373 toward white (#b9b9b9).
+   Lighter than the role/spec labels above so the writing line dominates. */
+[data-comp="SummaryDocument"][data-variant="sharp"] .s-sig-slot .s-date-label {
+  color: #b9b9b9;
+}
+
 /* Per-element font-size overrides — must appear AFTER the blanket 12px rule
    (specificity is higher on all, placed last for clarity too). */
 /* Dimensions block below the 3D thumbnail */

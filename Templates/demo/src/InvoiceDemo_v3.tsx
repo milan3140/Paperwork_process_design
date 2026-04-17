@@ -13,7 +13,7 @@ import { MODEL_SHOT_1 as thumb1, MODEL_SHOT_2 as thumb2 } from '../../components
 const THUMBS = [thumb1, thumb2];
 
 const sampleNet30: InvoiceData = {
-  invoiceId: 'INV-2026-48F-1',
+  invoiceId: 'INV-2026033148F-1',
   variant: 'net',
   date: 'April 25, 2026',
   dueDate: 'May 25, 2026',
@@ -165,7 +165,6 @@ const sampleNet30: InvoiceData = {
   ],
   termsText:
     '1. All amounts are in USD unless otherwise noted. 2. Payment terms begin from the ship date indicated above. 3. InstaVoxel, Inc. retains title to all goods until payment is received in full. 4. Invoices outstanding beyond 30 days are subject to a late payment fee of 1.5% per month on the unpaid balance. 5. For complete terms, visit: https://www.instavoxel.com/general-sales-terms-and-conditions/ 6. By making payment or accepting delivery, you acknowledge that you have read and agreed to our General Sales Terms & Conditions. For any questions, please contact: billing@instavoxel.com',
-  termsLinkUrl: 'https://www.instavoxel.com/general-sales-terms-and-conditions/',
 
   closingMessage: 'Thank you for your business.',
 };

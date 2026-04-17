@@ -1,5 +1,5 @@
 /**
- * TravelerDocument — 工作單 (Shop Traveler)
+ * TravelerDocument — 隨工單 (Shop Traveler)
  *
  * 採用專案通用的表頭表尾（DocumentHeader / DocumentFooter）與
  * 右上 DocumentMeta 佈局，與 Quotation / Invoice 等其他文件一致。
@@ -7,7 +7,7 @@
  *
  * 結構：
  *   1. DocumentHeader（紫色品牌帶）
- *   2. 標題列：工作單 + #編號_REV-x   +   DocumentMeta（右側）
+ *   2. 標題列：隨工單 + #編號_REV-x   +   DocumentMeta（右側）
  *   3. 3D 縮圖
  *   4. 4 欄識別表：訂單 · 工件 · 材料 · 品質（表面 / 檢測 / 特徵）
  *   5. 備註（使用者自由填寫）
@@ -51,7 +51,7 @@ export interface TravelerPart {
 }
 
 export interface TravelerData {
-  /** 工作單編號（主識別） */
+  /** 隨工單編號（主識別） */
   travelerId: string;
   /** 版次標記 — 例如 "A" 會顯示為 _REV-A */
   revision?: string;
@@ -150,7 +150,7 @@ function TitleRow({ data }: { data: TravelerData }) {
         <div
           className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]"
         >
-          工作單
+          隨工單
         </div>
         <div
           className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]"

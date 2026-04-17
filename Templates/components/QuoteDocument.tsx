@@ -38,8 +38,7 @@ import { DocumentHeader } from './DocumentHeader';
 import { DocumentFooter } from './DocumentFooter';
 import { DocumentMeta, type MetaItem } from './DocumentMeta';
 import { SectionLabel } from './SectionLabel';
-import { PartiesRow, type PartyInfo } from './PartiesRow';
-import { KeyInfoRow } from './KeyInfoRow';
+import { type PartyInfo } from './PartiesRow';
 import { PartBlock, type PartData } from './PartBlock';
 import { NRETable, type NRECharge } from './NRETable';
 import { TotalsTable, type TotalLine } from './TotalsTable';
@@ -124,11 +123,12 @@ export const QuoteDocument = React.forwardRef<HTMLDivElement, QuoteDocumentProps
     /* ── Meta items ── */
     const metaItems: MetaItem[] = [
       { label: 'Date',        value: data.date },
-      { label: 'Valid Until', value: data.validUntil },
+      { label: 'Valid Until', value: data.validUntil, highlight: true, weight: 'bold', fontSize: 16 },
     ];
     if (data.rfqRef) {
       metaItems.push({ label: 'RFQ Ref', value: data.rfqRef });
     }
+    metaItems.push({ label: 'Payment Terms', value: data.paymentTerms, highlight: true, weight: 'normal' });
 
     const subtitle =
       data.revision && data.revision > 0
@@ -219,30 +219,103 @@ export const QuoteDocument = React.forwardRef<HTMLDivElement, QuoteDocumentProps
 
     const totalPages = assignments?.pageCount ?? 1;
 
+    /* ── Party block helper — mirrors InvoiceDocument so the Invoice-v3-style
+         title/parties layout can be used here without importing PartiesRow. ── */
+    const renderPartyBlock = (label: string, party: PartyInfo, side: string) => (
+      <div data-el={`QuoteDocument-${side}`} className="flex flex-col gap-[var(--doc-sp-1-5)]">
+        <SectionLabel>{label}</SectionLabel>
+        <div
+          data-el={`QuoteDocument-${side}-name`}
+          className="text-[length:var(--doc-text-party-name)] font-bold text-[color:var(--gray-900)]"
+        >
+          {party.name}
+        </div>
+        <div
+          data-el={`QuoteDocument-${side}-detail`}
+          className="text-[length:var(--doc-text-body)] font-normal text-[color:var(--gray-900)] leading-[1.5]"
+        >
+          {party.lines.map((line, i) => (
+            <span key={i}>
+              {line}
+              {i < party.lines.length - 1 && <br />}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+
     /* ── Fixed sections (page 0 only) — duplicated for sandbox + main render ── */
     const FixedSections = (
       <>
-        <div data-el="QuoteDocument-titleRow" className="flex justify-between items-start">
-          <div>
-            <div className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]">
-              Quotation
+        <div data-el="QuoteDocument-titleRow" className="grid grid-cols-2 gap-[var(--sp-6)] items-start">
+          <div className="flex flex-col gap-[var(--sp-4)] min-w-0">
+            <div>
+              <div
+                data-el="QuoteDocument-title"
+                className="text-[length:var(--doc-text-title)] font-bold text-[color:var(--color-primary)] tracking-[var(--doc-tracking-title)]"
+              >
+                Quotation
+              </div>
+              <div
+                data-el="QuoteDocument-subtitle"
+                className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]"
+              >
+                {subtitle}
+              </div>
             </div>
-            <div className="text-[length:var(--doc-text-subtitle)] font-semibold text-[color:var(--gray-400)] mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]">
-              {subtitle}
-            </div>
+            {renderPartyBlock('From', data.from, 'from')}
           </div>
-          <div className="flex flex-col items-end gap-[var(--doc-sp-1-5)]">
+          <div className="flex flex-col items-end gap-[var(--sp-3)]">
             {renderLogoAboveMeta?.(totalPages)}
             <DocumentMeta items={metaItems} />
           </div>
         </div>
-        <PartiesRow from={data.from} billTo={data.billTo} shipTo={data.shipTo} />
-        <KeyInfoRow
-          leadTimeOptions={data.leadTimeOptions}
-          leadTimeNote={data.leadTimeNote}
-          paymentTerms={data.paymentTerms}
-          currency={data.currency}
-        />
+
+        {data.shipTo ? (
+          <div data-comp="PartiesRow" style={{ marginTop: -12 }} className="grid grid-cols-2 gap-[var(--sp-6)]">
+            {renderPartyBlock('Bill To', data.billTo, 'billTo')}
+            {renderPartyBlock('Ship To', data.shipTo, 'shipTo')}
+          </div>
+        ) : (
+          <div data-comp="PartiesRow" style={{ marginTop: -12 }}>
+            {renderPartyBlock('Bill To / Ship To', data.billTo, 'billTo')}
+          </div>
+        )}
+
+        <div data-comp="QuoteDocument-leadTime" className="flex flex-col gap-[var(--doc-sp-1-5)]">
+          <SectionLabel>Quoted Lead Time</SectionLabel>
+          <div className="flex flex-col gap-[var(--sp-1)]">
+            {data.leadTimeOptions.map((opt, i) => (
+              <div
+                key={i}
+                data-el="QuoteDocument-leadTime-option"
+                className="grid text-[length:var(--doc-text-secondary)] leading-[1.5]"
+                style={{ gridTemplateColumns: '1fr auto auto', gap: 'var(--sp-4)' }}
+              >
+                <span className={i === 0
+                  ? 'font-bold text-[color:var(--color-primary)]'
+                  : 'font-medium text-[color:var(--gray-700)]'
+                }>
+                  {opt.days}
+                </span>
+                <span className="text-[color:var(--gray-500)] text-right tabular-nums">
+                  {opt.surcharge}
+                </span>
+                <span className="text-[color:var(--gray-400)] text-right" style={{ minWidth: '5em' }}>
+                  {opt.label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.leadTimeNote && (
+            <div
+              data-el="QuoteDocument-leadTime-note"
+              className="text-[length:var(--doc-text-fine)] text-[color:var(--gray-400)] leading-[1.4]"
+            >
+              {data.leadTimeNote}
+            </div>
+          )}
+        </div>
       </>
     );
 

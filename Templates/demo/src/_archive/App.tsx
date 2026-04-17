@@ -8,7 +8,6 @@ const sampleQuote: QuoteData = {
   revision: 1,
   date: 'March 19, 2026',
   validUntil: 'April 18, 2026',
-  rfqRef: 'RFQ-20260315-A',
 
   from: {
     name: 'InstaVoxel Inc.',
@@ -57,7 +56,7 @@ const sampleQuote: QuoteData = {
       params: [
         { label: 'Finish', value: 'Standard' },
         { label: 'Tolerance', value: '±0.13mm (±.005")' },
-        { label: 'Surface Roughness', value: '125 uin / 3.2um Ra' },
+        { label: 'Surface', value: '125 uin / 3.2um Ra' },
         { label: 'Threads', value: 'None' },
         { label: 'Inserts', value: 'None' },
         { label: 'Part Marking', value: 'Silkscreen, Loc: 1' },
@@ -76,7 +75,7 @@ const sampleQuote: QuoteData = {
       params: [
         { label: 'Finish', value: 'Standard' },
         { label: 'Tolerance', value: '±0.25mm (±.010")' },
-        { label: 'Surface Roughness', value: '125 uin / 3.2um Ra' },
+        { label: 'Surface', value: '125 uin / 3.2um Ra' },
         { label: 'Threads', value: '4' },
         { label: 'Inserts', value: '2' },
         { label: 'Part Marking', value: 'None' },
@@ -95,7 +94,7 @@ const sampleQuote: QuoteData = {
       params: [
         { label: 'Finish', value: 'Standard' },
         { label: 'Tolerance', value: '±0.13mm (±.005")' },
-        { label: 'Surface Roughness', value: '125 uin / 3.2um Ra' },
+        { label: 'Surface', value: '125 uin / 3.2um Ra' },
         { label: 'Threads', value: 'None' },
         { label: 'Inserts', value: 'None' },
         { label: 'Part Marking', value: 'None' },
@@ -237,6 +236,22 @@ const MONO_CSS = `
   font-size: 10px !important;
   color: #737373 !important;
 }
+/* Highlighted meta value (Valid Until) — Invoice-v3 Due Date treatment */
+[data-mono-quote] [data-el="DocumentMeta-value"].font-bold {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+/* Invoice-v3-style spacing for title/meta/parties block */
+[data-mono-quote] [data-comp="QuoteDocument"] [data-comp="DocumentMeta"] {
+  column-gap: calc(var(--sp-2) * 2.5) !important;
+}
+[data-mono-quote] [data-comp="QuoteDocument"] [data-el="QuoteDocument-titleRow"] [data-comp="DocumentMeta"] {
+  margin-top: calc(var(--sp-3) * 1.55) !important;
+}
+[data-mono-quote] [data-comp="QuoteDocument"] [data-el="QuoteDocument-from"] {
+  margin-top: calc(var(--sp-4) * 0.5) !important;
+}
 [data-mono-quote] [data-el="PartBlock-param"] > div:first-child {
   font-size: 9px !important;
 }
@@ -275,7 +290,11 @@ export default function App() {
         renderLogoAboveMeta={(totalPages) => (
           <div data-el="QuoteMono-logoBlock" className="flex flex-col items-end gap-[var(--doc-sp-half)]">
             <div data-el="QuoteMono-logo" style={{ lineHeight: 0 }}>
-              {PRINT_ICONS.logoText(36, '#000000')}
+              {/* Height 37 (vs default 36) so the "InstaVoxel" text portion
+                  (viewBox x=396.86 → 1215.08) matches the PAGE indicator width
+                  below — both right-aligned elements end up flush on the left.
+                  Same treatment as Invoice v3 and Packing Slip v13. */}
+              {PRINT_ICONS.logoText(37, '#000000')}
             </div>
             <div
               data-el="QuoteMono-pageIndicator"

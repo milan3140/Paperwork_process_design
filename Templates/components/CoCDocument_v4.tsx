@@ -241,11 +241,12 @@ export const CoCDocumentV4 = React.forwardRef<HTMLDivElement, CoCDocumentV4Props
     if (data.poRef)          metaItems.push({ label: 'PO Ref',  value: data.poRef, weight: 'light', labelWeight: 'light' });
 
     /**
-     * Derive display cocId: replace trailing suffix with last 3 chars of orderId + "-1".
-     * e.g. cocId "COC-2026-0031" + orderId "U26033148F" → "COC-2026-48F-1"
+     * Derive display cocId: replace trailing "-NNNN" segment with the orderId body
+     * (orderId minus the "U26" quote prefix) concatenated to the year + "-1".
+     * e.g. cocId "COC-2026-0031" + orderId "U26033148F" → "COC-2026033148F-1"
      */
-    const orderSuffix = data.orderId.slice(-3);
-    const displayCocId = data.cocId.replace(/[^-]+$/, `${orderSuffix}-1`);
+    const orderBody = data.orderId.slice(3);
+    const displayCocId = data.cocId.replace(/-[^-]+$/, `${orderBody}-1`);
 
     const sections: PageSection[] = [
       /* ── ISSUED BY | CUSTOMER — 2-col ── */

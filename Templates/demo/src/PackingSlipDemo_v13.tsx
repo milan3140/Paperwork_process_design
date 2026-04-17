@@ -66,9 +66,7 @@ const sampleInternational: PackingSlipData = {
 
   shipFrom: {
     name: 'InstaVoxel, Inc.',
-    lines: [
-      'shipping@instavoxel.com',
-    ],
+    lines: [],
   },
 
   /* Billing entity — different from delivery site → shows stacked address layout */
@@ -91,16 +89,15 @@ const sampleInternational: PackingSlipData = {
     ],
   },
 
-  carrier: 'DHL Express',
+  carrier: 'Fedex',
   trackingNumber: '1234567890',
-  shipMethod: 'International Priority',
+  shipMethod: 'Fedex 2-Day',
   packages: '3 boxes',
-  userAccount: 'DHL#123-456-789',
+  userAccount: 'InstaVoxel Prepaid',
 
   international: true,
   countryOfOrigin: 'Taiwan (TW)',
   grossWeight: '6.8 kg',
-  incoterms: 'DDP (Delivered Duty Paid)',
 
   comments: 'Deliver between 8AM–5PM weekdays only.\nContact dock manager before unloading large freight.',
 
@@ -224,7 +221,7 @@ const samplePartial: PackingSlipData = {
 
   shipFrom: {
     name: 'InstaVoxel, Inc.',
-    lines: ['shipping@instavoxel.com'],
+    lines: [],
   },
 
   shipTo: {

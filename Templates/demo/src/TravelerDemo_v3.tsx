@@ -9,8 +9,8 @@ import { MODEL_SHOT_1 as thumbUrl } from '../../components/_assets';
 const sampleTraveler: TravelerData = {
   travelerId: 'U26033148F',
   revision: '1',
-  issueDate: '2025-12-03',
-  dueDate: '2025-12-31',
+  issueDate: '2025 年 12 月 3 日',
+  dueDate: '2025 年 12 月 31 日',
 
   poNumber: 'PO-26033148F-01',
   contactEmail: 'pm@instavoxel.com',
@@ -20,11 +20,12 @@ const sampleTraveler: TravelerData = {
   certifications: '需檢附材料證明',
 
   material: '低碳鋼 S15C',
-  finish: '原色 / 無',
+  finish: '原色陽極',
 
   part: {
     partId: 'U26033148F_P01',
     fileName: 'U26033148F_P01.step',
+    partName: '噴火槍',
     drawingFile: 'U26033148F_P01.PDF',
     thumbnail: thumbUrl,
     dims: '482 × 55 × 26 mm',
@@ -50,7 +51,7 @@ export default function TravelerDemoV3() {
 
       <div style={{ textAlign: 'center' }}>
         <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
-          工作單 v3
+          隨工單 v3
         </div>
         <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
           {sampleTraveler.travelerId}_REV-{sampleTraveler.revision} · 共 1 件 · 標題整合版

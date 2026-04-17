@@ -111,6 +111,7 @@ import { SignatureRow } from './SignatureRow';
 import { NotesList } from './NotesList';
 import { WarningBox } from './WarningBox';
 import type { PartyInfo } from './PartiesRow';
+import { PRINT_ICONS } from './Icons_Print';
 
 export type { PartyInfo };
 
@@ -379,9 +380,10 @@ function PartCard({ item, orderId, defaultDocuments }: { item: PackingSlipItem; 
        *   header padding-left (var(--sp-3)). */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'calc(210px - var(--sp-3)) 1fr',
+        gridTemplateColumns: 'calc(200px - var(--sp-3)) 1fr',
         alignItems: 'baseline',
         padding: '5px var(--sp-3)',
+        background: 'rgb(245, 245, 245)',
         borderBottom: '1px solid var(--gray-200)',
         lineHeight: 1,
       }}>
@@ -413,9 +415,11 @@ function PartCard({ item, orderId, defaultDocuments }: { item: PackingSlipItem; 
           Note is a separate full-width footer below this flex row. */}
       <div style={{ display: 'flex' }}>
 
-        {/* Image — thumbnail 210×160 + dims/weight below */}
+        {/* v13: Thumbnail compressed 5% — 210×160 → 200×152 — to free
+            vertical space (8px × 3 cards = 24px) so the summary bar
+            ("3 line items · Ordered 180 · Shipped 180") fits on page 1. */}
         <div style={{
-          width: 210,
+          width: 200,
           flexShrink: 0,
           borderRight: '1px solid var(--gray-200)',
           background: '#FFFFFF',
@@ -424,8 +428,8 @@ function PartCard({ item, orderId, defaultDocuments }: { item: PackingSlipItem; 
           alignItems: 'center',
         }}>
           <div style={{
-            width: 210,
-            height: 160,
+            width: 200,
+            height: 152,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -662,16 +666,17 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
      * Carrier info — split into two columns for balanced density.
      * Order refs intentionally excluded (already in DocumentMeta top-right).
      */
-    /* Left: 物流識別 — Carrier / Method / Account / Tracking */
+    /* Left: 物流識別 — Carrier / Method / Account */
     const carrierLeft: { label: string; value: string }[] = [
       { label: 'Carrier',  value: data.carrier },
     ];
     if (data.shipMethod)   carrierLeft.push({ label: 'Method',   value: data.shipMethod });
     if (data.userAccount)  carrierLeft.push({ label: 'Account',  value: data.userAccount });
-    carrierLeft.push(       { label: 'Tracking', value: data.trackingNumber });
 
-    /* Right: 物理規格 — Packages / Gross Wt / Incoterms(int'l only) */
-    const carrierRight: { label: string; value: string }[] = [];
+    /* Right: 追蹤與物理規格 — Tracking / Packages / Gross Wt / Incoterms(int'l only) */
+    const carrierRight: { label: string; value: string }[] = [
+      { label: 'Tracking', value: data.trackingNumber },
+    ];
     if (data.packages)     carrierRight.push({ label: 'Packages', value: data.packages });
     if (data.grossWeight) {
       // Auto-convert kg → lb: 1 kg = 2.20462 lb
@@ -687,27 +692,13 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
     /* ── Build sections array ── */
     const sections: PageSection[] = [];
 
-    /* ── Header block: shipFrom + carrier + address (no title — title is
-     *    rendered per-page via `renderPageHeader` so it can show "Page N/M") ── */
+    /* ── Header block: addresses + carrier (ShipFrom now lives in titleRow
+     *    left column — fills the whitespace below the title that used to be
+     *    empty due to the taller right-side Logo/PAGE/meta stack) ── */
     sections.push({
       key: 'header',
       content: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          {/* Ship From */}
-          <div data-el="PackingSlipDocument-shipFrom">
-            <div className="text-[color:var(--gray-900)]" style={{ fontSize: 14, fontWeight: 400 }}>
-              {data.shipFrom.name}
-            </div>
-            <div className="text-[color:var(--gray-900)] leading-[1.4]" style={{ fontSize: 11 }}>
-              {data.shipFrom.lines.map((line, i) => (
-                <React.Fragment key={i}>
-                  {line}
-                  {i < data.shipFrom.lines.length - 1 && <br />}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-
           {/* Address block — v11: parties FIRST (recipients are primary identifier) */}
           <div
             data-el="PackingSlipDocument-address"
@@ -737,19 +728,21 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
 
     /* ── Comments (conditional) ── */
     if (data.comments) {
-      // v11: separator line above the Notes block (was below the label).
-      // SectionLabel's own bottom border is suppressed via !border-b-0.
+      // v13: Notes adopts the AddressEntry format — inline label on the left,
+      // content on the right — so it matches the Sold To / Ship To layout.
       sections.push({
         key: 'comments',
         content: (
           <div data-el="PackingSlipDocument-comments" className="pt-[var(--doc-sp-1-5)] border-t border-[var(--gray-150)]">
-            <SectionLabel className="!text-[color:var(--gray-900)] !text-[10px] !font-normal !border-b-0 !pb-0">Notes</SectionLabel>
-            <p
-              className="text-[color:var(--gray-900)] mt-[var(--doc-sp-1-5)] leading-[1.6]"
-              style={{ fontSize: 13, whiteSpace: 'pre-wrap' }}
-            >
-              {data.comments}
-            </p>
+            <div style={{ display: 'flex', gap: 'var(--sp-3)', alignItems: 'flex-start' }}>
+              <span style={INLINE_LABEL}>Notes</span>
+              <div
+                className="text-[color:var(--gray-900)] leading-[1.5]"
+                style={{ fontSize: 14, whiteSpace: 'pre-wrap' }}
+              >
+                {data.comments}
+              </div>
+            </div>
           </div>
         ),
       });
@@ -862,10 +855,10 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
           pageStyle={V4_PALETTE}
           noHeader
           noFooter
-          headerOffset={40}
+          headerOffset={24}
           renderPageHeader={(pageNum, totalPages) => (
-            <div data-el="PackingSlipDocument-titleRow" className="flex items-start justify-between" style={{ marginBottom: 8 }}>
-              <div>
+            <div data-el="PackingSlipDocument-titleRow" className="flex items-stretch justify-between" style={{ marginBottom: 12 }}>
+              <div className="flex flex-col">
                 {/* v11: title cleaned — Page X of Y moved to meta grid (above Date) */}
                 <div
                   className="tracking-[var(--doc-tracking-title)] leading-none"
@@ -883,7 +876,45 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
                     </span>
                   )}
                 </div>
+                {/* v13: ShipFrom pinned to the bottom of the left column via
+                    mt-auto so "InstaVoxel, Inc." bottom-aligns with the last
+                    meta row (PO Ref) on the right column. Requires titleRow
+                    items-stretch so the left column grows to full row height. */}
+                <div data-el="PackingSlipDocument-shipFrom" className="mt-auto">
+                  <div className="text-[color:var(--gray-900)]" style={{ fontSize: 14, fontWeight: 400 }}>
+                    {data.shipFrom.name}
+                  </div>
+                  <div className="text-[color:var(--gray-900)] leading-[1.4]" style={{ fontSize: 11 }}>
+                    {data.shipFrom.lines.map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < data.shipFrom.lines.length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
               </div>
+              <div className="flex flex-col items-end" style={{ gap: 8 }}>
+                {/* v13: Logo + PAGE indicator as a tight pair (gap 2px =
+                    --doc-sp-half), matching Invoice v3's logoBlock. The outer
+                    flex-col keeps its 8px gap between this pair and the meta
+                    grid so Date / Order / PO Ref don't feel cramped. */}
+                <div className="flex flex-col items-end" style={{ gap: 2 }}>
+                  {/* Logo height 37 (vs CoC v4's 36) so "InstaVoxel" text portion
+                      (viewBox x=396.86 → 1215.08) matches PAGE indicator width. */}
+                  <div style={{ lineHeight: 0 }}>
+                    {PRINT_ICONS.logoText(37, '#000')}
+                  </div>
+                  {/* v13: Page indicator styled to match Invoice v3 — inline single row,
+                      uppercase label with loose tracking, value with tight tracking. */}
+                  <div
+                    className="text-[color:var(--gray-900)]"
+                    style={{ fontSize: 20, lineHeight: 1, fontWeight: 400 }}
+                  >
+                    <span style={{ textTransform: 'uppercase', marginRight: '0.35em', letterSpacing: '0.04em' }}>Page</span>
+                    <span style={{ letterSpacing: '-0.04em' }}>{pageNum} of {totalPages}</span>
+                  </div>
+                </div>
               <div
                 className="grid items-baseline"
                 style={{
@@ -892,21 +923,6 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
                   rowGap: '2px',
                 }}
               >
-                {/* v11: Page X of Y as the first meta row, above Date.
-                    Value 22px (matching subtitle) so the page count is visually
-                    weighted, while the label stays at meta-grid 10px. */}
-                <span
-                  className="text-[color:var(--gray-900)] uppercase tracking-[var(--doc-tracking-label)] text-right"
-                  style={{ fontSize: 22, lineHeight: 1, fontWeight: 300 }}
-                >
-                  Page
-                </span>
-                <span
-                  className="text-right text-[color:var(--gray-900)]"
-                  style={{ fontSize: 22, lineHeight: 1, fontWeight: 300 }}
-                >
-                  {pageNum} of {totalPages}
-                </span>
                 {metaItems.map((item, i) => (
                   <React.Fragment key={i}>
                     <span
@@ -926,6 +942,7 @@ export const PackingSlipDocumentV13 = React.forwardRef<HTMLDivElement, PackingSl
                     </span>
                   </React.Fragment>
                 ))}
+              </div>
               </div>
             </div>
           )}

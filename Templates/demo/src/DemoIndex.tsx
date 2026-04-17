@@ -20,8 +20,9 @@ type Group = { title: string; routes: Route[] };
 const current: Route[] = [
   { hash: '#/invoice-v3',        label: 'Invoice (v3)',        desc: '請款單 — monochrome · Geist Sans · high-contrast' },
   { hash: '#/traveler-v3',       label: 'Traveler (v3)',       desc: '隨工單 — 標題整合版，Logo/頁次併入標題右側' },
+  { hash: '#/traveler-v5',       label: 'Traveler (v5)',       desc: '隨工單 v3 snapshot + 2026-04 微調（粗體值、製造欄群組、partName 副標、3 欄簽核）', badge: 'new' },
   { hash: '#/factory-bom-dated',     label: 'Factory BOM (dated)',          desc: '工廠報價用 RFQ BOM — 艾維數位工業下方顯示發行日期' },
-  { hash: '#/factory-bom-date-only', label: 'Factory BOM (date-only)', desc: '工廠報價用 RFQ BOM — replyDeadline 不帶「2026 年」字樣（如「4 月 7 日（二）下午 4 點前」）', badge: 'new' },
+  { hash: '#/factory-bom-date-only', label: 'Factory BOM (date-only)', desc: '工廠報價用 RFQ BOM — replyDeadline 不帶「2026 年」字樣（如「4 月 7 日（週二）下午 4 點前」）', badge: 'new' },
   { hash: '#/summary-sharp',     label: 'Summary (sharp)',     desc: '訂單摘要（含 QC 空表）— 高對比純灰階' },
   { hash: '#/qc-package-sharp',  label: 'QC Package (sharp)',  desc: 'QC 驗收包 — 高對比純灰階，Inter 銳利字體' },
   { hash: '#/packing-slip-v13',  label: 'Packing Slip (v13)',  desc: '出貨單 — compound ID / filename 改用 Geist Sans' },

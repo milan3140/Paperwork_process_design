@@ -1,9 +1,9 @@
 /**
- * TravelerDocument v3 — 工作單（標題整合版）
+ * TravelerDocument v3 — 隨工單（標題整合版）
  *
  * 相對 v2 的結構變更：
  *   · 移除頂部彩色 HeaderBand
- *   · Logo + 艾維數位工業 右移至 "工作單" 標題同行右側
+ *   · Logo + 艾維數位工業 右移至 "隨工單" 標題同行右側
  *   · 第N頁/共M頁 置於 Logo 下方（右側 stack）
  *   · 交期 / 採購日期 / 採購單號 改為三欄橫式 grid，置於標題下方
  *
@@ -47,7 +47,7 @@ const VAL: React.CSSProperties = {
 
 const VAL_STRONG: React.CSSProperties = {
   ...VAL,
-  fontWeight: 400,
+  fontWeight: 700,
 };
 
 const SECTION_LABEL: React.CSSProperties = {
@@ -78,7 +78,7 @@ function toChineseNum(n: number): string {
 
 /**
  * 標題區 — 整合 v2 的 HeaderBand + TitleRow：
- *   · 左：工作單 / #ID_REV
+ *   · 左：隨工單 / #ID_REV
  *   · 右上：[Logo] 艾維數位工業
  *   · 右下：第N頁 / 共M頁
  *   · 下緣 3 欄 grid：交期（紅） / 採購日期 / 採購單號
@@ -92,9 +92,10 @@ function TitleSection({
   pageNum: number;
   totalPages: number;
 }) {
-  const subtitle = data.revision
+  const base = data.revision
     ? `#${data.travelerId}_REV-${data.revision}`
     : `#${data.travelerId}`;
+  const subtitle = data.part.partName ? `${base} ${data.part.partName}` : base;
 
   return (
     <div
@@ -106,13 +107,13 @@ function TitleSection({
     >
       {/* 上段：標題 + 右側品牌/頁次（items-end 讓 #REV 與頁碼底端對齊） */}
       <div className="flex justify-between items-end">
-        {/* 左：工作單標題（黑） */}
+        {/* 左：隨工單標題（黑） */}
         <div>
           <div
             className="font-bold tracking-[var(--doc-tracking-title)]"
             style={{ fontSize: 28, lineHeight: 1.05, color: '#000' }}
           >
-            工作單
+            隨工單
           </div>
           <div
             className="font-semibold mt-[var(--doc-sp-half)] tracking-[var(--doc-tracking-title)]"
@@ -173,8 +174,8 @@ function PartHeaderRow({ data }: { data: TravelerData }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `${THUMB}px 1fr`,
-          gap: 24,
+          gridTemplateColumns: '1fr 1fr 1.2fr',
+          gap: 28,
           alignItems: 'start',
         }}
       >
@@ -258,16 +259,12 @@ function SpecRow({ data }: { data: TravelerData }) {
   const qty = data.totalQty;
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: 28 }}>
-      {/* 工件 KV — 工件編號 / 數量 / 檔名 / 尺寸·重量 */}
+      {/* 工件 KV — 工件編號 / 檔名 / 尺寸·重量 */}
       <section>
         <div>
           <div style={{ marginBottom: 12 }}>
             <div style={KEY}>工件編號</div>
-            <div style={VAL_STRONG}>{part.partId}</div>
-          </div>
-          <div style={{ marginBottom: 12 }}>
-            <div style={KEY}>數量</div>
-            <div style={VAL_STRONG}>{qty} 件</div>
+            <div style={VAL}>{part.partId}</div>
           </div>
           <div style={{ marginBottom: 12 }}>
             <div style={KEY}>檔名</div>
@@ -287,9 +284,13 @@ function SpecRow({ data }: { data: TravelerData }) {
         </div>
       </section>
 
-      {/* 材料 / 表面處理 */}
+      {/* 數量 / 材料 / 表面處理 */}
       <section>
         <div>
+          <div style={{ marginBottom: 12 }}>
+            <div style={KEY}>數量</div>
+            <div style={VAL_STRONG}>{qty} 件</div>
+          </div>
           <div style={{ marginBottom: 12 }}>
             <div style={KEY}>材料</div>
             <div style={VAL_STRONG}>{data.material}</div>
@@ -299,7 +300,7 @@ function SpecRow({ data }: { data: TravelerData }) {
           </div>
           <div>
             <div style={KEY}>表面處理</div>
-            <div style={VAL}>{data.finish}</div>
+            <div style={VAL_STRONG}>{data.finish}</div>
           </div>
         </div>
       </section>
@@ -419,7 +420,7 @@ const SANDBOX_STYLE: React.CSSProperties = {
 };
 
 export function TravelerDocumentV3({ data }: TravelerDocumentProps) {
-  const authSlots = data.authSlots ?? ['加工操作', '品檢 QC', '出貨核准'];
+  const authSlots = data.authSlots ?? ['製作人員', '品檢人員', '出貨核准'];
 
   const measureRef = useRef<HTMLDivElement>(null);
   const [pages, setPages] = useState<PageLayout[]>([{

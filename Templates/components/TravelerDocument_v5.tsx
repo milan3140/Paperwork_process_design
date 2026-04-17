@@ -1,14 +1,17 @@
 /**
- * TravelerDocument v4 — 隨工單（工廠動線優先版）
+ * TravelerDocument v5 — 隨工單（v3 snapshot + 2026-04 微調）
  *
- * 相對 v3 的變更（基於工廠工人使用情境）：
- *   · 工件編號 / 數量 / 檔名 上移至縮圖右側，與 交期/簽發/採購單號 並列
- *     → 第一眼即看到縮圖 + 工件編號，利於實物核對
- *   · 尺寸·重量 留在下方 SpecRow，與 材料/表面處理 同欄（QC 備料站動線）
- *   · SpecRow 變為 2 欄：[尺寸·重量 + 材料 + 表面處理] | [加工要求]
+ * 相對 v3 的主要微調（自 2026-04 迭代）：
+ *   · 全文字色統一為 #000（VAL / FEATURE_ITEM / 備註 / 注意事項 / 簽核角色）
+ *   · VAL_STRONG 修正為 700（v3/v4 曾漂移為 400）
+ *   · 數量：從 Col1（工件 KV）遷至 Col2（材料群組）— 視為製造規格
+ *   · 粗體欄位：數量 / 材料 / 表面處理（工件編號改為非粗體）
+ *   · 副標尾端接 `partName`（如「#U26033148F_REV-1 噴火槍」）
+ *   · 簽核區：['製作人員', '品檢人員', '出貨核准']（3 欄）
+ *   · PartHeaderRow grid 改為 1fr 1fr 1.2fr，與 SpecRow 對齊（交期欄與數量欄左緣齊平）
+ *   · 備註 / 注意事項 / 授權簽核 SECTION_LABEL 字級：9 → 11
  *
- * 其他結構（TitleSection / NotesSection / StandardDisclaimers / AuthorizationStrip）
- * 沿用 v3。
+ * 仍沿用 v2 的量測分頁引擎（useLayoutEffect + computePageLayouts）。
  */
 
 import React, { useState, useLayoutEffect, useRef } from 'react';
@@ -25,7 +28,7 @@ interface TravelerDocumentProps {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   樣式（沿用 v3）
+   樣式（沿用 v2/v3）
    ═══════════════════════════════════════════════════════════ */
 
 const KEY: React.CSSProperties = {
@@ -84,19 +87,18 @@ function TitleSection({
   totalPages: number;
 }) {
   const base = data.revision
-    ? `#${data.travelerId}_REV-${data.revision}`
-    : `#${data.travelerId}`;
+    ? `${data.travelerId}_REV-${data.revision}`
+    : data.travelerId;
   const subtitle = data.part.partName ? `${base} ${data.part.partName}` : base;
 
   return (
     <div
       style={{
         paddingTop: 20,
-        paddingBottom: 14,
-        borderBottom: '1px solid var(--gray-300)',
+        paddingBottom: 0,
       }}
     >
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-start">
         <div>
           <div
             className="font-bold tracking-[var(--doc-tracking-title)]"
@@ -110,7 +112,16 @@ function TitleSection({
           >
             {subtitle}
           </div>
+          <div style={{ marginTop: 14 }}>
+            <span
+              className="font-bold text-[color:var(--color-error)]"
+              style={{ fontSize: 18, lineHeight: 1 }}
+            >
+              交期：{data.dueDate}
+            </span>
+          </div>
         </div>
+
         <div
           style={{
             display: 'flex',
@@ -119,7 +130,10 @@ function TitleSection({
             gap: 8,
           }}
         >
-          <div className="flex items-center gap-[var(--sp-2)]" style={{ color: '#000' }}>
+          <div
+            className="flex items-center gap-[var(--sp-2)]"
+            style={{ color: '#000' }}
+          >
             {PRINT_ICONS.logo(34, 'currentColor')}
             <span className="font-bold" style={{ fontSize: 22, lineHeight: '34px' }}>
               艾維數位工業
@@ -137,42 +151,49 @@ function TitleSection({
               共{toChineseNum(totalPages)}頁
             </span>
           </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              gap: 4,
+              fontSize: 13,
+              fontWeight: 400,
+              color: '#8C8C8C',
+              lineHeight: 1,
+            }}
+          >
+            <div>{data.issueDate}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+              <span style={{ fontSize: 11, letterSpacing: '0.06em' }}>採購單號</span>
+              <span>{data.poNumber}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/**
- * v4：縮圖 | 身份區（工件編號/數量/檔名）| 訂單區（交期/簽發/採購）
- *
- * 動線設計：工人拿到單 → 眼睛落在縮圖 → 右側立即看到工件編號與檔名做實物核對
- *          → 再看右方訂單 meta 排程。
- *          `交期` 保留紅字放大以維持優先級。
- */
 function PartHeaderRow({ data }: { data: TravelerData }) {
   const THUMB = 180;
   const part = data.part;
-
-  const colStack: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-    paddingTop: 4,
-  };
-
-
   return (
-    <section style={{ paddingTop: 6 }}>
+    <section
+      style={{
+        paddingTop: 0,
+        paddingBottom: 14,
+        borderBottom: '1px solid var(--gray-300)',
+      }}
+    >
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `${THUMB}px 1fr 1fr`,
-          gap: 24,
+          gridTemplateColumns: '1fr 1fr 1.2fr',
+          gap: 28,
           alignItems: 'start',
         }}
       >
-        {/* 縮圖 */}
         <div
           style={{
             width: THUMB,
@@ -202,8 +223,15 @@ function PartHeaderRow({ data }: { data: TravelerData }) {
           )}
         </div>
 
-        {/* 身份區：工件編號 / 檔名 */}
-        <div style={colStack}>
+        {/* 身份 meta（工件編號 / 檔名 / 尺寸·重量）— 直式排列；左緣對齊下方數量欄 */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+            paddingTop: 4,
+          }}
+        >
           <div>
             <div style={KEY}>工件編號</div>
             <div style={VAL}>{part.partId}</div>
@@ -215,99 +243,54 @@ function PartHeaderRow({ data }: { data: TravelerData }) {
               <div style={{ ...VAL, color: '#000' }}>{part.drawingFile}</div>
             )}
           </div>
-        </div>
-
-        {/* 訂單區：交期（紅）/ 採購日期 / 採購單號 */}
-        <div style={colStack}>
-          <div>
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 400,
-                color: 'var(--color-error)',
-                letterSpacing: '0.06em',
-                marginBottom: 3,
-              }}
-            >
-              交期
-            </div>
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: 'var(--color-error)',
-                lineHeight: 1.15,
-              }}
-            >
-              {data.dueDate}
-            </div>
-          </div>
-          <div>
-            <div style={KEY}>採購日期</div>
-            <div style={VAL}>{data.issueDate}</div>
-          </div>
-          <div>
-            <div style={KEY}>採購單號</div>
-            <div style={VAL}>{data.poNumber}</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/**
- * v4：SpecRow 變為 2 欄 —
- *   · 欄 1：尺寸·重量 + 材料(含 CoC) + 表面處理  （工件實體規格與 QC 核對用）
- *   · 欄 2：加工要求 bullet list
- */
-function SpecRow({ data }: { data: TravelerData }) {
-  const part = data.part;
-  const qty = data.totalQty;
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 28 }}>
-      {/* 尺寸·重量 + 數量 + 材料 + 表面處理 */}
-      <section>
-        <div>
           {(part.dims || part.unitWeight) && (
-            <div style={{ marginBottom: 12 }}>
+            <div>
               <div style={KEY}>尺寸 · 重量</div>
               <div style={VAL}>
                 {[part.dims, part.unitWeight].filter(Boolean).join('  ·  ')}
               </div>
             </div>
           )}
-          <div style={{ marginBottom: 12 }}>
-            <div style={KEY}>數量</div>
-            <div style={VAL_STRONG}>{qty} 件</div>
-          </div>
-          <div style={{ marginBottom: 12 }}>
-            <div style={KEY}>材料</div>
-            <div style={VAL_STRONG}>{data.material}</div>
-            {data.certifications && (
-              <div style={{ ...VAL, color: '#000' }}>({data.certifications})</div>
-            )}
-          </div>
-          <div>
-            <div style={KEY}>表面處理</div>
-            <div style={VAL_STRONG}>{data.finish}</div>
-          </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* 加工要求 */}
+function SpecRow({ data }: { data: TravelerData }) {
+  const qty = data.totalQty;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingLeft: 20 }}>
+      {/* 上排：數量 / 材料 / 表面處理 — 3 欄橫式平均，佔全寬 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 28 }}>
+        <section>
+          <div style={KEY}>數量</div>
+          <div style={VAL_STRONG}>{qty} 件</div>
+        </section>
+        <section style={{ paddingLeft: 5 }}>
+          <div style={KEY}>材料</div>
+          <div style={VAL_STRONG}>{data.material}</div>
+          {data.certifications && (
+            <div style={{ ...VAL, color: '#000' }}>({data.certifications})</div>
+          )}
+        </section>
+        <section style={{ paddingLeft: 50 }}>
+          <div style={KEY}>表面處理</div>
+          <div style={VAL_STRONG}>{data.finish}</div>
+        </section>
+      </div>
+
+      {/* 下排：加工要求 — 全寬 */}
       <section>
-        <div>
-          <div style={KEY}>加工要求</div>
-          <ul style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}>
-            {data.features.map((f, i) => (
-              <li key={i} style={FEATURE_ITEM}>
-                <span style={{ fontWeight: 400, color: '#000' }}>{f.tag}：</span>
-                {f.value}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <div style={KEY}>加工要求</div>
+        <ul style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}>
+          {data.features.map((f, i) => (
+            <li key={i} style={FEATURE_ITEM}>
+              <span style={{ fontWeight: 400, color: '#000' }}>{f.tag}：</span>
+              {f.value}
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );
@@ -364,7 +347,7 @@ function StandardDisclaimers() {
 function AuthorizationStrip({ slots }: { slots: string[] }) {
   return (
     <section>
-      <div style={SECTION_LABEL}>授權簽核</div>
+      <div style={{ ...SECTION_LABEL, borderBottom: 'none' }}>授權簽核</div>
       <div
         style={{
           display: 'grid',
@@ -409,7 +392,7 @@ const SANDBOX_STYLE: React.CSSProperties = {
   fontFamily: `var(--font, ${DOC_FONT})`,
 };
 
-export function TravelerDocumentV4({ data }: TravelerDocumentProps) {
+export function TravelerDocumentV5({ data }: TravelerDocumentProps) {
   const authSlots = data.authSlots ?? ['製作人員', '品檢人員', '出貨核准'];
 
   const measureRef = useRef<HTMLDivElement>(null);
@@ -512,4 +495,4 @@ export function TravelerDocumentV4({ data }: TravelerDocumentProps) {
   );
 }
 
-export default TravelerDocumentV4;
+export default TravelerDocumentV5;

@@ -2,7 +2,7 @@
  * TravelerDemo v2 Sharp — 高對比銳利版
  *
  * 相對 v2 的差異（純外觀變體，不 fork Document）：
- *   · --color-primary → 90% 黑 (#1A1A1A)：HeaderBand、標題「工作單」、副標皆轉為深黑
+ *   · --color-primary → 90% 黑 (#1A1A1A)：HeaderBand、標題「隨工單」、副標皆轉為深黑
  *   · --gray-*        → 去除 hue 260 紫色調，改為中性純灰
  *   · --font          → Geist 幾何無襯線堆疊，字形更銳利
  *   · --color-error   保持紅色 — 交期/警示語意照舊
@@ -102,7 +102,7 @@ export default function TravelerDemoV2Sharp() {
       <div data-theme="sharp" style={sharpTheme}>
         <div style={{ textAlign: 'center', marginBottom: 'var(--sp-4)' }}>
           <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest" style={{ color: '#8E8E8E' }}>
-            工作單 v2 · SHARP
+            隨工單 v2 · SHARP
           </div>
           <div className="text-[length:var(--text-xs)] mt-1" style={{ color: '#8E8E8E' }}>
             {sampleTraveler.travelerId}_REV-{sampleTraveler.revision} · 共 1 件

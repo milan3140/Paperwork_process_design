@@ -1,16 +1,17 @@
 /**
- * TravelerDemo v4 — 工廠動線優先版預覽
+ * TravelerDemo v5 — 隨工單 v3 snapshot 演進版
+ * 同 sample data 與 v3，組件改引用 TravelerDocumentV5。
  */
 
-import { TravelerDocumentV4, type TravelerData } from '../../../components/TravelerDocument_v4';
-import { DownloadPdfButton } from '../DownloadPdfButton';
-import { MODEL_SHOT_1 as thumbUrl } from '../../../components/_assets';
+import { TravelerDocumentV5, type TravelerData } from '../../components/TravelerDocument_v5';
+import { DownloadPdfButton } from './DownloadPdfButton';
+import { MODEL_SHOT_1 as thumbUrl } from '../../components/_assets';
 
 const sampleTraveler: TravelerData = {
   travelerId: 'U26033148F',
   revision: '1',
-  issueDate: '2025 年 12 月 3 日',
-  dueDate: '2025 年 12 月 31 日',
+  issueDate: '2025 年 12 月 30 日 (二)',
+  dueDate: '2025 年 12 月 31 日 (週三) 下午 4 點前',
 
   poNumber: 'PO-26033148F-01',
   contactEmail: 'pm@instavoxel.com',
@@ -44,21 +45,21 @@ const sampleTraveler: TravelerData = {
     '若圖紙與 3D 模型有衝突，請於開工前聯絡 pm@instavoxel.com 確認。',
 };
 
-export default function TravelerDemoV4() {
+export default function TravelerDemoV5() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--sp-10) 0', gap: 'var(--sp-4)' }}>
-      <DownloadPdfButton filename="Traveler-v4" />
+      <DownloadPdfButton filename="Traveler-v5" />
 
       <div style={{ textAlign: 'center' }}>
         <div className="text-[length:var(--text-xs)] font-semibold uppercase tracking-widest text-[color:var(--gray-400)]">
-          隨工單 v4
+          隨工單 v5
         </div>
         <div className="text-[length:var(--text-xs)] text-[color:var(--gray-400)] mt-1">
-          {sampleTraveler.travelerId}_REV-{sampleTraveler.revision} · 共 1 件 · 工廠動線優先版
+          {sampleTraveler.travelerId}_REV-{sampleTraveler.revision} · 共 1 件 · v3 snapshot + 2026-04 微調
         </div>
       </div>
 
-      <TravelerDocumentV4 data={sampleTraveler} />
+      <TravelerDocumentV5 data={sampleTraveler} />
     </div>
   );
 }
