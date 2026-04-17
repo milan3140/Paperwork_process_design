@@ -549,9 +549,9 @@ export const FactoryBomDocument = React.forwardRef<HTMLDivElement, FactoryBomDoc
                       </span>
                     </div>
                     {showIssueDateBelowBrand && (
-                      // marginRight: -10px 補償全形右括號 `）` 字碼框內的尾端留白，
-                      // 讓可見文字的右邊緣對齊「艾維數位工業」的視覺右邊緣。
-                      <span style={{ fontSize: 18, fontWeight: 400, color: '#000', lineHeight: 1, marginRight: -10 }}>
+                      // marginRight: -7px = -10 (full-width 」 trailing-whitespace
+                      // compensation) + 3 (shift visible text 3px to the left).
+                      <span style={{ fontSize: 13, fontWeight: 400, color: '#8C8C8C', lineHeight: 1, marginRight: -7 }}>
                         {data.issueDate}
                       </span>
                     )}
